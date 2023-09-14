@@ -8,7 +8,7 @@ from common import stub, N_GPUS, GPU_MEM, BASE_MODELS
         "/results": stub.results_volume,
     },
     mounts=[
-        Mount.from_local_dir("./helpers", remote_path="/root"),
+        Mount.from_local_dir("./datasets", remote_path="/root"),
     ],
     gpu=gpu.A100(count=N_GPUS, memory=GPU_MEM),
     timeout=3600 * 12,
@@ -58,11 +58,11 @@ def download(model_name: str):
 
 
 @stub.local_entrypoint() # Runs locally to kick off remote job.
-def launch(
+def main(
     dataset: str,
     base: str = "chat7",
     run_id: str = "",
-    num_epochs: int = 3,
+    num_epochs: int = 6,
     batch_size: int = 16,
 ):
     print(f"Welcome to Modal Llama fine-tuning.")
@@ -75,6 +75,8 @@ def launch(
         import secrets
 
         run_id = f"{base}-{secrets.token_hex(3)}"
+    elif not run_id.startswith(base):
+        run_id = f"{base}-{run_id}"
 
     model_cli_args = [
         "--model_name",
@@ -83,6 +85,8 @@ def launch(
         f"/results/{run_id}",
         "--batch_size_training",
         str(batch_size),
+        "--val_batch_size",
+        "1",
         "--num_epochs",
         str(num_epochs),
         # --- Dataset options ---
@@ -108,3 +112,7 @@ def launch(
 
     print(f"Beginning run {run_id=}.")
     train.remote(model_cli_args)
+
+    print(f"Training completed {run_id=}.")
+
+    print(f"Compare with `modal run compare.py --base {base} --run-id {run_id} --prompt 'Your prompt'`.")

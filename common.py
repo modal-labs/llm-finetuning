@@ -1,5 +1,18 @@
 from modal import Stub, Image, Volume, Secret
 
+N_GPUS = 4
+GPU_MEM = 80
+BASE_MODELS = {
+    "chat7": "meta-llama/Llama-2-7b-chat-hf",
+    "chat13": "meta-llama/Llama-2-13b-chat-hf",
+    "code7": "codellama/CodeLlama-7b-hf",
+    "instruct13": "codellama/CodeLlama-13b-Instruct-hf",
+    "instruct34": "codellama/CodeLlama-34b-Instruct-hf",
+    # Training 70B is blocked by open issue on llama-recipes
+    # See: https://github.com/facebookresearch/llama-recipes/issues/142
+    # "chat70b": "meta-llama/Llama-2-70b-chat-hf",
+}
+
 image = (
     Image.micromamba()
     .micromamba_install(
@@ -25,15 +38,3 @@ stub.pretrained_volume = Volume.persisted("example-pretrained-vol")
 
 # Save trained models into this volume.
 stub.results_volume = Volume.persisted("example-results-vol")
-
-N_GPUS = 2
-GPU_MEM = 80
-BASE_MODELS = {
-    "chat7": "meta-llama/Llama-2-7b-chat-hf",
-    "chat13": "meta-llama/Llama-2-13b-chat-hf",
-    "instruct13": "codellama/CodeLlama-13b-Instruct-hf",
-    "instruct34": "codellama/CodeLlama-34b-Instruct-hf",
-    # Training 70B is blocked by open issue on llama-recipes
-    # See: https://github.com/facebookresearch/llama-recipes/issues/142
-    # "chat70b": "meta-llama/Llama-2-70b-chat-hf",
-}

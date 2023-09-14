@@ -24,14 +24,14 @@ def format_text(row, tokenizer):
 
 
 def get_custom_dataset(dataset_config, tokenizer, split):
-    dataset = datasets.load_dataset("b-mc2/sql-create-context", split="train")
+    full_dataset = datasets.load_dataset("b-mc2/sql-create-context", split="train")
 
     # Since the dataset has no train/test split, we create one and select it
-    dataset = dataset.train_test_split(
-        train_size=20000,
-        test_size=1000,
+    dataset = full_dataset.train_test_split(
+        train_size=10000,
+        test_size=200,
         seed=42,
-    )[split]
+    )["train" if split == dataset_config.train_split else "test"]
 
     dataset = dataset.map(
         lambda x: format_text(x, tokenizer),
