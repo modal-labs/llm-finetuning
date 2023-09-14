@@ -2,6 +2,7 @@ from modal import Mount, gpu
 
 from common import stub, BASE_MODELS
 
+
 @stub.function(
     volumes={
         "/pretrained": stub.pretrained_volume,

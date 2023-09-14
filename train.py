@@ -2,6 +2,7 @@ from modal import gpu, Mount
 
 from common import stub, N_GPUS, GPU_MEM, BASE_MODELS
 
+
 @stub.function(
     volumes={
         "/pretrained": stub.pretrained_volume,
@@ -57,7 +58,7 @@ def download(model_name: str):
         stub.pretrained_volume.commit()
 
 
-@stub.local_entrypoint() # Runs locally to kick off remote job.
+@stub.local_entrypoint()  # Runs locally to kick off remote job.
 def main(
     dataset: str,
     base: str = "chat7",
@@ -115,4 +116,6 @@ def main(
 
     print(f"Training completed {run_id=}.")
 
-    print(f"Compare with `modal run compare.py --base {base} --run-id {run_id} --prompt 'Your prompt'`.")
+    print(
+        f"Compare with `modal run compare.py --base {base} --run-id {run_id} --prompt 'Your prompt'`."
+    )

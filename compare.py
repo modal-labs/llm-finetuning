@@ -2,6 +2,7 @@ from modal import gpu
 
 from common import stub, BASE_MODELS
 
+
 @stub.function(
     gpu=gpu.A100(memory=40),
     volumes={
@@ -20,7 +21,7 @@ def completion(base: str, prompt: str, run_id: str = ""):
 
     print("Running completion for prompt:")
     print(prompt)
-    
+
     print("Loading base model", model_name)
     model = LlamaForCausalLM.from_pretrained(
         model_name,
@@ -31,7 +32,7 @@ def completion(base: str, prompt: str, run_id: str = ""):
         model_name,
         device_map="auto",
     )
-    tokenizer.add_special_tokens({ "pad_token": "<PAD>" })
+    tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
     generation_kwargs = dict(
         temperature=0.05,
@@ -40,7 +41,9 @@ def completion(base: str, prompt: str, run_id: str = ""):
     )
 
     print("=" * 20 + "Generating without adapter" + "=" * 20)
-    pipe = pipeline("text-generation", model=model, tokenizer=tokenizer, **generation_kwargs)
+    pipe = pipeline(
+        "text-generation", model=model, tokenizer=tokenizer, **generation_kwargs
+    )
     print(pipe(prompt)[0]["generated_text"])
 
     if run_id:
