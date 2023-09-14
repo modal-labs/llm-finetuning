@@ -1,0 +1,39 @@
+from modal import Stub, Image, Volume, Secret
+
+image = (
+    Image.micromamba()
+    .micromamba_install(
+        "cudatoolkit=11.8",
+        "cudnn=8.1.0",
+        "cuda-nvcc",
+        channels=["conda-forge", "nvidia"],
+    )
+    .apt_install("git")
+    .pip_install(
+        "llama-recipes @ git+https://github.com/facebookresearch/llama-recipes.git@c38bf5bdd370ceb93e71cfec1a07b0885a57e3ec",
+        extra_index_url="https://download.pytorch.org/whl/nightly/cu118",
+        pre=True,
+    )
+    .pip_install("huggingface_hub==0.17.1", "hf-transfer==0.1.3", "scipy")
+    .env(dict(HUGGINGFACE_HUB_CACHE="/pretrained", HF_HUB_ENABLE_HF_TRANSFER="1"))
+)
+
+stub = Stub(image=image, secrets=[Secret.from_name("huggingface")])
+
+# Download pre-trained models into this volume.
+stub.pretrained_volume = Volume.persisted("example-pretrained-vol")
+
+# Save trained models into this volume.
+stub.results_volume = Volume.persisted("example-results-vol")
+
+N_GPUS = 2
+GPU_MEM = 80
+BASE_MODELS = {
+    "chat7": "meta-llama/Llama-2-7b-chat-hf",
+    "chat13": "meta-llama/Llama-2-13b-chat-hf",
+    "instruct13": "codellama/CodeLlama-13b-Instruct-hf",
+    "instruct34": "codellama/CodeLlama-34b-Instruct-hf",
+    # Training 70B is blocked by open issue on llama-recipes
+    # See: https://github.com/facebookresearch/llama-recipes/issues/142
+    # "chat70b": "meta-llama/Llama-2-70b-chat-hf",
+}
