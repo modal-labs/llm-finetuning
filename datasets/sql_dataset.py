@@ -16,7 +16,7 @@ def format_text(row, tokenizer):
         + E_SYS
         + row["question"]
         + E_INST
-        + "\n[SQL]"
+        + "\n[SQL]\n"
         + row["answer"]
         + "\n[/SQL]"
         + "</s>"
