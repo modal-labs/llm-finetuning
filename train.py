@@ -32,6 +32,7 @@ def library_entrypoint(config):
 
     main(**config)
 
+
 @stub.function(
     volumes={
         "/pretrained": stub.pretrained_volume,
@@ -58,7 +59,7 @@ def train(train_kwargs):
     stub.results_volume.commit()
 
 
-@stub.local_entrypoint() # Runs locally to kick off remote training job.
+@stub.local_entrypoint()  # Runs locally to kick off remote training job.
 def main(
     dataset: str,
     base: str = "chat7",
@@ -94,10 +95,12 @@ def main(
             # --- FSDP options ---
             "enable_fsdp": True,
             "low_cpu_fsdp": True,  # Optimization for FSDP model loading (RAM won't scale with num GPUs)
-            "fsdp_peft_cpu_offload_for_save": True, # Offload state dict to CPU for saving 70B LORA
             "fsdp_config.use_fast_kernels": True,  # Only works when FSDP is on
             "fsdp_config.fsdp_activation_checkpointing": True,  # Activation checkpointing for fsdp
             "pure_bf16": True,
+            # --- Required for 70B ---
+            "fsdp_config.fsdp_cpu_offload": True,
+            "fsdp_peft_cpu_offload_for_save": True,  # Experimental
             # --- PEFT options ---
             "use_peft": True,
             "peft_method": "lora",
