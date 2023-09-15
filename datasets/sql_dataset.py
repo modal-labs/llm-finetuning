@@ -16,9 +16,10 @@ def format_text(row, tokenizer):
         + E_SYS
         + row["question"]
         + E_INST
-        + "[SQL] "
+        + "\n[SQL]"
         + row["answer"]
-        + " [/SQL]</s>"
+        + "\n[/SQL]"
+        + "</s>"
     )
 
     return tokenizer(text)
@@ -38,6 +39,6 @@ def get_custom_dataset(dataset_config, tokenizer, split):
         lambda x: format_text(x, tokenizer), remove_columns=list(dataset.features)
     )
 
-    dataset = dataset.map(Concatenator(), batched=True)
+    dataset = dataset.map(Concatenator(), batched=True, batch_size=None)
 
     return dataset

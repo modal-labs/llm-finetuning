@@ -8,37 +8,6 @@ from common import stub, N_GPUS, GPU_MEM, BASE_MODELS
         "/pretrained": stub.pretrained_volume,
         "/results": stub.results_volume,
     },
-    mounts=[
-        Mount.from_local_dir("./datasets", remote_path="/root"),
-    ],
-    gpu=gpu.A100(count=N_GPUS, memory=GPU_MEM),
-    timeout=3600 * 12,
-)
-def train(model_cli_args: list[str]):
-    import subprocess
-
-    torch_cli_args = ["--nnodes", "1", "--nproc_per_node", str(N_GPUS)]
-    print(f"{torch_cli_args=} {model_cli_args=}")
-
-    subprocess.run(
-        [
-            "torchrun",
-            *torch_cli_args,
-            "-m",
-            "llama_recipes.finetuning",
-            *model_cli_args,
-        ]
-    )
-
-    print("Committing results volume (no progress bar) ...")
-    stub.results_volume.commit()
-
-
-@stub.function(
-    volumes={
-        "/pretrained": stub.pretrained_volume,
-        "/results": stub.results_volume,
-    },
     memory=1024 * 100,
     timeout=3600 * 4,
 )
@@ -58,12 +27,43 @@ def download(model_name: str):
         stub.pretrained_volume.commit()
 
 
-@stub.local_entrypoint()  # Runs locally to kick off remote job.
+def library_entrypoint(config):
+    from llama_recipes.finetuning import main
+
+    main(**config)
+
+@stub.function(
+    volumes={
+        "/pretrained": stub.pretrained_volume,
+        "/results": stub.results_volume,
+    },
+    mounts=[
+        Mount.from_local_dir("./datasets", remote_path="/root"),
+    ],
+    gpu=gpu.A100(count=N_GPUS, memory=GPU_MEM),
+    timeout=3600 * 12,
+)
+def train(train_kwargs):
+    from torch.distributed.run import elastic_launch, parse_args, config_from_args
+
+    torch_args = parse_args(["--nnodes", "1", "--nproc_per_node", str(N_GPUS), ""])
+    print(f"{torch_args=}\n{train_kwargs=}")
+
+    elastic_launch(
+        config=config_from_args(torch_args)[0],
+        entrypoint=library_entrypoint,
+    )(train_kwargs)
+
+    print("Committing results volume (no progress bar) ...")
+    stub.results_volume.commit()
+
+
+@stub.local_entrypoint() # Runs locally to kick off remote training job.
 def main(
     dataset: str,
     base: str = "chat7",
     run_id: str = "",
-    num_epochs: int = 6,
+    num_epochs: int = 10,
     batch_size: int = 16,
 ):
     print(f"Welcome to Modal Llama fine-tuning.")
@@ -79,43 +79,34 @@ def main(
     elif not run_id.startswith(base):
         run_id = f"{base}-{run_id}"
 
-    model_cli_args = [
-        "--model_name",
-        model_name,
-        "--output_dir",
-        f"/results/{run_id}",
-        "--batch_size_training",
-        str(batch_size),
-        "--val_batch_size",
-        "1",
-        "--num_epochs",
-        str(num_epochs),
-        # --- Dataset options ---
-        "--dataset",
-        "custom_dataset",
-        "--custom_dataset.file",
-        dataset,
-        # --- FSDP options ---
-        "--enable_fsdp",
-        "--low_cpu_fsdp",  # Optimization for FSDP model loading (RAM won't scale with num GPUs)
-        "--fsdp_config.use_fast_kernels",  # Only works when FSDP is on
-        "--fsdp_config.fsdp_activation_checkpointing",  # Activation checkpointing for fsdp
-        "--pure_bf16",
-        # --- PEFT options ---
-        "--use_peft",
-        "--peft_method",
-        "lora",
-        "--lora_config.r",
-        "16",
-        "--lora_config.lora_alpha",
-        "16",
-    ]
-
     print(f"Beginning run {run_id=}.")
-    train.remote(model_cli_args)
+    train.remote(
+        {
+            "model_name": BASE_MODELS[base],
+            "output_dir": f"/results/{run_id}",
+            "batch_size_training": batch_size,
+            "lr": 3e-4,
+            "num_epochs": num_epochs,
+            "val_batch_size": 1,
+            # --- Dataset options ---
+            "dataset": "custom_dataset",
+            "custom_dataset.file": dataset,
+            # --- FSDP options ---
+            "enable_fsdp": True,
+            "low_cpu_fsdp": True,  # Optimization for FSDP model loading (RAM won't scale with num GPUs)
+            "fsdp_peft_cpu_offload_for_save": True, # Offload state dict to CPU for saving 70B LORA
+            "fsdp_config.use_fast_kernels": True,  # Only works when FSDP is on
+            "fsdp_config.fsdp_activation_checkpointing": True,  # Activation checkpointing for fsdp
+            "pure_bf16": True,
+            # --- PEFT options ---
+            "use_peft": True,
+            "peft_method": "lora",
+            "lora_config.r": 8,
+            "lora_config.lora_alpha": 16,
+        }
+    )
 
     print(f"Training completed {run_id=}.")
-
     print(
-        f"Compare with `modal run compare.py --base {base} --run-id {run_id} --prompt 'Your prompt'`."
+        f"Compare with `modal run compare.py --base {base} --run-id {run_id} --prompt 'Hello'`."
     )

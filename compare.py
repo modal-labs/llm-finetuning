@@ -11,6 +11,7 @@ from common import stub, BASE_MODELS
     },
 )
 def completion(base: str, prompt: str, run_id: str = ""):
+    import torch
     from transformers import (
         LlamaForCausalLM,
         AutoTokenizer,
@@ -25,8 +26,11 @@ def completion(base: str, prompt: str, run_id: str = ""):
     print("Loading base model", model_name)
     model = LlamaForCausalLM.from_pretrained(
         model_name,
+        torch_dtype=torch.bfloat16,
         device_map="auto",
     )
+
+    model = model.to_bettertransformer()
 
     tokenizer = AutoTokenizer.from_pretrained(
         model_name,
@@ -35,6 +39,7 @@ def completion(base: str, prompt: str, run_id: str = ""):
     tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
     generation_kwargs = dict(
+        do_sample=True,
         temperature=0.05,
         repetition_penalty=1.1,
         max_length=256,

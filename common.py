@@ -6,11 +6,12 @@ BASE_MODELS = {
     "chat7": "meta-llama/Llama-2-7b-chat-hf",
     "chat13": "meta-llama/Llama-2-13b-chat-hf",
     "code7": "codellama/CodeLlama-7b-hf",
+    "code34": "codellama/CodeLlama-34b-hf",
+    "instruct7": "codellama/CodeLlama-7b-Instruct-hf",
     "instruct13": "codellama/CodeLlama-13b-Instruct-hf",
     "instruct34": "codellama/CodeLlama-34b-Instruct-hf",
-    # Training 70B is blocked by open issue on llama-recipes
-    # See: https://github.com/facebookresearch/llama-recipes/issues/142
-    # "chat70b": "meta-llama/Llama-2-70b-chat-hf",
+    # Training 70B requires experimental flag fsdp_peft_cpu_offload_for_save.
+    "chat70": "meta-llama/Llama-2-70b-chat-hf",
 }
 
 image = (
@@ -23,7 +24,7 @@ image = (
     )
     .apt_install("git")
     .pip_install(
-        "llama-recipes @ git+https://github.com/facebookresearch/llama-recipes.git@c38bf5bdd370ceb93e71cfec1a07b0885a57e3ec",
+        "llama-recipes @ git+https://github.com/modal-labs/llama-recipes.git@6636910761b70ada964409960129c5a4e9c2c049",
         extra_index_url="https://download.pytorch.org/whl/nightly/cu118",
         pre=True,
     )
