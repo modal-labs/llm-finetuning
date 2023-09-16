@@ -19,6 +19,7 @@ Best of all, using Modal for fine-tuning means you never have to worry about inf
 1. Create a [Modal](https://modal.com/) account.
 2. Install `modal` in your current Python virtual environment (`pip install modal`)
 3. Set up a Modal token in your environment (`modal token new`)
+4. You need to have a [secret](https://modal.com/secrets) named `huggingface` in your workspace. Only the `HUGGINGFACE_TOKEN` is needed which you can get if you go into settings in Hugging Face under API tokens.
 
 ### Training
 
