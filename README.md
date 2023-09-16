@@ -30,7 +30,7 @@ To launch a training job, use:
 modal run train.py --dataset sql_dataset.py --base chat7 --run-id chat7-sql
 ```
 
-This example fine-tunes Llama 7B Chat to produce SQL queries (10k examples trained for 10 epochs in about 30 minutes). The base model nicknames used can be configured in `common.py`. 
+This example fine-tunes Llama 7B Chat to produce SQL queries (10k examples trained for 10 epochs in about 30 minutes). The base model nicknames used can be configured in `common.py` and are used to define which model is being trained.
 
 Next, run inference to compare the results before/after training:
 ```bash
