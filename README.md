@@ -46,6 +46,13 @@ Add `--batch 10000` to scale up seamlessly to dozens of GPUs for effortless para
 
 <img width="874" alt="Screenshot 2023-09-16 at 1 29 39 AM" src="https://github.com/modal-labs/llama-finetuning/assets/8001209/d35bb956-dca2-4cc4-bb42-1e1372650481">
 
+### Fine-tuning on other models
+
+You can train it using other models, including the 70B variants. In order for that to work, you need to lower the batch size.
+
+```bash
+modal run train.py --dataset sql_dataset.py --base chat70 --run-id chat70-sql --batch-size 4
+```
 
 ### Bring your own dataset
 
