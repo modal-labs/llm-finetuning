@@ -42,7 +42,7 @@ What is the sum of Points when the against is less than 24 and played is less th
 
 Add `--batch 10000` to scale up seamlessly to dozens of GPUs for effortless parallelism as we complete 10000 prompts.
 
-<img width="1112" alt="Screenshot 2023-09-16 at 1 21 17 AM" src="https://github.com/modal-labs/llama-finetuning/assets/8001209/32b918bf-0c49-404b-b40a-770fcfcaa7d4">
+<img width="874" alt="Screenshot 2023-09-16 at 1 29 39 AM" src="https://github.com/modal-labs/llama-finetuning/assets/8001209/d35bb956-dca2-4cc4-bb42-1e1372650481">
 
 
 ### Bring your own dataset
