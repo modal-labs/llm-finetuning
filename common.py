@@ -40,3 +40,8 @@ stub.pretrained_volume = Volume.persisted("example-pretrained-vol")
 
 # Save trained models into this volume.
 stub.results_volume = Volume.persisted("example-results-vol")
+
+VOLUME_CONFIG = {
+    "/pretrained": stub.pretrained_volume,
+    "/results": stub.results_volume,
+}

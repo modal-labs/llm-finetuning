@@ -1,13 +1,10 @@
 from modal import gpu, Mount
 
-from common import stub, N_GPUS, GPU_MEM, BASE_MODELS
+from common import stub, N_GPUS, GPU_MEM, BASE_MODELS, VOLUME_CONFIG
 
 
 @stub.function(
-    volumes={
-        "/pretrained": stub.pretrained_volume,
-        "/results": stub.results_volume,
-    },
+    volumes=VOLUME_CONFIG,
     memory=1024 * 100,
     timeout=3600 * 4,
 )
@@ -34,10 +31,7 @@ def library_entrypoint(config):
 
 
 @stub.function(
-    volumes={
-        "/pretrained": stub.pretrained_volume,
-        "/results": stub.results_volume,
-    },
+    volumes=VOLUME_CONFIG,
     mounts=[
         Mount.from_local_dir("./datasets", remote_path="/root"),
     ],
@@ -111,5 +105,5 @@ def main(
 
     print(f"Training completed {run_id=}.")
     print(
-        f"Compare with `modal run compare.py --base {base} --run-id {run_id} --prompt 'Hello'`."
+        f"Test: `modal run compare.py --base {base} --run-id {run_id} --prompt '...'`."
     )

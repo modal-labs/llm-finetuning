@@ -30,9 +30,9 @@ modal run train.py --dataset sql_dataset.py --base chat7 --run-id chat7-sql
 
 This example fine-tunes Llama 7B Chat to produce SQL queries (10k examples trained for 10 epochs in about 30 minutes). The base model nicknames used can be configured in `common.py`. 
 
-Next, compare the results before/after training with:
+Next, run inference to compare the results before/after training:
 ```bash
-modal run compare.py --base chat7 --run-id chat7-sql --prompt '[INST] <<SYS>>
+modal run inference.py --base chat7 --run-id chat7-sql --prompt '[INST] <<SYS>>
 You are an advanced SQL assistant that uses this SQL table schema to generate a SQL query which answers the user question.
 CREATE TABLE table_name_66 (points INTEGER, against VARCHAR, played VARCHAR)
 <</SYS>>
