@@ -33,7 +33,7 @@ image = (
     .env(dict(HUGGINGFACE_HUB_CACHE="/pretrained", HF_HUB_ENABLE_HF_TRANSFER="1"))
 )
 
-stub = Stub(image=image, secrets=[Secret.from_name("huggingface")])
+stub = Stub("llama-finetuning", image=image, secrets=[Secret.from_name("huggingface")])
 
 # Download pre-trained models into this volume.
 stub.pretrained_volume = Volume.persisted("example-pretrained-vol")
