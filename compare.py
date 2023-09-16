@@ -2,9 +2,8 @@ from modal import gpu, method
 
 from common import stub, BASE_MODELS, GPU_MEM
 
-
 @stub.cls(
-    gpu=gpu.A100(memory=GPU_MEM),
+    gpu=gpu.A100(count=1, memory=80),
     volumes={
         "/pretrained": stub.pretrained_volume,
         "/results": stub.results_volume,
@@ -20,43 +19,51 @@ class Model:
             model_name,
             torch_dtype="auto",
             device_map="auto",
-        ).to_bettertransformer()
+        )
+        self.model = self.model.to_bettertransformer()
+        self.model.eval()
 
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, device_map="auto")
         self.tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
     @method()
-    def generate(self, prompt: str, run_id: str = ""):
-        from transformers import pipeline, TextStreamer
+    def generate(self, prompt: str, run_id: str = "", verbose: bool = False):
+        from transformers import GenerationConfig, TextStreamer
+        from peft import PeftModel
 
         if run_id:
-            print("=" * 20 + "Generating with adapter" + "=" * 20)
             print(f"Loading adapter {run_id=}.")
-            self.model.load_adapter(f"/results/{run_id}")
-        else:
-            print("=" * 20 + "Generating without adapter" + "=" * 20)
+            self.model = PeftModel.from_pretrained(
+                self.model,
+                f"/results/{run_id}",
+                is_trainable=False,
+            )
+            print("=" * 20 + "Generating with adapter" + "=" * 20)
 
-        output = pipeline(
-            "text-generation",
-            model=self.model,
-            tokenizer=self.tokenizer,
-            streamer=TextStreamer(self.tokenizer),
-            do_sample=True,
-            temperature=0.05,
-            repetition_penalty=1.1,
-            max_length=256,
-        )(prompt)
+        input_tokens = self.tokenizer(prompt, return_tensors="pt").input_ids
+        output_tokens = self.model.generate(
+            inputs=input_tokens.to(self.model.device),
+            streamer=TextStreamer(self.tokenizer, skip_prompt=True) if verbose else None,
+            generation_config=GenerationConfig(max_new_tokens=512),
+        )[0]
 
         if run_id:
-            self.model.disable_adapters()
-        
-        return output[0]["generated_text"]
+            self.model.unload()
+
+        return self.tokenizer.decode(
+            output_tokens, skip_special_tokens=True, clean_up_tokenization_spaces=False
+        )
 
 
 @stub.local_entrypoint()
-def main(base: str, prompt: str, run_id: str = ""):
+def main(base: str, prompt: str, run_id: str = "", map_sz: int = 0):
     print(f"Running completion for prompt:\n{prompt}")
 
-    Model(base).generate.remote(prompt)
+    Model(base).generate.remote(prompt, verbose=True)
+
     if run_id:
-        Model(base).generate.remote(prompt, run_id)
+        Model(base).generate.remote(prompt, run_id, verbose=True)
+
+    if map_sz > 1:
+        for _output in Model(base).generate.map([prompt] * map_sz):
+            print("Output produced")

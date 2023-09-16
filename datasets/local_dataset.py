@@ -10,8 +10,8 @@ def get_custom_dataset(dataset_config, tokenizer, split):
 
     # Since the dataset has no train/test split, we create one and select it
     dataset = full_dataset.train_test_split(
-        train_size=0.9,
-        test_size=0.1,
+        train_size=0.95,
+        test_size=0.05,
         seed=42,
     )["train" if split == dataset_config.train_split else "test"]
 
