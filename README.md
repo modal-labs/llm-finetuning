@@ -20,6 +20,7 @@ Best of all, using Modal for fine-tuning means you never have to worry about inf
 2. Install `modal` in your current Python virtual environment (`pip install modal`)
 3. Set up a Modal token in your environment (`modal token new`)
 4. You need to have a [secret](https://modal.com/secrets) named `huggingface` in your workspace. Only the `HUGGINGFACE_TOKEN` is needed which you can get if you go into settings in Hugging Face under API tokens.
+5. For several models, you need to go to the [Hugging Face page](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf) and agree to the terms and conditions in able to get access (which is granted instantly).
 
 ### Training
 
