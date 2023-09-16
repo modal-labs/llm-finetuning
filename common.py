@@ -13,6 +13,7 @@ BASE_MODELS = {
     "instruct34": "codellama/CodeLlama-34b-Instruct-hf",
     # Training 70B requires experimental flag fsdp_peft_cpu_offload_for_save.
     "chat70": "meta-llama/Llama-2-70b-chat-hf",
+    "base70": "meta-llama/Llama-2-70b-hf",
 }
 
 image = (
