@@ -105,5 +105,5 @@ def main(
 
     print(f"Training completed {run_id=}.")
     print(
-        f"Test: `modal run compare.py --base {base} --run-id {run_id} --prompt '...'`."
+        f"Test: `modal run inference.py --base {base} --run-id {run_id} --prompt '...'`."
     )
