@@ -18,8 +18,13 @@ def dataset(base: str = "chat7", dataset: str = "local_dataset.py"):
     from llama_recipes.utils.config_utils import update_config
 
     from transformers import AutoTokenizer
+    import huggingface_hub
+    import os
 
-    tokenizer = AutoTokenizer.from_pretrained(BASE_MODELS[base])
+    hf_key = os.environ["HUGGINGFACE_TOKEN"]
+    huggingface_hub.login(hf_key)
+
+    tokenizer = AutoTokenizer.from_pretrained(BASE_MODELS[base], use_auth_token=True)
     tokenizer.add_special_tokens({"pad_token": "<PAD>"})
 
     config = custom_dataset()

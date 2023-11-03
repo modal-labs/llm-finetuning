@@ -9,8 +9,12 @@ from common import stub, N_GPUS, GPU_MEM, BASE_MODELS, VOLUME_CONFIG
     timeout=3600 * 4,
 )
 def download(model_name: str):
-    from huggingface_hub import snapshot_download
+    from huggingface_hub import snapshot_download, login
     from transformers.utils import move_cache
+    import os
+
+    hf_key = os.environ["HUGGINGFACE_TOKEN"]
+    login(hf_key)
 
     try:
         snapshot_download(model_name, local_files_only=True)
@@ -58,11 +62,12 @@ def main(
     dataset: str,
     base: str = "chat7",
     run_id: str = "",
-    num_epochs: int = 10,
+    num_epochs: int = 5,
     batch_size: int = 16,
 ):
     print(f"Welcome to Modal Llama fine-tuning.")
 
+    # model_name = "/pretrained/code7-code-tripleset"
     model_name = BASE_MODELS[base]
     print(f"Syncing base model {model_name} to volume.")
     download.remote(model_name)

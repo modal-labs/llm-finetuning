@@ -36,6 +36,9 @@ image = (
 
 stub = Stub("llama-finetuning", image=image, secrets=[Secret.from_name("huggingface")])
 
+# list secrets
+Secret.from_name("huggingface")
+
 # Download pre-trained models into this volume.
 stub.pretrained_volume = Volume.persisted("example-pretrained-vol")
 
