@@ -9,8 +9,12 @@ from common import stub, N_GPUS, GPU_MEM, BASE_MODELS, VOLUME_CONFIG
     timeout=3600 * 4,
 )
 def download(model_name: str):
-    from huggingface_hub import snapshot_download
+    from huggingface_hub import snapshot_download, login
     from transformers.utils import move_cache
+    import os
+
+    hf_key = os.environ["HUGGINGFACE_TOKEN"]
+    login(hf_key)
 
     try:
         snapshot_download(model_name, local_files_only=True)
