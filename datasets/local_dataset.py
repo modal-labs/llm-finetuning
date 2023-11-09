@@ -14,11 +14,15 @@ def get_custom_dataset(dataset_config, tokenizer, split):
         test_size=0.05,
         seed=42,
     )["train" if split == dataset_config.train_split else "test"]
+    if split == dataset_config.train_split:
+        # HACK: Need sufficient rows to avoid some distributed processing
+        # errors. Should really just get more data.
+        N = 15  # Haven't probed to get this right yet
+        dataset = datasets.Dataset.from_dict({"text": dataset["text"] * N})
 
     dataset = dataset.map(
         lambda x: tokenizer(x["text"]), remove_columns=list(dataset.features)
     )
 
-    dataset = dataset.map(Concatenator(), batched=True)
-
+    dataset = dataset.map(Concatenator(), batched=True, batch_size=None)
     return dataset

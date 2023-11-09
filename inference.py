@@ -1,3 +1,5 @@
+from pathlib import Path
+from typing import Optional
 from modal import Image, gpu, method
 
 import subprocess
@@ -63,17 +65,24 @@ class Model:
         self.launcher.terminate()
 
     @method()
-    async def generate(self, prompt: str):
-        result = await self.client.generate(prompt, max_new_tokens=512)
+    async def generate(self, prompt: Optional[str] = None, max_new_tokens: int = 512):
+        result = await self.client.generate(prompt, max_new_tokens=max_new_tokens)
 
         return result.generated_text
 
 
 @stub.local_entrypoint()
-def main(prompt: str, base: str, run_id: str = "", batch: int = 1):
+def main(
+    base: str,
+    prompt: str = "",
+    prompt_file: str = "",
+    run_id: str = "",
+    batch: int = 1,
+):
     print(f"Running completion for prompt:\n{prompt}")
 
     print("=" * 20 + "Generating without adapter" + "=" * 20)
+    prompt = prompt or Path(prompt_file).read_text()
     for output in Model(base).generate.map([prompt] * batch):
         print(output)
 
