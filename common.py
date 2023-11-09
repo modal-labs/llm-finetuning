@@ -4,7 +4,8 @@ N_GPUS = 4
 GPU_MEM = 80
 BASE_MODELS = {
     "base7": "meta-llama/Llama-2-7b-hf",
-    "chat7": "meta-llama/Llama-2-7b-chat-hf",
+    # "chat7": "meta-llama/Llama-2-7b-chat-hf",
+    "chat7": "daryl149/llama-2-7b-chat-hf",
     "chat13": "meta-llama/Llama-2-13b-chat-hf",
     "code7": "codellama/CodeLlama-7b-hf",
     "code34": "codellama/CodeLlama-34b-hf",

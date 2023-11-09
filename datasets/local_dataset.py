@@ -5,7 +5,7 @@ from llama_recipes.datasets.utils import Concatenator
 
 def get_custom_dataset(dataset_config, tokenizer, split):
     full_dataset = datasets.load_dataset(
-        "json", data_files="./modal_docs.jsonl", split="train"
+        "json", data_files="./llama_train.jsonl", split="train"
     )
 
     # Since the dataset has no train/test split, we create one and select it
