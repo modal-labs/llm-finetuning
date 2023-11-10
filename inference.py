@@ -45,6 +45,7 @@ class Model:
         model = f"/results/{run_id}/merged" if run_id else BASE_MODELS[base]
 
         if run_id and not os.path.isdir(model):
+            print("MERGING")
             merge.local(run_id)  # local = run in the same container
 
         print(f"Loading {model} into GPU ... ")
@@ -83,8 +84,8 @@ def main(
 
     print("=" * 20 + "Generating without adapter" + "=" * 20)
     prompt = prompt or Path(prompt_file).read_text()
-    for output in Model(base).generate.map([prompt] * batch):
-        print(output)
+    # output = Model(base).generate.remote(prompt)
+    # print(output)
 
     if run_id:
         print("=" * 20 + "Generating with adapter" + "=" * 20)
