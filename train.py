@@ -90,6 +90,7 @@ def main(
             # --- Dataset options ---
             "dataset": "custom_dataset",
             "custom_dataset.file": dataset,
+            "batching_strategy": "packing",
             # --- FSDP options ---
             "enable_fsdp": True,
             "low_cpu_fsdp": True,  # Optimization for FSDP model loading (RAM won't scale with num GPUs)
@@ -102,7 +103,7 @@ def main(
             # --- PEFT options ---
             "use_peft": True,
             "peft_method": "lora",
-            "lora_config.r": 8,
+            "lora_config.r": 16,
             "lora_config.lora_alpha": 16,
         }
     )

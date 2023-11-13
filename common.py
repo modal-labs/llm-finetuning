@@ -1,6 +1,6 @@
 from modal import Stub, Image, Volume, Secret
 
-N_GPUS = 4
+N_GPUS = 2
 GPU_MEM = 80
 BASE_MODELS = {
     "base7": "meta-llama/Llama-2-7b-hf",
@@ -26,11 +26,11 @@ image = (
     )
     .apt_install("git")
     .pip_install(
-        "llama-recipes @ git+https://github.com/modal-labs/llama-recipes.git@6636910761b70ada964409960129c5a4e9c2c049",
+        "llama-recipes @ git+https://github.com/modal-labs/llama-recipes.git@903a9538c611668889bf43da07e9f7e8d7340922",
         extra_index_url="https://download.pytorch.org/whl/nightly/cu118",
         pre=True,
     )
-    .pip_install("huggingface_hub==0.17.1", "hf-transfer==0.1.3", "scipy")
+    .pip_install("huggingface_hub==0.19.1", "hf-transfer==0.1.4", "scipy")
     .env(dict(HUGGINGFACE_HUB_CACHE="/pretrained", HF_HUB_ENABLE_HF_TRANSFER="1"))
 )
 

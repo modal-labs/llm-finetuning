@@ -1,8 +1,5 @@
 import datasets
 
-from llama_recipes.datasets.utils import Concatenator
-
-
 def get_custom_dataset(dataset_config, tokenizer, split):
     full_dataset = datasets.load_dataset(
         "json", data_files="./modal_docs.jsonl", split="train"
@@ -18,7 +15,5 @@ def get_custom_dataset(dataset_config, tokenizer, split):
     dataset = dataset.map(
         lambda x: tokenizer(x["text"]), remove_columns=list(dataset.features)
     )
-
-    dataset = dataset.map(Concatenator(), batched=True)
 
     return dataset
