@@ -93,7 +93,7 @@ def main(
             # --- FSDP options ---
             "enable_fsdp": True,
             "low_cpu_fsdp": True,  # Optimization for FSDP model loading (RAM won't scale with num GPUs)
-            "fsdp_config.use_fast_kernels": True,  # Only works when FSDP is on
+            "use_fast_kernels": True,  # Only works when FSDP is on
             "fsdp_config.fsdp_activation_checkpointing": True,  # Activation checkpointing for fsdp
             "pure_bf16": True,
             # --- Required for 70B ---
