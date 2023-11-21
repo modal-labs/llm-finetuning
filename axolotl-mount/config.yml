@@ -1,13 +1,16 @@
-base_model: codellama/CodeLlama-7b-hf
+base_model: codellama/CodeLlama-7b-Instruct-hf
 model_type: LlamaForCausalLM
 tokenizer_type: CodeLlamaTokenizer
 is_llama_derived_model: true
 
-load_in_8bit: true
+deepspeed: deepspeed/zero3.json
+
+load_in_8bit: false
+bf16: true
 strict: false
 
 datasets:
-  - path: modal_docs.jsonl
+  - path: my_data.jsonl
     ds_type: json
     type: completion
 dataset_prepared_path:
@@ -16,6 +19,7 @@ output_dir: ./lora-out
 
 sequence_len: 4096
 sample_packing: true
+eval_sample_packing: false
 pad_to_sequence_len: true
 
 adapter: lora
@@ -32,9 +36,9 @@ wandb_watch:
 wandb_run_id:
 wandb_log_model:
 
-gradient_accumulation_steps: 4
-micro_batch_size: 2
-num_epochs: 4
+gradient_accumulation_steps: 1
+micro_batch_size: 8
+num_epochs: 1
 optimizer: adamw_bnb_8bit
 lr_scheduler: cosine
 learning_rate: 0.0002
