@@ -3,8 +3,6 @@ model_type: LlamaForCausalLM
 tokenizer_type: CodeLlamaTokenizer
 is_llama_derived_model: true
 
-deepspeed: deepspeed/zero3.json
-
 load_in_8bit: false
 bf16: true
 strict: false
@@ -14,7 +12,7 @@ datasets:
     ds_type: json
     type: completion
 dataset_prepared_path:
-val_set_size: 0.05
+val_set_size: 0.2
 output_dir: ./lora-out
 
 sequence_len: 4096
@@ -61,7 +59,7 @@ warmup_steps: 10
 eval_steps: 0.05
 save_steps:
 debug:
-deepspeed:
+deepspeed: /root/axolotl/deepspeed/zero3.json
 weight_decay: 0.0
 fsdp:
 fsdp_config:

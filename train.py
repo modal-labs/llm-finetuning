@@ -1,20 +1,62 @@
-from modal import gpu, Mount
+import modal
+from modal import Stub, Image, Volume, Secret, Mount, gpu
 
-from common import stub, N_GPUS, GPU_MEM, BASE_MODELS, VOLUME_CONFIG
+from datetime import datetime
+import subprocess
+import secrets
+import shutil
+import glob
+import os
 
+N_GPUS = os.environ.get("N_GPUS", 2)
+GPU_MEM = os.environ.get("GPU_MEM", 80)
+GPU_CONFIG = gpu.A100(count=N_GPUS, memory=GPU_MEM)
+APP_NAME = "example-axolotl"
 
-@stub.function(
-    volumes=VOLUME_CONFIG,
-    memory=1024 * 100,
-    timeout=3600 * 4,
+image = (
+    Image.from_registry("winglian/axolotl:main-py3.10-cu118-2.0.1")
+    .run_commands("git clone https://github.com/OpenAccess-AI-Collective/axolotl /root/axolotl")
+    .pip_install("huggingface_hub==0.17.1", "hf-transfer==0.1.3")
+    .env(dict(HUGGINGFACE_HUB_CACHE="/pretrained", HF_HUB_ENABLE_HF_TRANSFER="1"))
 )
-def download(model_name: str):
-    from huggingface_hub import snapshot_download, login
-    from transformers.utils import move_cache
-    import os
 
-    hf_key = os.environ["HUGGINGFACE_TOKEN"]
-    login(hf_key)
+stub = Stub(APP_NAME, secrets=[Secret.from_name("huggingface")])
+
+# Download pre-trained models into this volume.
+pretrained_volume = Volume.persisted("example-pretrained-vol")
+
+# Save trained models into this volume.
+runs_volume = Volume.persisted("example-runs-vol")
+
+VOLUME_CONFIG = {
+    "/pretrained": pretrained_volume,
+    "/runs": runs_volume,
+}
+
+
+@stub.function(image=image, gpu=GPU_CONFIG, volumes=VOLUME_CONFIG, timeout=3600 * 24)
+def train(run_id: str):
+    folder = f"/runs/{run_id}"
+
+    print(f"Starting training run in {folder}")
+    subprocess.call(["accelerate", "launch", "-m", "axolotl.cli.train", "./config.yml"], cwd=folder)
+    print("Committing results to", folder)
+    runs_volume.commit()
+
+    subprocess.call(["python3", "-m", "axolotl.cli.merge_lora", "./config.yml", "--load_in_8bit=False", "--load_in_4bit=False"], cwd=folder)
+    print("Committing merged weights to", folder)
+    runs_volume.commit()
+
+AXOLOTL_MOUNTS = [Mount.from_local_dir("./axolotl-mount", remote_path="/root")]
+
+@stub.function(image=image, timeout=60 * 30, mounts=AXOLOTL_MOUNTS, volumes=VOLUME_CONFIG)
+def new(config: str):
+    from huggingface_hub import snapshot_download
+    from transformers.utils import move_cache
+
+    # Ensure the base model is downloaded
+    with open(config, "r") as f:
+        model_name = f.readline().split(":")[-1].strip()
 
     try:
         snapshot_download(model_name, local_files_only=True)
@@ -27,87 +69,36 @@ def download(model_name: str):
         print("Committing /pretrained directory (no progress bar) ...")
         stub.pretrained_volume.commit()
 
+    # Create a subfolder for the training run with config and data.
+    # Generate a run_id from the current timestamp
+    run_id = f"axo-{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}-{secrets.token_hex(2)}"
+    os.makedirs(f"/runs/{run_id}")
+    shutil.move(config, f"/runs/{run_id}/config.yml")
+    for file in glob.glob("*.jsonl"):
+        shutil.move(file, f"/runs/{run_id}")
+    runs_volume.commit()
+    print(f"Prepared training run {run_id}.")
 
-def library_entrypoint(config):
-    from llama_recipes.finetuning import main
+    # Start a training run.
+    return train.spawn(run_id)
 
-    main(**config)
+@stub.function(volumes=VOLUME_CONFIG, timeout=3600)
+def browse():
+    with modal.forward(8000) as tunnel:
+        print("Volume available at", tunnel.url)
+        subprocess.call(["python", "-m", "http.server", "8000", "-d", "/runs"])
 
+@stub.function(image=image, gpu=gpu.A100(), volumes=VOLUME_CONFIG, timeout=3600)
+def infer(run_id: str):
+    lora_folder = f"/runs/{run_id}/lora-out"
+    config = f"/runs/{run_id}/config.yml"
 
-@stub.function(
-    volumes=VOLUME_CONFIG,
-    mounts=[
-        Mount.from_local_dir("./datasets", remote_path="/root"),
-    ],
-    gpu=gpu.A100(count=N_GPUS, memory=GPU_MEM),
-    timeout=3600 * 12,
-)
-def train(train_kwargs):
-    from torch.distributed.run import elastic_launch, parse_args, config_from_args
-
-    torch_args = parse_args(["--nnodes", "1", "--nproc_per_node", str(N_GPUS), ""])
-    print(f"{torch_args=}\n{train_kwargs=}")
-
-    elastic_launch(
-        config=config_from_args(torch_args)[0],
-        entrypoint=library_entrypoint,
-    )(train_kwargs)
-
-    print("Committing results volume (no progress bar) ...")
-    stub.results_volume.commit()
+    with modal.forward(7860) as tunnel:
+        print("Gradio interface available at", tunnel.url)
+        subprocess.call(["accelerate", "launch", "-m", "axolotl.cli.inference", config, "--lora_model_dir", lora_folder, "--gradio"])
 
 
-@stub.local_entrypoint()  # Runs locally to kick off remote training job.
-def main(
-    dataset: str,
-    base: str = "chat7",
-    run_id: str = "",
-    num_epochs: int = 10,
-    batch_size: int = 16,
-):
-    print(f"Welcome to Modal Llama fine-tuning.")
-
-    model_name = BASE_MODELS[base]
-    print(f"Syncing base model {model_name} to volume.")
-    download.remote(model_name)
-
-    if not run_id:
-        import secrets
-
-        run_id = f"{base}-{secrets.token_hex(3)}"
-    elif not run_id.startswith(base):
-        run_id = f"{base}-{run_id}"
-
-    print(f"Beginning run {run_id=}.")
-    train.remote(
-        {
-            "model_name": BASE_MODELS[base],
-            "output_dir": f"/results/{run_id}",
-            "batch_size_training": batch_size,
-            "lr": 3e-4,
-            "num_epochs": num_epochs,
-            "val_batch_size": 1,
-            # --- Dataset options ---
-            "dataset": "custom_dataset",
-            "custom_dataset.file": dataset,
-            # --- FSDP options ---
-            "enable_fsdp": True,
-            "low_cpu_fsdp": True,  # Optimization for FSDP model loading (RAM won't scale with num GPUs)
-            "use_fast_kernels": True,  # Only works when FSDP is on
-            "fsdp_config.fsdp_activation_checkpointing": True,  # Activation checkpointing for fsdp
-            "pure_bf16": True,
-            # --- Required for 70B ---
-            "fsdp_config.fsdp_cpu_offload": True,
-            "fsdp_peft_cpu_offload_for_save": True,  # Experimental
-            # --- PEFT options ---
-            "use_peft": True,
-            "peft_method": "lora",
-            "lora_config.r": 8,
-            "lora_config.lora_alpha": 16,
-        }
-    )
-
-    print(f"Training completed {run_id=}.")
-    print(
-        f"Test: `modal run inference.py --base {base} --run-id {run_id} --prompt '...'`."
-    )
+@stub.local_entrypoint()
+def main():
+    train_handle = new.remote("config.yml")
+    train_handle.get()
