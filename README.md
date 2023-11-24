@@ -71,7 +71,7 @@ N_GPUS=2 GPU_MEM=80 modal deploy src
 A simple training job can be started with
 
 ```bash
-modal run --detach src.train --cfg config.yml
+modal run --detach src.train --config config.yml
 ```
 
 _`--detach` lets the app continue running even if your client disconnects_.

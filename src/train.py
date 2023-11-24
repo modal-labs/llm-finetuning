@@ -73,11 +73,11 @@ def launch(config_raw: str, data_raw: str):
 
 
 @stub.local_entrypoint()
-def main(cfg: str):
+def main(config: str):
     # Read config.yml and my_data.jsonl and pass them to the new function.
     dir = os.path.dirname(__file__)
-    with open(f"{dir}/{cfg}", "r") as config, open(f"{dir}/my_data.jsonl", "r") as data:
-        _, train_handle = launch.remote(config.read(), data.read())
+    with open(f"{dir}/{config}", "r") as cfg, open(f"{dir}/my_data.jsonl", "r") as data:
+        _, train_handle = launch.remote(cfg.read(), data.read())
 
     # Wait for the training run to finish.
     train_handle.get()

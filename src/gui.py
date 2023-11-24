@@ -1,11 +1,14 @@
 # Optional stand-alone helper GUI to call the backend training functions.
 
 import modal
+
+import webbrowser
 import os
 
 from .common import APP_NAME, VOLUME_CONFIG
 
 stub = modal.Stub("example-axolotl-gui")
+stub.q = modal.Queue.new() # Pass back the URL to auto-launch
 
 gradio_image = modal.Image.debian_slim().pip_install("gradio==4.5.0")
 
@@ -107,16 +110,16 @@ def gui(config_raw: str, data_raw: str):
             gr.FileExplorer(root="/runs")
 
     with modal.forward(8000) as tunnel:
-        print("GUI available at", tunnel.url)
-        interface.launch(
-            quiet=True, show_api=False, server_name="0.0.0.0", server_port=8000
-        )
+        stub.q.put(tunnel.url)
+        interface.launch(quiet=True, server_name="0.0.0.0", server_port=8000)
 
 
 @stub.local_entrypoint()
 def main():
     dir = os.path.dirname(__file__)
-    with open(f"{dir}/config.yml", "r") as config, open(
-        f"{dir}/my_data.jsonl", "r"
-    ) as data:
-        gui.remote(config.read(), data.read())
+    with open(f"{dir}/config.yml", "r") as cfg, open(f"{dir}/my_data.jsonl", "r") as data:
+        handle = gui.spawn(cfg.read(), data.read())
+    url = stub.q.get()
+    print(f"GUI available at -> {url}\n")
+    webbrowser.open(url)
+    handle.get()
