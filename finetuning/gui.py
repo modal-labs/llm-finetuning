@@ -2,11 +2,12 @@
 
 import modal
 
-from train import APP_NAME, VOLUME_CONFIG
+from .train import APP_NAME, VOLUME_CONFIG
 
 stub = modal.Stub("example-axolotl-gui")
 
 gradio_image = modal.Image.debian_slim().pip_install("gradio==4.5.0")
+
 
 @stub.function(image=gradio_image, volumes=VOLUME_CONFIG, timeout=3600)
 def gui(config_raw: str, data_raw: str):
@@ -15,15 +16,17 @@ def gui(config_raw: str, data_raw: str):
 
     # Find the deployed business functions to call
     try:
-        new = modal.Function.lookup(APP_NAME, "new")
+        launch = modal.Function.lookup(APP_NAME, "launch")
         Inference = modal.Cls.lookup(APP_NAME, "Inference")
     except modal.exception.NotFoundError:
-        raise Exception("Must first deploy training backend with `modal deploy train.py`.")
+        raise Exception(
+            "Must first deploy training backend with `modal deploy train.py`."
+        )
 
     def launch_training_job(config_yml, my_data_jsonl):
-        run_id, handle = new.remote(config_yml, my_data_jsonl)
+        run_folder, handle = launch.remote(config_yml, my_data_jsonl)
         result = (
-            f"Started run {run_id} -> in folder /runs/{run_id}.\n\n"
+            f"Started training run in folder /runs/{run_folder}.\n\n"
             f"Follow training logs at https://modal.com/logs/call/{handle.object_id}\n"
         )
         print(result)
@@ -33,7 +36,9 @@ def gui(config_raw: str, data_raw: str):
         text = f"Model: {model}\n{input_text}"
         yield text + "... (model loading)"
         try:
-            for chunk in Inference(model.split("@")[-1]).completion.remote_gen(input_text):
+            for chunk in Inference(model.split("@")[-1]).completion.remote_gen(
+                input_text
+            ):
                 text += chunk
                 yield text
         except Exception as e:
@@ -54,8 +59,12 @@ def gui(config_raw: str, data_raw: str):
         with gr.Tab("Train"):
             with gr.Row():
                 with gr.Column():
-                    config_input = gr.Code(label="config.yml", lines=20, value=config_raw)
-                    data_input = gr.Code(label="my_data.jsonl", lines=20, value=data_raw)
+                    config_input = gr.Code(
+                        label="config.yml", lines=20, value=config_raw
+                    )
+                    data_input = gr.Code(
+                        label="my_data.jsonl", lines=20, value=data_raw
+                    )
                 with gr.Column():
                     train_button = gr.Button("Launch training job")
                     train_output = gr.Markdown(label="Training details")
