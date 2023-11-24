@@ -3,6 +3,7 @@ import time
 
 from .common import stub, vllm_image, VOLUME_CONFIG
 
+
 @stub.cls(
     gpu="A100",
     image=vllm_image,
@@ -54,9 +55,12 @@ class Inference:
         print(f"Request completed: {throughput:.4f} tokens/s")
         print(request_output.outputs[0].text)
 
+
 @stub.local_entrypoint()
 def main(run_folder: str):
-    text = input("Enter a prompt (including the prompt template, e.g. [INST] ... [/INST]):\n")
+    text = input(
+        "Enter a prompt (including the prompt template, e.g. [INST] ... [/INST]):\n"
+    )
     print("Loading model ...")
     for chunk in Inference(f"{run_folder}/lora-out/merged").completion.remote_gen(text):
         print(chunk, end="")

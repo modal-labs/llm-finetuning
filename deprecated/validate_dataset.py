@@ -40,4 +40,6 @@ def dataset(base: str = "chat7", dataset: str = "local_dataset.py"):
         print(f"{BLOCK} Sample {BLOCK}\n{sample} ...")
         print(f"{BLOCK} Tokens {BLOCK}\n{dataset[0]['input_ids'][:25]} ...\n")
 
-        print(f"{sum(dataset[0]['attention_mask'])} {len(dataset[0]['attention_mask'])}")
+        print(
+            f"{sum(dataset[0]['attention_mask'])} {len(dataset[0]['attention_mask'])}"
+        )

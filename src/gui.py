@@ -47,7 +47,8 @@ def gui(config_raw: str, data_raw: str):
 
     def model_changed(model):
         # Warms up a container with this model using an empty input
-        if model: list(Inference(model.split("@")[-1]).completion.remote_gen(""))
+        if model:
+            list(Inference(model.split("@")[-1]).completion.remote_gen(""))
         return f"Model changed to: {model}"
 
     def get_model_choices():
@@ -115,5 +116,7 @@ def gui(config_raw: str, data_raw: str):
 @stub.local_entrypoint()
 def main():
     dir = os.path.dirname(__file__)
-    with open(f"{dir}/config.yml", "r") as config, open(f"{dir}/my_data.jsonl", "r") as data:
+    with open(f"{dir}/config.yml", "r") as config, open(
+        f"{dir}/my_data.jsonl", "r"
+    ) as data:
         gui.remote(config.read(), data.read())
