@@ -17,13 +17,34 @@ This no-frills guide will take you from a dataset to using a fine-tuned LLM mode
 
 Using Modal for fine-tuning means you never have to worry about infrastructure headaches like building images and provisioning GPUs. If a training script runs on Modal, it's reproducible and scalable enough to ship to production right away.
 
-### Just one local dependency - a Modal account
+
+## Quickstart
+
+Follow the steps to quickly train and test your fine-tuned model using the ready-to-use Gradio GUI:
+1. Create a Modal account and create a Modal token and HuggingFace secret for your workspace, if not already set up.
+<details> 
+<summary>Setting up Modal</summary>
 
 1. Create a [Modal](https://modal.com/) account.
 2. Install `modal` in your current Python virtual environment (`pip install modal`)
 3. Set up a Modal token in your environment (`python3 -m modal setup`)
-4. You need to have a [secret](https://modal.com/secrets) named `huggingface` in your workspace. Populate both `HUGGING_FACE_HUB_TOKEN` and `HUGGINGFACE_TOKEN` with the same key from HuggingFace (settings under API tokens).
-5. For some LLaMA models, you need to go to the [Hugging Face page](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf) and agree to the terms and conditions for access (granted instantly).
+4. You need to have a [secret](https://modal.com/docs/guide/secrets#secrets) named `huggingface` in your workspace. You can [create a new secret](https://modal.com/secrets) with the HuggingFace template in your Modal dashboard, using the same key from HuggingFace (in settings under API tokens) to populate both `HUGGING_FACE_HUB_TOKEN` and `HUGGINGFACE_TOKEN`.
+5. For some LLaMA models, you need to go to the [Hugging Face page](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf) and agree to their Terms and Conditions for access (granted instantly).
+</details>
+2. Clone this repository and navigate to the finetuning directory:
+```bash
+git clone https://github.com/modal-labs/llm-finetuning.git
+cd /path/to/llm-finetuning
+```
+3. Deploy the training backend and then run the Gradio GUI:
+```bash
+modal deploy src
+modal run src.gui
+```
+
+You can use the different tabs on the Gradio interface to easily launch training runs, test out trained models, and explore the files on the [volume](https://modal.com/docs/guide/volumes). For instructions on using this repo with the CLI (for power users) and information on the underlying code, and refer to the full development section below.
+
+## Development
 
 ### Code overview
 
@@ -47,7 +68,7 @@ modal deploy src
 modal run src.gui
 ```
 
-The `*.modal.host` link from the latter will take you to the Gradio GUI. There will be three tabs: launch training runs, test out trained models and explore the files on the volume.
+The `*.modal.host` link from the latter will take you to the Gradio GUI. There will be three tabs: launch training runs, test out trained models and explore the files on the [volume](https://modal.com/docs/guide/volumes).
 
 
 **What is the difference between `deploy` and `run`?**
