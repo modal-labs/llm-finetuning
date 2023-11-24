@@ -1,8 +1,9 @@
 # Optional stand-alone helper GUI to call the backend training functions.
 
 import modal
+import os
 
-from .train import APP_NAME, VOLUME_CONFIG
+from .common import APP_NAME, VOLUME_CONFIG
 
 stub = modal.Stub("example-axolotl-gui")
 
@@ -26,7 +27,7 @@ def gui(config_raw: str, data_raw: str):
     def launch_training_job(config_yml, my_data_jsonl):
         run_folder, handle = launch.remote(config_yml, my_data_jsonl)
         result = (
-            f"Started training run in folder /runs/{run_folder}.\n\n"
+            f"Started training run in folder {run_folder}.\n\n"
             f"Follow training logs at https://modal.com/logs/call/{handle.object_id}\n"
         )
         print(result)
@@ -45,6 +46,8 @@ def gui(config_raw: str, data_raw: str):
             return repr(e)
 
     def model_changed(model):
+        # Warms up a container with this model using an empty input
+        if model: list(Inference(model.split("@")[-1]).completion.remote_gen(""))
         return f"Model changed to: {model}"
 
     def get_model_choices():
@@ -59,12 +62,14 @@ def gui(config_raw: str, data_raw: str):
         with gr.Tab("Train"):
             with gr.Row():
                 with gr.Column():
-                    config_input = gr.Code(
-                        label="config.yml", lines=20, value=config_raw
-                    )
-                    data_input = gr.Code(
-                        label="my_data.jsonl", lines=20, value=data_raw
-                    )
+                    with gr.Tab("Config (YAML)"):
+                        config_input = gr.Code(
+                            label="config.yml", lines=20, value=config_raw
+                        )
+                    with gr.Tab("Data (JSONL)"):
+                        data_input = gr.Code(
+                            label="my_data.jsonl", lines=20, value=data_raw
+                        )
                 with gr.Column():
                     train_button = gr.Button("Launch training job")
                     train_output = gr.Markdown(label="Training details")
@@ -109,5 +114,6 @@ def gui(config_raw: str, data_raw: str):
 
 @stub.local_entrypoint()
 def main():
-    with open("config.yml", "r") as config, open("my_data.jsonl", "r") as data:
+    dir = os.path.dirname(__file__)
+    with open(f"{dir}/config.yml", "r") as config, open(f"{dir}/my_data.jsonl", "r") as data:
         gui.remote(config.read(), data.read())

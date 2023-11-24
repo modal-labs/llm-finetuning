@@ -14,7 +14,6 @@ N_GPUS = os.environ.get("N_GPUS", 2)
 GPU_MEM = os.environ.get("GPU_MEM", 80)
 GPU_CONFIG = modal.gpu.A100(count=N_GPUS, memory=GPU_MEM)
 
-
 @stub.function(
     image=axolotl_image, gpu=GPU_CONFIG, volumes=VOLUME_CONFIG, timeout=3600 * 24
 )
@@ -55,10 +54,11 @@ def launch(config_raw: str, data_raw: str):
         VOLUME_CONFIG["/pretrained"].commit()
 
     # Write config and data into a training subfolder.
-    print(f"Preparing training run in {run_folder}.")
     time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     run_folder = f"/runs/axo-{time_string}-{secrets.token_hex(2)}"
     os.makedirs(run_folder)
+
+    print(f"Preparing training run in {run_folder}.")
     with (
         open(f"{run_folder}/config.yml", "w") as config_file,
         open(f"{run_folder}/{config['datasets'][0]['path']}", "w") as data_file,
@@ -74,7 +74,8 @@ def launch(config_raw: str, data_raw: str):
 @stub.local_entrypoint()
 def main():
     # Read config.yml and my_data.jsonl and pass them to the new function.
-    with open("config.yml", "r") as config, open("my_data.jsonl", "r") as data:
+    dir = os.path.dirname(__file__)
+    with open(f"{dir}/config.yml", "r") as config, open(f"{dir}/my_data.jsonl", "r") as data:
         _, train_handle = launch.remote(config.read(), data.read())
 
     # Wait for the training run to finish.

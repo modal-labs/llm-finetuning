@@ -12,7 +12,7 @@ from .common import stub, vllm_image, VOLUME_CONFIG
 )
 class Inference:
     def __init__(self, model_path: str) -> None:
-        print(model_path)
+        print("Initializing vLLM engine on:", model_path)
 
         from vllm.engine.arg_utils import AsyncEngineArgs
         from vllm.engine.async_llm_engine import AsyncLLMEngine
@@ -53,3 +53,10 @@ class Inference:
         throughput = tokens / (time.time() - t0)
         print(f"Request completed: {throughput:.4f} tokens/s")
         print(request_output.outputs[0].text)
+
+@stub.local_entrypoint()
+def main(run_folder: str):
+    text = input("Enter a prompt (including the prompt template, e.g. [INST] ... [/INST]):\n")
+    print("Loading model ...")
+    for chunk in Inference(f"{run_folder}/lora-out/merged").completion.remote_gen(text):
+        print(chunk, end="")
