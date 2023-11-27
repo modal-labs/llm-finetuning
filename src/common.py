@@ -22,6 +22,6 @@ vllm_image = (
 stub = Stub(APP_NAME, secrets=[Secret.from_name("huggingface")])
 
 # Volumes for pre-trained models and training runs.
-pretrained_volume = Volume.persisted("example-pretrained-vol")
-runs_volume = Volume.persisted("example-runs-vol")
-VOLUME_CONFIG = {"/pretrained": pretrained_volume, "/runs": runs_volume}
+stub.pretrained_volume = Volume.persisted("example-pretrained-vol")
+stub.runs_volume = Volume.persisted("example-runs-vol")
+VOLUME_CONFIG = {"/pretrained": stub.pretrained_volume, "/runs": stub.runs_volume}
