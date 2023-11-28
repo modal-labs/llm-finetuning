@@ -66,7 +66,7 @@ The rest of the code are helpers for _calling_ these three functions. There are 
 * Use the GUI to familiarize with the system (recommended for new fine-tuners!)
 * Use CLI commands (recommended for power users)
 
-#### Config
+### Config
 
 You can `example_configs` for quick start with different models. We recommend duplicating one to `src/config.yml` and modifying as you need. See an overview of Axolotl's config options [here](https://github.com/OpenAccess-AI-Collective/axolotl#config). The most important options to consider are:
 
@@ -94,11 +94,11 @@ lora_target_modules:
   - v_proj
 ```
 
-#### Custom Dataset
+### Custom Dataset
 
 Axolotl supports many dataset formats ([see more](https://github.com/OpenAccess-AI-Collective/axolotl#dataset)). We recommend adding your custom dataset as a .jsonl file in the `src` folder and making the appropriate modifications to your config.
 
-#### Multi-GPU training
+**Multi-GPU training**
 
 We recommend [DeepSpeed](https://github.com/microsoft/DeepSpeed) for multi-GPU training, which is easy to set up. Axolotl provides several default deepspeed JSON [configurations](https://github.com/OpenAccess-AI-Collective/axolotl/tree/main/deepspeed) and Modal makes it easy to [attach multiple GPUs](https://modal.com/docs/guide/gpu#gpu-acceleration) of any type in code, so all you need to do is specify which of these configs you'd like to use.
 
@@ -131,7 +131,7 @@ wandb_run_id:
 wandb_log_model: checkpoint
 ```
 
-### Using the CLI
+## Using the CLI
 
 **Training**
 
@@ -158,7 +158,7 @@ modal run -q src.inference --run-folder /runs/axo-2023-11-24-17-26-66e8
 ```
 
 
-### Using the GUI
+## Using the GUI
 
 Deploy the training backend with three business functions (`launch`, `train`, `completion` in `__init__.py`). Then run the Gradio GUI.
 
