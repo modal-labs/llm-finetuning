@@ -31,7 +31,6 @@ Follow the steps to quickly train and test your fine-tuned model:
     4. You need to have a [secret](https://modal.com/docs/guide/secrets#secrets) named `huggingface` in your workspace. You can [create a new secret](https://modal.com/secrets) with the HuggingFace template in your Modal dashboard, using the same key from HuggingFace (in settings under API tokens) to populate both `HUGGING_FACE_HUB_TOKEN` and `HUGGINGFACE_TOKEN`.
     5. For some LLaMA models, you need to go to the [Hugging Face page](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf) and agree to their Terms and Conditions for access (granted instantly).
     </details>
-    <br>
 
 2. Clone this repository and navigate to the finetuning directory:
 ```bash
@@ -43,7 +42,7 @@ cd /path/to/llm-finetuning
 modal run --detach src.train
 ```
 
-4. Try a model from a completed training run. You can select a folder via `modal volume ls examples-runs-vol`, and then specify the training folder with the `--run-folder` flag (something like `/runs/axo-2023-11-24-17-26-66e8`) for inference:
+4. Try the model from a completed training run. You can select a folder via `modal volume ls examples-runs-vol`, and then specify the training folder with the `--run-folder` flag (something like `/runs/axo-2023-11-24-17-26-66e8`) for inference:
 
 ```bash
 modal run -q src.inference --run-folder /runs/<run_name>
@@ -63,8 +62,8 @@ All the logic lies in `train.py`. Three business Modal functions run in the clou
 
 The rest of the code are helpers for _calling_ these three functions. There are two main ways to train:
 
-* Use the GUI to familiarize with the system (recommended for new fine-tuners!)
-* Use CLI commands (recommended for power users)
+* [Use the GUI](#using-the-gui) to familiarize with the system (recommended for new fine-tuners!)
+* [Use CLI commands](#using-the-cli) (recommended for power users)
 
 ### Config
 
