@@ -2,7 +2,7 @@
 
 ### Tired of prompt engineering? You've come to the right place.
 
-This no-frills guide will take you from a dataset to using a fine-tuned LLM model for inference in the matter of minutes. The heavy lifting is done by the [`axolotl` framework](https://github.com/OpenAccess-AI-Collective/axolotl).
+This no-frills guide will take you from a dataset to using a fine-tuned LLM for inference in the matter of minutes. The heavy lifting is done by the [`axolotl` framework](https://github.com/OpenAccess-AI-Collective/axolotl).
 
 <details>
   <summary>We use all the recommended, start-of-the-art optimizations for fast results.</summary>
@@ -10,7 +10,7 @@ This no-frills guide will take you from a dataset to using a fine-tuned LLM mode
 <br>
   
 - *Deepspeed ZeRO-3* to efficiently shard the base model and training state across multiple GPUs [more info](https://www.deepspeed.ai/2021/03/07/zero3-offload.html)
-- *Parameter-efficient fine-tuning* via LoRa adapters for faster convergence
+- *Parameter-efficient fine-tuning* via LoRA adapters for faster convergence
 - *Gradient checkpointing* to reduce VRAM footprint, fit larger batches and get higher training throughput
 </details>
 
@@ -56,14 +56,6 @@ The `*.modal.host` link from the latter will take you to the Gradio GUI. There w
 - `modal run`: am ephemeral app shuts down once your local command exits. Your GUI (ephemeral app) does not waste resources when your terminal disconnects.
 
 
-**How do I change the GPU configuration?**
-
-The training GPU configuration can be specified as environment variables. Keep in mind that this would affect all runs spawned from the GUI, since it is a backend parameter.
-
-```bash
-N_GPUS=2 GPU_MEM=80 modal deploy src
-```
-
 ### Using the CLI
 
 **Training**
@@ -89,3 +81,43 @@ To try a model from a completed run, you can select a folder via `modal volume l
 ```bash
 modal run -q src.inference --run-folder /runs/axo-2023-11-24-17-26-66e8
 ```
+
+**Multi-GPU training**
+
+We recommend [DeepSpeed](https://github.com/microsoft/DeepSpeed) for multi-GPU training, which is easy to set up. Axolotl provides several default deepspeed JSON [configurations](https://github.com/OpenAccess-AI-Collective/axolotl/tree/main/deepspeed) and Modal makes it easy to [attach multiple GPUs](https://modal.com/docs/guide/gpu#gpu-acceleration) of any type in code, so all you need to do is specify which of these configs you'd like to use.
+
+In your `config.yml`:
+```yaml
+deepspeed: /root/axolotl/deepspeed/zero3.json
+```
+
+In `train.py`:
+```python
+N_GPUS = 2
+GPU_MEM = 80
+GPU_CONFIG = modal.gpu.A100(count=N_GPUS, memory=GPU_MEM) # you can also change this to use A10Gs or T4s
+```
+
+**Logging with Weights and Biases**
+
+To track your training runs with Weights and Biases:
+1. [Create](https://modal.com/secrets/create) a Weights and Biases secret in your Modal dashboard, if not set up already (only the `WANDB_API_KEY` is needed, which you can get if you log into your Weights and Biases account and go to the [Authorize page](https://wandb.ai/authorize))
+2. Add the Weights and Biases secret to your app, so initializing your stub in `common.py` should look like: 
+```python
+stub = Stub(APP_NAME, secrets=[Secret.from_name("huggingface"), Secret.from_name("my-wandb-secret")])
+```
+3. Add a project name to your `config.yml`:
+```yaml
+wandb_project: codellama-7b-modal
+```
+
+## Common Errors
+
+> CUDA Out of Memory (OOM)
+
+This means your GPU(s) ran out of memory during training. To resolve, either increase your GPU count/memory capacity with multi-GPU training, or try reducing any of the following in your `config.yml`: micro_batch_size, eval_batch_size, gradient_accumulation_steps, sequence_len
+
+> self.state.epoch = epoch + (step + 1 + steps_skipped) / steps_in_epoch
+> ZeroDivisionError: division by zero
+
+This means your training dataset might be too small.
