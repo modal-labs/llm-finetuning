@@ -16,7 +16,7 @@ GPU_CONFIG = modal.gpu.A100(count=N_GPUS, memory=GPU_MEM)
 
 
 @stub.function(
-    image=axolotl_image, gpu=GPU_CONFIG, volumes=VOLUME_CONFIG, timeout=3600 * 24
+    image=axolotl_image, gpu=GPU_CONFIG, volumes=VOLUME_CONFIG, memory=1024 * 100, timeout=3600 * 24
 )
 def train(run_folder: str):
     print(f"Starting training run in {run_folder}")
