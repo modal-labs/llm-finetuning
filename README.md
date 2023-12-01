@@ -124,9 +124,7 @@ stub = Stub(APP_NAME, secrets=[Secret.from_name("huggingface"), Secret.from_name
 3. Add your wandb config to your `config.yml`:
 ```yaml
 wandb_project: mistral-7b-samsum
-wandb_entity:
 wandb_watch: gradients
-wandb_run_id:
 wandb_log_model: checkpoint
 ```
 
@@ -185,3 +183,7 @@ This means your GPU(s) ran out of memory during training. To resolve, either inc
 > ZeroDivisionError: division by zero
 
 This means your training dataset might be too small.
+
+> Missing config option when using `modal run` in the CLI
+
+Make sure your `modal` client >= 0.55.4164 (upgrade to the latest version using `pip install --upgrade modal`)
