@@ -39,7 +39,7 @@ cd /path/to/llm-finetuning
 ```
 3. Launch a training job:
 ```bash
-modal run --detach src.train
+modal run --detach src.train::main
 ```
 
 4. Try the model from a completed training run. You can select a folder via `modal volume ls examples-runs-vol`, and then specify the training folder with the `--run-folder` flag (something like `/runs/axo-2023-11-24-17-26-66e8`) for inference:
@@ -151,7 +151,7 @@ The default configuration fine-tunes CodeLlama Instruct 7B to understand Modal d
 To try a model from a completed run, you can select a folder via `modal volume ls examples-runs-vol`, and then specify the training folder for inference:
 
 ```bash
-modal run -q src.inference --run-folder /runs/axo-2023-11-24-17-26-66e8
+modal run -q src.inference::inference_main --run-folder /runs/axo-2023-11-24-17-26-66e8
 ```
 
 
