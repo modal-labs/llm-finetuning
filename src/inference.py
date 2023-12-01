@@ -57,7 +57,7 @@ class Inference:
 
 
 @stub.local_entrypoint()
-def main(run_folder: str):
+def inference_main(run_folder: str):
     text = input(
         "Enter a prompt (including the prompt template, e.g. [INST] ... [/INST]):\n"
     )
