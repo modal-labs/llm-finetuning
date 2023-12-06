@@ -8,7 +8,7 @@ import os
 from .common import APP_NAME, VOLUME_CONFIG
 
 stub = modal.Stub("example-axolotl-gui")
-stub.q = modal.Queue.new() # Pass back the URL to auto-launch
+stub.q = modal.Queue.new()  # Pass back the URL to auto-launch
 
 gradio_image = modal.Image.debian_slim().pip_install("gradio==4.5.0")
 
@@ -55,12 +55,14 @@ def gui(config_raw: str, data_raw: str):
         return f"Model changed to: {model}"
 
     def get_model_choices():
+        VOLUME_CONFIG["/runs"].reload()
+        VOLUME_CONFIG["/pretrained"].reload()
         choices = [
             *glob.glob("/runs/*/lora-out/merged", recursive=True),
             *glob.glob("/pretrained/models--*/snapshots/*", recursive=True),
         ]
         choices = [f"{choice.split('/')[2]}@{choice}" for choice in choices]
-        return gr.Dropdown(label="Select Model", choices=choices)
+        return reversed(sorted(choices))
 
     with gr.Blocks() as interface:
         with gr.Tab("Train"):
@@ -86,7 +88,9 @@ def gui(config_raw: str, data_raw: str):
         with gr.Tab("Inference"):
             with gr.Row():
                 with gr.Column():
-                    model_dropdown = get_model_choices()
+                    model_dropdown = gr.Dropdown(
+                        label="Select Model", choices=get_model_choices()
+                    )
                     input_text = gr.Textbox(
                         label="Input Text (please include prompt manually)",
                         lines=10,
@@ -101,7 +105,11 @@ def gui(config_raw: str, data_raw: str):
                         inputs=[model_dropdown, input_text],
                         outputs=inference_output,
                     )
-            refresh_button.click(get_model_choices, inputs=None, outputs=model_dropdown)
+            refresh_button.click(
+                lambda: gr.update(choices=get_model_choices()),
+                inputs=None,
+                outputs=[model_dropdown],
+            )
             model_dropdown.change(
                 model_changed, inputs=model_dropdown, outputs=inference_output
             )
