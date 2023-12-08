@@ -125,7 +125,6 @@ stub = Stub(APP_NAME, secrets=[Secret.from_name("huggingface"), Secret.from_name
 ```yaml
 wandb_project: mistral-7b-samsum
 wandb_watch: gradients
-wandb_log_model: checkpoint
 ```
 
 ## Using the CLI
@@ -187,3 +186,7 @@ This means your training dataset might be too small.
 > Missing config option when using `modal run` in the CLI
 
 Make sure your `modal` client >= 0.55.4164 (upgrade to the latest version using `pip install --upgrade modal`)
+
+> AttributeError: 'Accelerator' object has no attribute 'deepspeed_config'
+
+Try removing the `wandb_log_model` option from your config. See [#4143](https://github.com/microsoft/DeepSpeed/issues/4143).
