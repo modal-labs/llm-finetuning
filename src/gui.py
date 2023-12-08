@@ -103,18 +103,19 @@ def gui(config_raw: str, data_raw: str):
                 refresh_button.click(jobs_table, outputs=[train_status])
 
             with gr.Row():
+                with gr.Tab("Config (YAML)"):
+                    config_input = gr.Code(
+                        label="config.yml", lines=20, value=config_raw
+                    )
+                with gr.Tab("Data (JSONL)"):
+                    data_input = gr.Code(
+                        label="my_data.jsonl", lines=20, value=data_raw
+                    )
                 with gr.Column():
-                    with gr.Tab("Config (YAML)"):
-                        config_input = gr.Code(
-                            label="config.yml", lines=20, value=config_raw
-                        )
-                    with gr.Tab("Data (JSONL)"):
-                        data_input = gr.Code(
-                            label="my_data.jsonl", lines=20, value=data_raw
-                        )
-                with gr.Column():
-                    train_button = gr.Button("Launch training job", style="primary")
-                    train_output = gr.Markdown(label="Training details")
+                    with gr.Group():
+                        train_button = gr.Button("Launch training job", variant="primary")
+                        train_output = gr.Markdown(label="Training details")
+
                     train_button.click(
                         launch_training_job,
                         inputs=[config_input, data_input],

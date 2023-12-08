@@ -10,6 +10,8 @@ axolotl_image = (
         "cd /root/axolotl && git checkout a581e9f8f66e14c22ec914ee792dd4fe073e62f6",
     )
     .pip_install("huggingface_hub==0.19.4", "hf-transfer==0.1.4")
+    # Atomic checkpoints in this transformers release
+    # .pip_install("transformers @ git+https://github.com/huggingface/transformers.git@4c5ed1d0c942dd4a60e1f99d6636519c40f7c904")
     .env(dict(HUGGINGFACE_HUB_CACHE="/pretrained", HF_HUB_ENABLE_HF_TRANSFER="1"))
 )
 
