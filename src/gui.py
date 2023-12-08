@@ -28,22 +28,25 @@ def gui(config_raw: str, data_raw: str):
         )
 
     def jobs_table():
-        jobs = []
-        for run in reversed(sorted(glob.glob("/runs/*/"))):
+        VOLUME_CONFIG["/runs"].reload()
+
+        md = "|Run|Checkpoint (epochs)|Merged|Logs|\n|-|-|-|-|\n"
+        for run in reversed(sorted(glob.glob("/runs/*"))):
             checkpoints = [
-                int(path.split("-")[-1])
-                for path in glob.glob(f"{run}/lora-out/checkpoint-*")
+                int(path.split("-")[-1]) for path in glob.glob(f"{run}/lora-out/checkpoint-*")
             ]
             last_checkpoint = max(checkpoints, default=0)
-            merged = "✅" if glob.glob(f"{run}/lora-out/merged/*") else "❌"
+            merged = "✅" if glob.glob(f"{run}/lora-out/merged/*") else "..."
             try:
                 with open(f"{run}/logs.txt") as f:
-                    logs = f.read()
+                    logs = f.read().strip()
             except FileNotFoundError:
                 logs = "No logs link"
-            jobs.append([run, last_checkpoint, merged, logs])
+            md += "|{}|{}|{}|{}|\n".format(run, last_checkpoint, merged, logs)
 
-        return jobs
+        print(md)
+
+        return md
 
     def launch_training_job(config_yml, my_data_jsonl):
         run_folder, handle = launch.remote(config_yml, my_data_jsonl)
@@ -93,6 +96,12 @@ def gui(config_raw: str, data_raw: str):
 
     with gr.Blocks() as interface:
         with gr.Tab("Train"):
+            with gr.Accordion("Training summary"):
+                train_status = gr.Markdown(label="Training status", value=jobs_table())
+                
+                refresh_button = gr.Button("Refresh", size="sm")
+                refresh_button.click(jobs_table, outputs=[train_status])
+
             with gr.Row():
                 with gr.Column():
                     with gr.Tab("Config (YAML)"):
@@ -112,21 +121,16 @@ def gui(config_raw: str, data_raw: str):
                         outputs=train_output,
                     )
 
-                    train_status = gr.Dataframe(
-                        label="Training status",
-                        value=jobs_table(),
-                        headers=["Run", "Last checkpoint", "Merged?", "Logs"],
-                    )
-
                     gr.FileExplorer(root="/runs")
 
         with gr.Tab("Inference"):
             with gr.Row():
                 with gr.Column():
-                    refresh_button = gr.Button("Refresh", size="sm")
-                    model_dropdown = gr.Dropdown(
-                        label="Select Model", choices=get_model_choices()
-                    )
+                    with gr.Group():
+                        model_dropdown = gr.Dropdown(
+                            label="Select Model", choices=get_model_choices()
+                        )
+                        refresh_button = gr.Button("Refresh", size="sm")
                     with gr.Tab("Config (YAML)"):
                         model_config = gr.Code(label="config.yml", lines=20)
                     with gr.Tab("Data (JSONL)"):

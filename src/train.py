@@ -46,7 +46,10 @@ def train(run_folder: str):
     if exit_code := subprocess.call(TRAIN_CMD.split(), cwd=run_folder):
         exit(exit_code)
 
-    return merge.spawn(run_folder)
+    merge_handle =  merge.spawn(run_folder)
+    with open(f"{run_folder}/logs.txt", "a") as f:
+        f.write(f"<br>merge: https://modal.com/logs/call/{merge_handle.object_id}\n")
+    return merge_handle
 
 
 @stub.function(image=axolotl_image, volumes=VOLUME_CONFIG, timeout=3600 * 24)
@@ -101,7 +104,7 @@ def launch(config_raw: str, data_raw: str):
     # Start training run.
     train_handle = train.spawn(run_folder)
     with open(f"{run_folder}/logs.txt", "w") as f:
-        f.write(f"Logs at https://modal.com/logs/call/{train_handle.object_id}\n")
+        f.write(f"train: https://modal.com/logs/call/{train_handle.object_id}")
     VOLUME_CONFIG["/runs"].commit()
 
     return run_folder, train_handle

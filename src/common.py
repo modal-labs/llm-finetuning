@@ -20,8 +20,8 @@ vllm_image = Image.from_registry("nvcr.io/nvidia/pytorch:23.10-py3").pip_install
 stub = Stub(APP_NAME, secrets=[Secret.from_name("huggingface")])
 
 # Volumes for pre-trained models and training runs.
-pretrained_volume = Volume.persisted("axo-pretrained-vol")
-runs_volume = Volume.persisted("axo-runs-vol")
+pretrained_volume = Volume.persisted("example-pretrained-vol")
+runs_volume = Volume.persisted("example-runs-vol")
 VOLUME_CONFIG: dict[str | os.PathLike, Volume] = {
     "/pretrained": pretrained_volume,
     "/runs": runs_volume,
