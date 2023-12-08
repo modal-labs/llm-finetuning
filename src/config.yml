@@ -10,9 +10,20 @@ strict: false
 datasets:
   - path: my_data.jsonl
     ds_type: json
-    type: completion
+    type:
+      # JSONL file contains question, context, answer fields.
+      # This gets mapped to instruction, input, output axolotl tags.
+      field_instruction: question
+      field_input: context
+      field_output: answer
+      # Format is used by axolotl to generate the prompt.
+      format: |-
+        [INST] Using the schema context below, generate a SQL query that answers the question.
+        {input}
+        {instruction} [/INST] 
+
 dataset_prepared_path:
-val_set_size: 0.2
+val_set_size: 32 # must be at least micro_batch_size * N_GPUS, and more if eval packing.
 output_dir: ./lora-out
 
 sequence_len: 4096
@@ -22,8 +33,8 @@ pad_to_sequence_len: true
 
 adapter: lora
 lora_model_dir:
-lora_r: 32
-lora_alpha: 16
+lora_r: 16
+lora_alpha: 32
 lora_dropout: 0.05
 lora_target_linear: true
 lora_fan_in_fan_out:
@@ -34,9 +45,9 @@ wandb_watch:
 wandb_run_id:
 wandb_log_model:
 
-gradient_accumulation_steps: 2
-micro_batch_size: 4
-num_epochs: 1
+gradient_accumulation_steps: 1
+micro_batch_size: 16
+num_epochs: 5
 optimizer: adamw_bnb_8bit
 lr_scheduler: cosine
 learning_rate: 0.0002
@@ -49,6 +60,7 @@ tf32: false
 gradient_checkpointing: true
 early_stopping_patience:
 resume_from_checkpoint:
+auto_resume_from_checkpoints: true
 local_rank:
 logging_steps: 1
 xformers_attention:
@@ -57,7 +69,7 @@ flash_attention: true
 warmup_steps: 10
 eval_steps: 0.05
 save_steps:
-debug:
+debug: True
 deepspeed: /root/axolotl/deepspeed/zero3.json
 weight_decay: 0.0
 fsdp:
