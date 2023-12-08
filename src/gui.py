@@ -30,7 +30,7 @@ def gui(config_raw: str, data_raw: str):
     def jobs_table():
         VOLUME_CONFIG["/runs"].reload()
 
-        md = "|Run|Checkpoint (epochs)|Merged|Logs|\n|-|-|-|-|\n"
+        md = "|Run|Checkpoint (steps)|Merged|Logs|\n|-|-|-|-|\n"
         for run in reversed(sorted(glob.glob("/runs/*"))):
             checkpoints = [
                 int(path.split("-")[-1]) for path in glob.glob(f"{run}/lora-out/checkpoint-*")
@@ -42,7 +42,7 @@ def gui(config_raw: str, data_raw: str):
                     logs = f.read().strip()
             except FileNotFoundError:
                 logs = "No logs link"
-            md += "|{}|{}|{}|{}|\n".format(run, last_checkpoint, merged, logs)
+            md += "| {} | {} | {} | {} |\n".format(run, last_checkpoint, merged, logs)
 
         print(md)
 
@@ -113,7 +113,7 @@ def gui(config_raw: str, data_raw: str):
                             label="my_data.jsonl", lines=20, value=data_raw
                         )
                 with gr.Column():
-                    train_button = gr.Button("Launch training job")
+                    train_button = gr.Button("Launch training job", style="primary")
                     train_output = gr.Markdown(label="Training details")
                     train_button.click(
                         launch_training_job,
