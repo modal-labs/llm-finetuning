@@ -4,7 +4,9 @@ import os
 APP_NAME = "example-axolotl"
 
 # Latest image hash of winglian/axolotl:main-py3.10-cu118-2.0.1 (2023-12-11)
-AXOLOTL_REGISTRY_SHA = "5c19a5154fd522225953b9c3f6206750f4191e0e92ee424f02963f7963ada698"
+AXOLOTL_REGISTRY_SHA = (
+    "5c19a5154fd522225953b9c3f6206750f4191e0e92ee424f02963f7963ada698"
+)
 # Need to patch transformers to an older version to avoid checkpointing errors.
 TRANSFORMERS_SHA = "5324bf9c07c318015eccc5fba370a81368a8df28"
 
@@ -15,7 +17,10 @@ axolotl_image = (
         "cd /root/axolotl && git checkout a581e9f8f66e14c22ec914ee792dd4fe073e62f6",
     )
     .pip_install("huggingface_hub==0.19.4", "hf-transfer==0.1.4")
-    .pip_install(f"transformers @ git+https://github.com/huggingface/transformers.git@{TRANSFORMERS_SHA}", "--force-reinstall")
+    .pip_install(
+        f"transformers @ git+https://github.com/huggingface/transformers.git@{TRANSFORMERS_SHA}",
+        "--force-reinstall",
+    )
     .env(dict(HUGGINGFACE_HUB_CACHE="/pretrained", HF_HUB_ENABLE_HF_TRANSFER="1"))
 )
 

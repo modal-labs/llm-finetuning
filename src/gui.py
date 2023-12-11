@@ -33,7 +33,8 @@ def gui(config_raw: str, data_raw: str):
         md = "|Run|Checkpoint (steps)|Merged|Logs|\n|-|-|-|-|\n"
         for run in reversed(sorted(glob.glob("/runs/*"))):
             checkpoints = [
-                int(path.split("-")[-1]) for path in glob.glob(f"{run}/lora-out/checkpoint-*")
+                int(path.split("-")[-1])
+                for path in glob.glob(f"{run}/lora-out/checkpoint-*")
             ]
             last_checkpoint = max(checkpoints, default=0)
             merged = "✅" if glob.glob(f"{run}/lora-out/merged/*") else "..."
@@ -98,7 +99,7 @@ def gui(config_raw: str, data_raw: str):
         with gr.Tab("Train"):
             with gr.Accordion("Training summary"):
                 train_status = gr.Markdown(label="Training status", value=jobs_table())
-                
+
                 refresh_button = gr.Button("Refresh", size="sm")
                 refresh_button.click(jobs_table, outputs=[train_status])
 
@@ -113,7 +114,9 @@ def gui(config_raw: str, data_raw: str):
                     )
                 with gr.Column():
                     with gr.Group():
-                        train_button = gr.Button("Launch training job", variant="primary")
+                        train_button = gr.Button(
+                            "Launch training job", variant="primary"
+                        )
                         train_output = gr.Markdown(label="Training details")
 
                     train_button.click(

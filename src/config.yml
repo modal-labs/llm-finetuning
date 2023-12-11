@@ -47,7 +47,7 @@ wandb_log_model:
 
 gradient_accumulation_steps: 1
 micro_batch_size: 16
-num_epochs: 10
+num_epochs: 5
 optimizer: adamw_bnb_8bit
 lr_scheduler: cosine
 learning_rate: 0.0002
@@ -70,7 +70,7 @@ warmup_steps: 10
 eval_steps: 0.05
 save_steps:
 debug: True
-deepspeed: /root/axolotl/deepspeed/zero3.json
+# deepspeed: /root/axolotl/deepspeed/zero3.json
 weight_decay: 0.0
 fsdp:
 fsdp_config:
