@@ -27,6 +27,28 @@ def gui(config_raw: str, data_raw: str):
             "Must first deploy training backend with `modal deploy train.py`."
         )
 
+    def jobs_table():
+        VOLUME_CONFIG["/runs"].reload()
+
+        md = "|Run|Checkpoint (steps)|Merged|Logs|\n|-|-|-|-|\n"
+        for run in reversed(sorted(glob.glob("/runs/*"))):
+            checkpoints = [
+                int(path.split("-")[-1])
+                for path in glob.glob(f"{run}/lora-out/checkpoint-*")
+            ]
+            last_checkpoint = max(checkpoints, default=0)
+            merged = "✅" if glob.glob(f"{run}/lora-out/merged/*") else "..."
+            try:
+                with open(f"{run}/logs.txt") as f:
+                    logs = f.read().strip()
+            except FileNotFoundError:
+                logs = "No logs link"
+            md += "| {} | {} | {} | {} |\n".format(run, last_checkpoint, merged, logs)
+
+        print(md)
+
+        return md
+
     def launch_training_job(config_yml, my_data_jsonl):
         run_folder, handle = launch.remote(config_yml, my_data_jsonl)
         result = (
@@ -50,9 +72,18 @@ def gui(config_raw: str, data_raw: str):
 
     def model_changed(model):
         # Warms up a container with this model using an empty input
-        if model:
-            list(Inference(model.split("@")[-1]).completion.remote_gen(""))
-        return f"Model changed to: {model}"
+        # if model: list(Inference(model.split("@")[-1]).completion.remote_gen(""))
+
+        # Show the config and data for this model
+        try:
+            run_folder = f"/runs/{model.split('@')[0]}"
+            with (
+                open(f"{run_folder}/config.yml", "r") as config,
+                open(f"{run_folder}/my_data.jsonl", "r") as data,
+            ):
+                return config.read(), data.read()
+        except (AttributeError, FileNotFoundError):
+            return None, None
 
     def get_model_choices():
         VOLUME_CONFIG["/runs"].reload()
@@ -66,56 +97,76 @@ def gui(config_raw: str, data_raw: str):
 
     with gr.Blocks() as interface:
         with gr.Tab("Train"):
+            with gr.Accordion("Training summary"):
+                train_status = gr.Markdown(label="Training status", value=jobs_table())
+
+                refresh_button = gr.Button("Refresh", size="sm")
+                refresh_button.click(jobs_table, outputs=[train_status])
+
             with gr.Row():
+                with gr.Tab("Config (YAML)"):
+                    config_input = gr.Code(
+                        label="config.yml", lines=20, value=config_raw
+                    )
+                with gr.Tab("Data (JSONL)"):
+                    data_input = gr.Code(
+                        label="my_data.jsonl", lines=20, value=data_raw
+                    )
                 with gr.Column():
-                    with gr.Tab("Config (YAML)"):
-                        config_input = gr.Code(
-                            label="config.yml", lines=20, value=config_raw
+                    with gr.Group():
+                        train_button = gr.Button(
+                            "Launch training job", variant="primary"
                         )
-                    with gr.Tab("Data (JSONL)"):
-                        data_input = gr.Code(
-                            label="my_data.jsonl", lines=20, value=data_raw
-                        )
-                with gr.Column():
-                    train_button = gr.Button("Launch training job")
-                    train_output = gr.Markdown(label="Training details")
+                        train_output = gr.Markdown(label="Training details")
+
                     train_button.click(
                         launch_training_job,
                         inputs=[config_input, data_input],
                         outputs=train_output,
                     )
 
+                    gr.FileExplorer(root="/runs")
+
         with gr.Tab("Inference"):
             with gr.Row():
                 with gr.Column():
-                    model_dropdown = gr.Dropdown(
-                        label="Select Model", choices=get_model_choices()
-                    )
+                    with gr.Group():
+                        model_dropdown = gr.Dropdown(
+                            label="Select Model", choices=get_model_choices()
+                        )
+                        refresh_button = gr.Button("Refresh", size="sm")
+                    with gr.Tab("Config (YAML)"):
+                        model_config = gr.Code(label="config.yml", lines=20)
+                    with gr.Tab("Data (JSONL)"):
+                        model_data = gr.Code(label="my_data.jsonl", lines=20)
+
+                with gr.Column():
                     input_text = gr.Textbox(
                         label="Input Text (please include prompt manually)",
                         lines=10,
                         value="[INST] How do I deploy a Modal function? [/INST]",
                     )
-                    inference_button = gr.Button("Run Inference")
-                    refresh_button = gr.Button("Refresh")
-                with gr.Column():
+                    inference_button = gr.Button(
+                        "Run Inference", variant="primary", size="sm"
+                    )
                     inference_output = gr.Textbox(label="Output", lines=20)
+
                     inference_button.click(
                         process_inference,
                         inputs=[model_dropdown, input_text],
                         outputs=inference_output,
                     )
+
             refresh_button.click(
                 lambda: gr.update(choices=get_model_choices()),
                 inputs=None,
                 outputs=[model_dropdown],
             )
             model_dropdown.change(
-                model_changed, inputs=model_dropdown, outputs=inference_output
+                model_changed,
+                inputs=model_dropdown,
+                outputs=[model_config, model_data],
             )
-
-        with gr.Tab("Files"):
-            gr.FileExplorer(root="/runs")
 
     with modal.forward(8000) as tunnel:
         stub.q.put(tunnel.url)
@@ -125,7 +176,9 @@ def gui(config_raw: str, data_raw: str):
 @stub.local_entrypoint()
 def main():
     dir = os.path.dirname(__file__)
-    with open(f"{dir}/config.yml", "r") as cfg, open(f"{dir}/my_data.jsonl", "r") as data:
+    with open(f"{dir}/config.yml", "r") as cfg, open(
+        f"{dir}/my_data.jsonl", "r"
+    ) as data:
         handle = gui.spawn(cfg.read(), data.read())
     url = stub.q.get()
     print(f"GUI available at -> {url}\n")
