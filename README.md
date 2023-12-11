@@ -35,20 +35,29 @@ Follow the steps to quickly train and test your fine-tuned model:
 2. Clone this repository and navigate to the finetuning directory:
 ```bash
 git clone https://github.com/modal-labs/llm-finetuning.git
-cd /path/to/llm-finetuning
+cd llm-finetuning
 ```
 3. Launch a training job:
 ```bash
-modal run --detach src.train::main
+modal run --detach src.train
 ```
 
 4. Try the model from a completed training run. You can select a folder via `modal volume ls examples-runs-vol`, and then specify the training folder with the `--run-folder` flag (something like `/runs/axo-2023-11-24-17-26-66e8`) for inference:
 
 ```bash
-modal run -q src.inference --run-folder /runs/<run_name>
+modal run -q src.inference --run-folder /runs/<run_tag>
 ```
 
-The default configuration fine-tunes CodeLlama Instruct 7B to understand Modal documentation for one epoch (takes a few minutes) as a proof of concept only. It uses DeepSpeed ZeRO-3 to shard the model state across 2 A100s. To achieve better results, you would need to use more data and train for more epochs. Refer to the full development section below.
+The default configuration fine-tunes CodeLlama Instruct 7B to understand Modal documentation for five epoch (takes a few minutes) as a proof of concept. It uses DeepSpeed ZeRO-3 to shard the model state across 2 A100s. Inference on the fine-tuned model displays conformity to the output structure (`[SQL] ... [/SQL]`). To achieve better results, you would need to use more data! Refer to the full development section below.
+
+5. (Optional) Launch the GUI for easy observability of training status.
+
+```bash
+modal deploy src
+modal run src.gui
+```
+
+The `*.modal.host` link from the latter will take you to the Gradio GUI. There will be two tabs: launch new training runs, test out trained models.
 
 ## Development
 
@@ -74,23 +83,31 @@ You can `example_configs` for quick start with different models. We recommend du
 base_model: codellama/CodeLlama-7b-Instruct-hf
 ```
 
-**Dataset** (by default we upload a local .jsonl file from the `src` folder in completion format, but you can see all dataset options [here](https://github.com/OpenAccess-AI-Collective/axolotl#dataset))
+**Dataset** (by default we upload a local .jsonl file from the `src` folder, but you can see all dataset options [here](https://github.com/OpenAccess-AI-Collective/axolotl#dataset))
 ```yaml
 datasets:
   - path: my_data.jsonl
     ds_type: json
-    type: completion
+    type:
+      # JSONL file contains question, context, answer fields per line.
+      # This gets mapped to instruction, input, output axolotl tags.
+      field_instruction: question
+      field_input: context
+      field_output: answer
+      # Format is used by axolotl to generate the prompt.
+      format: |-
+        [INST] Using the schema context below, generate a SQL query that answers the question.
+        {input}
+        {instruction} [/INST] 
 ```
 
 **LoRA**
 ```yaml
 adapter: lora # for qlora, or leave blank for full finetune
-lora_r: 8
-lora_alpha: 16
+lora_r: 16
+lora_alpha: 32 # alpha = 2 x rank is a good starting point.
 lora_dropout: 0.05
-lora_target_modules:
-  - q_proj
-  - v_proj
+lora_target_linear: true # target all linear layers
 ```
 
 ### Custom Dataset
@@ -123,7 +140,7 @@ stub = Stub(APP_NAME, secrets=[Secret.from_name("huggingface"), Secret.from_name
 ```
 3. Add your wandb config to your `config.yml`:
 ```yaml
-wandb_project: mistral-7b-samsum
+wandb_project: code-7b-sql-output
 wandb_watch: gradients
 ```
 
@@ -143,7 +160,7 @@ The script reads two local files: `config.yml` and `my_data.jsonl`. The contents
 
 When you make local changes to either `config.yml` or `my_data.jsonl`, they will be used for your next training run.
 
-The default configuration fine-tunes CodeLlama Instruct 7B to understand Modal documentation for one epoch (takes a few minutes) as a proof of concept only. It uses DeepSpeed ZeRO-3 to shard the model state across 2 A100s. To achieve better results, you would need to use more data and train for more epochs.
+The default configuration fine-tunes CodeLlama Instruct 7B to understand Modal documentation for five epochs as a proof of concept. It uses DeepSpeed ZeRO-3 to shard the model state across 2 A100s. To achieve better results, you would need to use more data and train for more epochs.
 
 **Inference**
 

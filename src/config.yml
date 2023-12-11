@@ -11,7 +11,7 @@ datasets:
   - path: my_data.jsonl
     ds_type: json
     type:
-      # JSONL file contains question, context, answer fields.
+      # JSONL file contains question, context, answer fields per line.
       # This gets mapped to instruction, input, output axolotl tags.
       field_instruction: question
       field_input: context
@@ -34,9 +34,9 @@ pad_to_sequence_len: true
 adapter: lora
 lora_model_dir:
 lora_r: 16
-lora_alpha: 32
+lora_alpha: 32 # alpha = 2 x rank is a good starting point.
 lora_dropout: 0.05
-lora_target_linear: true
+lora_target_linear: true # target all linear layers
 lora_fan_in_fan_out:
 
 wandb_project:
