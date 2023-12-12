@@ -42,7 +42,7 @@ cd llm-finetuning
 modal run --detach src.train
 ```
 
-4. Try the model from a completed training run. You can select a folder via `modal volume ls examples-runs-vol`, and then specify the training folder with the `--run-folder` flag (something like `/runs/axo-2023-11-24-17-26-66e8`) for inference:
+4. Try the model from a completed training run. You can select a folder via `modal volume ls example-runs-vol`, and then specify the training folder with the `--run-folder` flag (something like `/runs/axo-2023-11-24-17-26-66e8`) for inference:
 
 ```bash
 modal run -q src.inference --run-folder /runs/<run_tag>
