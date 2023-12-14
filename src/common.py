@@ -24,8 +24,9 @@ axolotl_image = (
     .env(dict(HUGGINGFACE_HUB_CACHE="/pretrained", HF_HUB_ENABLE_HF_TRANSFER="1"))
 )
 
-vllm_image = Image.from_registry("nvcr.io/nvidia/pytorch:23.10-py3").pip_install(
-    "vllm==0.2.3"
+vllm_image = (
+    Image.from_registry("nvidia/cuda:12.1.0-base-ubuntu22.04", add_python="3.10")
+    .pip_install("vllm==0.2.5")
 )
 
 stub = Stub(APP_NAME, secrets=[Secret.from_name("huggingface")])
