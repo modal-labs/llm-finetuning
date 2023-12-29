@@ -48,7 +48,7 @@ modal run --detach src.train
 modal run -q src.inference --run-folder /runs/<run_tag>
 ```
 
-The default configuration fine-tunes CodeLlama Instruct 7B to understand Modal documentation for five epoch (takes a few minutes) as a proof of concept. It uses DeepSpeed ZeRO-3 to shard the model state across 2 A100s. Inference on the fine-tuned model displays conformity to the output structure (`[SQL] ... [/SQL]`). To achieve better results, you would need to use more data! Refer to the full development section below.
+The default configuration fine-tunes CodeLlama Instruct 7B on a text-to-SQL dataset for five epochs (takes a few minutes) as a proof of concept. It uses DeepSpeed ZeRO-3 to shard the model state across 2 A100s. Inference on the fine-tuned model displays conformity to the output structure (`[SQL] ... [/SQL]`). To achieve better results, you would need to use more data! Refer to the full development section below.
 
 5. (Optional) Launch the GUI for easy observability of training status.
 
@@ -57,7 +57,7 @@ modal deploy src
 modal run src.gui
 ```
 
-The `*.modal.host` link from the latter will take you to the Gradio GUI. There will be two tabs: launch new training runs, test out trained models.
+The `*.modal.host` link from the latter will take you to the Gradio GUI. There will be two tabs: (1) launch new training runs, (2) test out trained models.
 
 ## Development
 
