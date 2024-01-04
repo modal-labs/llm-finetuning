@@ -5,7 +5,7 @@
 This no-frills guide will take you from a dataset to using a fine-tuned LLM for inference in the matter of minutes. The heavy lifting is done by the [`axolotl` framework](https://github.com/OpenAccess-AI-Collective/axolotl).
 
 <details>
-  <summary>We use all the recommended, start-of-the-art optimizations for fast results.</summary>
+  <summary>We use all the recommended, state-of-the-art optimizations for fast results.</summary>
   
 <br>
   
