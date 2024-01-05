@@ -1,0 +1,31 @@
+name: CI/CD
+
+on: workflow_dispatch
+
+jobs:
+  test:
+    environment: CI
+    name: Deploy
+    runs-on: ubuntu-latest
+    env:
+      MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+      MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+      MODAL_ENVIRONMENT: ci-cd
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Modal
+        run: |
+          python -m pip install --upgrade pip
+          pip install modal
+
+      - name: Run training job on Modal
+        run: |
+          modal run src.train
