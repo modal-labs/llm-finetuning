@@ -26,7 +26,12 @@ axolotl_image = (
 
 vllm_image = (
     Image.from_registry("nvidia/cuda:12.1.0-base-ubuntu22.04", add_python="3.10")
-    .pip_install("vllm==0.2.5")
+    .pip_install(
+        "vllm==0.2.5",
+        "torch==2.1.2",
+        "torchvision==0.16.2",
+        "torchaudio==2.1.2"
+        )
 )
 
 stub = Stub(APP_NAME, secrets=[Secret.from_name("huggingface")])
