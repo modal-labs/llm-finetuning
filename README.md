@@ -39,7 +39,7 @@ cd llm-finetuning
 ```
 3. Launch a training job:
 ```bash
-modal run --detach src.train --config=config/codellama/config.yml --dataset=data/sqlqa.jsonl
+modal run --detach src.train --config=config/codellama/config.yml --data=data/sqlqa.jsonl
 ```
 
 4. Try the model from a completed training run. You can select a folder via `modal volume ls example-runs-vol`, and then specify the training folder with the `--run-folder` flag (something like `/runs/axo-2023-11-24-17-26-66e8`) for inference:
@@ -152,7 +152,7 @@ wandb_watch: gradients
 A simple training job can be started with
 
 ```bash
-modal run --detach src.train --config=... --dataset=...
+modal run --detach src.train --config=... --data=...
 ```
 
 _`--detach` lets the app continue running even if your client disconnects_.

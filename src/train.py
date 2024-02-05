@@ -137,11 +137,11 @@ def launch(config_raw: str, data_raw: str):
 @stub.local_entrypoint()
 def main(
     config: str,
-    dataset: str,
+    data: str,
 ):
     # Read config.yml and my_data.jsonl and pass them to the new function.
-    with open(config, "r") as cfg, open(dataset, "r") as data:
-        _, train_handle = launch.remote(cfg.read(), data.read())
+    with open(config, "r") as cfg, open(data, "r") as dat:
+        _, train_handle = launch.remote(cfg.read(), dat.read())
 
     # Wait for the training run to finish.
     merge_handle = train_handle.get()
