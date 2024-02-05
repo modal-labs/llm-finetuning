@@ -11,6 +11,8 @@ def main(config: str, data: str):
     cfg["sequence_len"] = 1024
     cfg["val_set_size"] = 32
     cfg["num_epochs"] = 2
+    with open(config, "w") as f:
+        yaml.dump(cfg, f)
 
     with open(data) as f:
         data_truncated = f.readlines(500)
