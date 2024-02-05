@@ -7,7 +7,8 @@ import yaml
 @click.option("--data")
 def main(config: str, data: str):
     """Set the config for lighter-weight training and truncate the dataset."""
-    cfg = yaml.safe_load(config)
+    with open(config) as f:
+        cfg = yaml.safe_load(f.read())
     cfg["sequence_len"] = 1024
     cfg["val_set_size"] = 32
     cfg["num_epochs"] = 2
