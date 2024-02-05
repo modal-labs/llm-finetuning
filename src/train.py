@@ -126,6 +126,7 @@ def launch(config_raw: str, data_raw: str):
     VOLUME_CONFIG["/runs"].commit()
 
     # Start training run.
+    print("Spawning container for training.")
     train_handle = train.spawn(run_folder)
     with open(f"{run_folder}/logs.txt", "w") as f:
         f.write(f"train: https://modal.com/logs/call/{train_handle.object_id}")
