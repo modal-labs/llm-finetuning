@@ -4,7 +4,7 @@ tokenizer_type: CodeLlamaTokenizer
 is_llama_derived_model: true
 
 load_in_8bit: false
-bf16: true
+load_in_4bit: false
 strict: false
 
 datasets:
@@ -24,7 +24,7 @@ datasets:
         {instruction} [/INST] 
 
 dataset_prepared_path:
-val_set_size: 32 # must be at least micro_batch_size * N_GPUS, and more if eval packing.
+val_set_size: 0.05
 output_dir: ./lora-out
 
 sequence_len: 4096
@@ -54,6 +54,7 @@ learning_rate: 0.0002
 
 train_on_inputs: false
 group_by_length: false
+bf16: true
 fp16: false
 tf32: false
 

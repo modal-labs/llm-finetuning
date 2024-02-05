@@ -4,9 +4,11 @@ tokenizer_type: LlamaTokenizer
 is_mistral_derived_model: true
 
 load_in_8bit: false
+load_in_4bit: false
 strict: false
 
 datasets:
+  # This will be the path used for the data when it is saved to the Volume in the cloud.
   - path: my_data.jsonl
     ds_type: json
     type:
@@ -38,7 +40,7 @@ lora_dropout: 0.05
 lora_target_linear: true
 lora_fan_in_fan_out:
 
-wandb_project: mistral-7b-axolotl-train
+wandb_project:
 wandb_entity:
 wandb_watch: gradients
 wandb_run_id:

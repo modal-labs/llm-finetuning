@@ -8,14 +8,28 @@ load_in_4bit: false
 strict: false
 
 datasets:
-  - path: mhenrichsen/alpaca_2k_test
-    type: alpaca
+  # This will be the path used for the data when it is saved to the Volume in the cloud.
+  - path: my_data.jsonl
+    ds_type: json
+    type:
+      # JSONL file contains question, context, answer fields per line.
+      # This gets mapped to instruction, input, output axolotl tags.
+      field_instruction: question
+      field_input: context
+      field_output: answer
+      # Format is used by axolotl to generate the prompt.
+      format: |-
+        [INST] Using the schema context below, generate a SQL query that answers the question.
+        {input}
+        {instruction} [/INST]
+
 dataset_prepared_path:
 val_set_size: 0.05
 output_dir: ./lora-out
 
 sequence_len: 4096
 sample_packing: true
+eval_sample_packing: false
 pad_to_sequence_len: true
 
 adapter: lora
