@@ -136,8 +136,8 @@ def launch(config_raw: str, data_raw: str):
 
 @stub.local_entrypoint()
 def main(
-    config: str = "example_configs/codellama/config.yml",
-    dataset: str = "datasets/sqlqa.jsonl",
+    config: str,
+    dataset: str,
 ):
     # Read config.yml and my_data.jsonl and pass them to the new function.
     with open(config, "r") as cfg, open(dataset, "r") as data:

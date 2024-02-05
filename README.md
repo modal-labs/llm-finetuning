@@ -39,7 +39,7 @@ cd llm-finetuning
 ```
 3. Launch a training job:
 ```bash
-modal run --detach src.train
+modal run --detach src.train --config=config/codellama/config.yml --dataset=data/sqlqa.jsonl
 ```
 
 4. Try the model from a completed training run. You can select a folder via `modal volume ls example-runs-vol`, and then specify the training folder with the `--run-folder` flag (something like `/runs/axo-2023-11-24-17-26-66e8`) for inference:
@@ -86,6 +86,7 @@ base_model: codellama/CodeLlama-7b-Instruct-hf
 **Dataset** (by default we upload a local .jsonl file from the `src` folder, but you can see all dataset options [here](https://github.com/OpenAccess-AI-Collective/axolotl#dataset))
 ```yaml
 datasets:
+  # This will be the path used for the data when it is saved to the Volume in the cloud.
   - path: my_data.jsonl
     ds_type: json
     type:
@@ -105,7 +106,7 @@ datasets:
 ```yaml
 adapter: lora # for qlora, or leave blank for full finetune
 lora_r: 16
-lora_alpha: 32 # alpha = 2 x rank is a good starting point.
+lora_alpha: 32 # alpha = 2 x rank is a good rule of thumb.
 lora_dropout: 0.05
 lora_target_linear: true # target all linear layers
 ```
@@ -151,14 +152,14 @@ wandb_watch: gradients
 A simple training job can be started with
 
 ```bash
-modal run --detach src.train
+modal run --detach src.train --config=... --dataset=...
 ```
 
 _`--detach` lets the app continue running even if your client disconnects_.
 
-The script reads two local files: `config.yml` and `my_data.jsonl`. The contents passed as arguments to the remote `launch` function, which will write them to the `/runs` volume. Next, `train` will read the config and data from the new folder for reproducible training runs.
+The script reads two local files containing the config information and the dataset. The contents passed as arguments to the remote `launch` function, which will write them to the `/runs` volume. Next, `train` will read the config and data from the volume for reproducible training runs.
 
-When you make local changes to either `config.yml` or `my_data.jsonl`, they will be used for your next training run.
+When you make local changes to either your config or data, they will be used for your next training run.
 
 The default configuration fine-tunes CodeLlama Instruct 7B to understand Modal documentation for five epochs as a proof of concept. It uses DeepSpeed ZeRO-3 to shard the model state across 2 A100s. To achieve better results, you would need to use more data and train for more epochs.
 
