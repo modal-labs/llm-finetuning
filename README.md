@@ -157,7 +157,7 @@ modal run --detach src.train --config=... --data=...
 
 _`--detach` lets the app continue running even if your client disconnects_.
 
-The script reads two local files containing the config information and the dataset. The contents passed as arguments to the remote `launch` function, which will write them to the `/runs` volume. Next, `train` will read the config and data from the volume for reproducible training runs.
+The script reads two local files containing the config information and the dataset. The contents are passed as arguments to the remote `launch` function, which writes them to the `/runs` volume. Finally, `train` reads the config and data from the volume for reproducible training runs.
 
 When you make local changes to either your config or data, they will be used for your next training run.
 
