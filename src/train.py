@@ -135,10 +135,12 @@ def launch(config_raw: str, data_raw: str):
 
 
 @stub.local_entrypoint()
-def main(config: str = "config.yml", dataset: str = "my_data.jsonl"):
+def main(
+    config: str = "example_configs/codellama/config.yml",
+    dataset: str = "datasets/sqlqa.jsonl",
+):
     # Read config.yml and my_data.jsonl and pass them to the new function.
-    dir = os.path.dirname(__file__)
-    with open(f"{dir}/{config}", "r") as cfg, open(f"{dir}/{dataset}", "r") as data:
+    with open(config, "r") as cfg, open(dataset, "r") as data:
         _, train_handle = launch.remote(cfg.read(), data.read())
 
     # Wait for the training run to finish.
