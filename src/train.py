@@ -126,6 +126,7 @@ def launch(config_raw: str, data_raw: str):
     VOLUME_CONFIG["/runs"].commit()
 
     # Start training run.
+    print("Spawning container for training.")
     train_handle = train.spawn(run_folder)
     with open(f"{run_folder}/logs.txt", "w") as f:
         f.write(f"train: https://modal.com/logs/call/{train_handle.object_id}")
@@ -135,11 +136,13 @@ def launch(config_raw: str, data_raw: str):
 
 
 @stub.local_entrypoint()
-def main(config: str = "config.yml", dataset: str = "my_data.jsonl"):
+def main(
+    config: str,
+    data: str,
+):
     # Read config.yml and my_data.jsonl and pass them to the new function.
-    dir = os.path.dirname(__file__)
-    with open(f"{dir}/{config}", "r") as cfg, open(f"{dir}/{dataset}", "r") as data:
-        _, train_handle = launch.remote(cfg.read(), data.read())
+    with open(config, "r") as cfg, open(data, "r") as dat:
+        _, train_handle = launch.remote(cfg.read(), dat.read())
 
     # Wait for the training run to finish.
     merge_handle = train_handle.get()

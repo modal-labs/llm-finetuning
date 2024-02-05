@@ -28,4 +28,4 @@ jobs:
 
       - name: Run training job on Modal
         run: |
-          modal run src.train
+          modal run src.train --config=config/codellama.yml --data=data/sqlqa.jsonl
