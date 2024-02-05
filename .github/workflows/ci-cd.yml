@@ -5,7 +5,7 @@ on: pull_request
 jobs:
   test:
     environment: CI
-    name: Deploy
+    name: Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
