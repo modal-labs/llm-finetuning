@@ -31,8 +31,8 @@ jobs:
 
       - name: Prep config and data for CI
         run: |
-          python ci/prep_for_ci.py --config=config/{{ matrix.config }}.yml --data=data/sqlqa.jsonl
+          python ci/prep_for_ci.py --config=config/${{ matrix.config }}.yml --data=data/sqlqa.jsonl
 
       - name: Run training job on Modal
         run: |
-          GPU_MEM=40 modal run src.train --config=config/{{ amtrix.confg }}.yml --data=data/sqlqa.jsonl
+          GPU_MEM=40 modal run src.train --config=config/${{ matrix.config }}.yml --data=data/sqlqa.jsonl
