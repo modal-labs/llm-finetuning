@@ -9,6 +9,10 @@ def main(config: str, data: str):
     """Set the config to train for only one epoch and truncate the dataset."""
     with open(config) as f:
         cfg = yaml.safe_load(f.read())
+    cfg["sample_packing"] = False
+    cfg["micro_batch_size"] = 32
+    cfg["gradient_accumulation_steps"] = 1
+    cfg["learing_rate"] = 0.0001
     cfg["num_epochs"] = 1
     with open(config, "w") as f:
         yaml.dump(cfg, f)
