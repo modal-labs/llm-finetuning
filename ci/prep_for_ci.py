@@ -8,7 +8,7 @@ import yaml
 def main(config: str, data: str):
     """Set the config to train for only one epoch and truncate the dataset."""
     train_set_size = 1000
-    val_set_size = 1000
+    val_set_size = 64
     with open(config) as f:
         cfg = yaml.safe_load(f.read())
     cfg["val_set_size"] = val_set_size
