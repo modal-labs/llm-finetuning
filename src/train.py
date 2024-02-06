@@ -54,7 +54,10 @@ def run_cmd(cmd: str, run_folder: str):
     _allow_background_volume_commits=True,
 )
 def train(run_folder: str):
-    print(f"Starting training run in {run_folder}")
+    import torch
+
+    print(f"Starting training run in {run_folder}.")
+    print(f"Using {torch.device_count} {torch.cuda.get_device_name} GPU(s).")
 
     TRAIN_CMD = "accelerate launch -m axolotl.cli.train ./config.yml"
     run_cmd(TRAIN_CMD, run_folder)
