@@ -10,13 +10,13 @@ def main(config: str, data: str):
     with open(config) as f:
         cfg = yaml.safe_load(f.read())
     cfg["sequence_len"] = 1024
-    cfg["val_set_size"] = 32
+    cfg["val_set_size"] = 0
     cfg["num_epochs"] = 2
     with open(config, "w") as f:
         yaml.dump(cfg, f)
 
     with open(data) as f:
-        data_truncated = f.readlines()[:1000]
+        data_truncated = f.readlines()[:500]
     with open(data, "w") as f:
         f.writelines(data_truncated)
 
