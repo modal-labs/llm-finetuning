@@ -11,7 +11,7 @@ def main(config: str, data: str):
         cfg = yaml.safe_load(f.read())
     cfg["sequence_len"] = 1024
     cfg["val_set_size"] = 100
-    cfg["eval_steps"] = 1
+    cfg["eval_steps"] = 1000
     cfg["eval_batch_size"] = 10
     cfg["micro_batch_size"] = 10
     cfg["num_epochs"] = 2
