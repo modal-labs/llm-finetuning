@@ -10,6 +10,7 @@ def main(config: str, data: str):
     with open(config) as f:
         cfg = yaml.safe_load(f.read())
     cfg["sample_packing"] = False
+    cfg["pad_to_sequence_len"] = False
     cfg["micro_batch_size"] = 32
     cfg["gradient_accumulation_steps"] = 1
     cfg["learing_rate"] = 0.0001
