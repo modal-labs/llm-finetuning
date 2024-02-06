@@ -28,9 +28,9 @@ val_set_size: 32
 output_dir: ./lora-out
 
 sequence_len: 2048
-sample_packing: true
+sample_packing: false
 eval_sample_packing: false
-pad_to_sequence_len: true
+pad_to_sequence_len: false
 
 adapter: lora
 lora_model_dir:
@@ -46,11 +46,11 @@ wandb_watch:
 wandb_run_id:
 
 gradient_accumulation_steps: 1
-micro_batch_size: 16
-num_epochs: 1
+micro_batch_size: 32
+num_epochs: 4
 optimizer: adamw_bnb_8bit
 lr_scheduler: cosine
-learning_rate: 0.0002
+learning_rate: 0.0001
 
 bf16: auto
 fp16: false
