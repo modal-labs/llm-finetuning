@@ -52,7 +52,7 @@ optimizer: adamw_bnb_8bit
 lr_scheduler: cosine
 learning_rate: 0.0002
 
-bf16: true
+bf16: auto
 fp16: false
 tf32: false
 train_on_inputs: false
@@ -69,7 +69,7 @@ flash_attention: false
 warmup_steps: 10
 save_steps:
 debug:
-deepspeed: /root/axolotl/deepspeed/zero3.json
+deepspeed: /root/axolotl/deepspeed_configs/zero3_bf16.json
 weight_decay: 0.0
 fsdp:
 fsdp_config:
