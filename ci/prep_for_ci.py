@@ -10,7 +10,7 @@ def main(config: str, data: str):
     with open(config) as f:
         cfg = yaml.safe_load(f.read())
     cfg["sequence_len"] = 1024
-    cfg["val_set_size"] = 0
+    cfg["val_set_size"] = 16
     cfg["num_epochs"] = 2
     with open(config, "w") as f:
         yaml.dump(cfg, f)
