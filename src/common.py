@@ -24,17 +24,16 @@ axolotl_image = (
     .env(dict(HUGGINGFACE_HUB_CACHE="/pretrained", HF_HUB_ENABLE_HF_TRANSFER="1"))
 )
 
-vllm_image = (
-    Image.from_registry("nvidia/cuda:12.1.0-base-ubuntu22.04", add_python="3.10")
-    .pip_install(
-        "vllm==0.2.5",
-        "torch==2.1.2",
-        "torchvision==0.16.2",
-        "torchaudio==2.1.2"
-        )
+vllm_image = Image.from_registry(
+    "nvidia/cuda:12.1.0-base-ubuntu22.04", add_python="3.10"
+).pip_install(
+    "vllm==0.2.5",
+    "torch==2.1.2",
+    "torchvision==0.16.2",
+    "torchaudio==2.1.2",
 )
 
-stub = Stub(APP_NAME, secrets=[Secret.from_name("huggingface")])
+stub = Stub(APP_NAME)  # , secrets=[Secret.from_name("huggingface")])
 
 # Volumes for pre-trained models and training runs.
 pretrained_volume = Volume.persisted("example-pretrained-vol")

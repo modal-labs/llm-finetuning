@@ -4,9 +4,11 @@ tokenizer_type: LlamaTokenizer
 is_mistral_derived_model: true
 
 load_in_8bit: false
+load_in_4bit: false
 strict: false
 
 datasets:
+  # This will be the path used for the data when it is saved to the Volume in the cloud.
   - path: my_data.jsonl
     ds_type: json
     type:
@@ -22,7 +24,7 @@ datasets:
         {instruction} [/INST] 
 
 dataset_prepared_path:
-val_set_size: 0
+val_set_size: 32
 output_dir: ./lora-out
 
 sequence_len: 2048
@@ -38,13 +40,13 @@ lora_dropout: 0.05
 lora_target_linear: true
 lora_fan_in_fan_out:
 
-wandb_project: mistral-7b-axolotl-train
+wandb_project:
 wandb_entity:
-wandb_watch: gradients
+wandb_watch:
 wandb_run_id:
 
 gradient_accumulation_steps: 1
-micro_batch_size: 1
+micro_batch_size: 16
 num_epochs: 1
 optimizer: adamw_bnb_8bit
 lr_scheduler: cosine
@@ -62,7 +64,7 @@ resume_from_checkpoint:
 local_rank:
 logging_steps: 1
 xformers_attention:
-flash_attention: true
+flash_attention: false
 
 warmup_steps: 10
 save_steps:
