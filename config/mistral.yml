@@ -24,7 +24,7 @@ datasets:
         {instruction} [/INST] 
 
 dataset_prepared_path:
-val_set_size: 32
+val_set_size: 0.05
 output_dir: ./lora-out
 
 sequence_len: 4096
