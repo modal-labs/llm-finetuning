@@ -88,7 +88,7 @@ def merge(run_folder: str):
 
         print(f"Merge from {MERGE_SRC} in {run_folder}")
 
-    MERGE_CMD = f"accelerate launch -m axolotl.cli.merge_lora ./config.yml --lora_model_dir='{MERGE_SRC}' --load_in_8bit=False --load_in_4bit=False --flash_attention=False"
+    MERGE_CMD = f"accelerate launch -m axolotl.cli.merge_lora ./config.yml --lora_model_dir='{MERGE_SRC}'"
     run_cmd(MERGE_CMD, run_folder)
 
     VOLUME_CONFIG["/runs"].commit()
