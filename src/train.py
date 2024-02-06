@@ -57,7 +57,7 @@ def train(run_folder: str):
     import torch
 
     print(f"Starting training run in {run_folder}.")
-    print(f"Using {torch.device_count} {torch.cuda.get_device_name} GPU(s).")
+    print(f"Using {torch.cuda.device_count()} {torch.cuda.get_device_name()} GPU(s).")
 
     TRAIN_CMD = "accelerate launch -m axolotl.cli.train ./config.yml"
     run_cmd(TRAIN_CMD, run_folder)
