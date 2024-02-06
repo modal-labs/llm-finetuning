@@ -13,7 +13,7 @@ jobs:
     env:
       MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
       MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
-      MODAL_ENVIRONMENT: ci-cd
+      MODAL_ENVIRONMENT: CI-CD
 
     steps:
       - name: Checkout Repository
