@@ -24,10 +24,10 @@ datasets:
         {instruction} [/INST] 
 
 dataset_prepared_path:
-val_set_size: 0
+val_set_size: 32
 output_dir: ./lora-out
 
-sequence_len: 2048
+sequence_len: 1025
 sample_packing: true
 eval_sample_packing: false
 pad_to_sequence_len: true

@@ -16,7 +16,7 @@ def main(config: str, data: str):
         yaml.dump(cfg, f)
 
     with open(data) as f:
-        data_truncated = f.readlines(500)
+        data_truncated = f.readlines()[:500]
     with open(data, "w") as f:
         f.writelines(data_truncated)
 
