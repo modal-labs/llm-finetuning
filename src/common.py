@@ -1,6 +1,6 @@
 from pathlib import PurePosixPath
 
-from modal import Stub, Image, Volume, Secret
+from modal import Stub, Image, Volume
 
 APP_NAME = "example-axolotl"
 
@@ -26,7 +26,7 @@ vllm_image = Image.from_registry(
     "torch==2.1.2",
 )
 
-stub = Stub(APP_NAME)  # , secrets=[Secret.from_name("huggingface")])
+stub = Stub(APP_NAME)
 
 # Volumes for pre-trained models and training runs.
 pretrained_volume = Volume.persisted("example-pretrained-vol")
