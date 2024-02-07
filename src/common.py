@@ -1,5 +1,6 @@
+from pathlib import PurePosixPath
+
 from modal import Stub, Image, Volume, Secret
-import os
 
 APP_NAME = "example-axolotl"
 
@@ -30,7 +31,7 @@ stub = Stub(APP_NAME)  # , secrets=[Secret.from_name("huggingface")])
 # Volumes for pre-trained models and training runs.
 pretrained_volume = Volume.persisted("example-pretrained-vol")
 runs_volume = Volume.persisted("example-runs-vol")
-VOLUME_CONFIG: dict[str | os.PathLike, Volume] = {
+VOLUME_CONFIG: dict[str | PurePosixPath, Volume] = {
     "/pretrained": pretrained_volume,
     "/runs": runs_volume,
 }
