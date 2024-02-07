@@ -79,13 +79,7 @@ def merge(run_folder: str):
     shutil.rmtree(f"{run_folder}/lora-out/merged", ignore_errors=True)
 
     with open(f"{run_folder}/config.yml") as config:
-        # Loading ./lora-out saved by deepspeed has issues, use latest checkpoint instead.
-        if yaml.safe_load(config).get("deepspeed", None):
-            checkpoints = glob.glob(f"./lora-out/checkpoint-*", root_dir=run_folder)
-            MERGE_SRC = max(checkpoints, key=lambda path: int(path.split("-")[-1]))
-        else:
-            MERGE_SRC = "./lora-out"
-
+        MERGE_SRC = "./lora-out"
         print(f"Merge from {MERGE_SRC} in {run_folder}")
 
     MERGE_CMD = f"accelerate launch -m axolotl.cli.merge_lora ./config.yml --lora_model_dir='{MERGE_SRC}'"
