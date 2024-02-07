@@ -21,11 +21,12 @@ if __name__ == "__main__":
     if m is None:
         sys.exit("Could not parse training results from model card")
     else:
-        results_text = m.group().replace(" ", "")
+        results_text = m.group(1).strip().replace(" ", "")
 
     results = pd.read_table(StringIO(results_text), sep="|")
-    train_loss = results["TrainingLoss"].iloc[-1].astype(float)
-    val_loss = results["ValidationLoss"].iloc[-1].astype(float)
+    print(results)  # TODO debugging
+    train_loss = float(results["TrainingLoss"].iloc[-1])
+    val_loss = float(results["ValidationLoss"].iloc[-1])
 
     print("Loss: {train_loss:.2f} (training), {val_loss:.2f} (validation)")
     sys.exit(val_loss < 0.25)  # Arbitrary threshold
