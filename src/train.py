@@ -139,7 +139,11 @@ def main(
 ):
     # Read config.yml and my_data.jsonl and pass them to the new function.
     with open(config, "r") as cfg, open(data, "r") as dat:
-        _, train_handle = launch.remote(cfg.read(), dat.read())
+        run_folder, train_handle = launch.remote(cfg.read(), dat.read())
+
+    # Write a local refernce to the location on the remote volume with the run
+    with open(".last_run_folder", "w") as f:
+        f.write(run_folder)
 
     # Wait for the training run to finish.
     merge_handle = train_handle.get()
