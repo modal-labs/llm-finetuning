@@ -138,7 +138,7 @@ def main(
     config: str,
     data: str,
 ):
-    # Read config.yml and my_data.jsonl and pass them to the new function.
+    # Read config and data source files and pass their contents to the remote function.
     with open(config, "r") as cfg, open(data, "r") as dat:
         run_name, train_handle = launch.remote(cfg.read(), dat.read())
 

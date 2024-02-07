@@ -9,7 +9,7 @@ strict: false
 
 datasets:
   # This will be the path used for the data when it is saved to the Volume in the cloud.
-  - path: my_data.jsonl
+  - path: data.jsonl
     ds_type: json
     type:
       # JSONL file contains question, context, answer fields per line.
