@@ -39,7 +39,7 @@ cd llm-finetuning
 ```
 3. Launch a training job:
 ```bash
-modal run --detach src.train --config=config/codellama.yml --data=data/sqlqa.jsonl
+modal run --detach src.train --config=config/mistral.yml --data=data/sqlqa.jsonl
 ```
 
 4. Try the model from a completed training run. You can select a folder via `modal volume ls example-runs-vol`, and then specify the training folder with the `--run-folder` flag (something like `/runs/axo-2023-11-24-17-26-66e8`) for inference:
@@ -48,7 +48,7 @@ modal run --detach src.train --config=config/codellama.yml --data=data/sqlqa.jso
 modal run -q src.inference --run-folder /runs/<run_tag>
 ```
 
-The default configuration fine-tunes CodeLlama Instruct 7B on a text-to-SQL dataset for five epochs (takes a few minutes) as a proof of concept. It uses DeepSpeed ZeRO-3 to shard the model state across 2 A100s. Inference on the fine-tuned model displays conformity to the output structure (`[SQL] ... [/SQL]`). To achieve better results, you would need to use more data! Refer to the full development section below.
+Our quickstart example trains a 7B model on a text-to-SQL dataset as a proof of concept (it takes just a few minutes). It uses DeepSpeed ZeRO-3 to shard the model state across 2 A100s. Inference on the fine-tuned model displays conformity to the output structure (`[SQL] ... [/SQL]`). To achieve better results, you would need to use more data! Refer to the full development section below.
 
 5. (Optional) Launch the GUI for easy observability of training status.
 
@@ -76,18 +76,18 @@ The rest of the code are helpers for _calling_ these three functions. There are 
 
 ### Config
 
-You can `example_configs` for quick start with different models. We recommend duplicating one to `src/config.yml` and modifying as you need. See an overview of Axolotl's config options [here](https://github.com/OpenAccess-AI-Collective/axolotl#config). The most important options to consider are:
+You can view some example configurations in `config` for a quick start with different models. See an overview of Axolotl's config options [here](https://github.com/OpenAccess-AI-Collective/axolotl#config). The most important options to consider are:
 
 **Model**
 ```yaml
-base_model: codellama/CodeLlama-7b-Instruct-hf
+base_model: mistralai/Mistral-7B-v0.1
 ```
 
-**Dataset** (by default we upload a local .jsonl file from the `src` folder, but you can see all dataset options [here](https://github.com/OpenAccess-AI-Collective/axolotl#dataset))
+**Dataset** (You can see all dataset options [here](https://github.com/OpenAccess-AI-Collective/axolotl#dataset))
 ```yaml
 datasets:
   # This will be the path used for the data when it is saved to the Volume in the cloud.
-  - path: my_data.jsonl
+  - path: data.jsonl
     ds_type: json
     type:
       # JSONL file contains question, context, answer fields per line.
@@ -104,16 +104,16 @@ datasets:
 
 **LoRA**
 ```yaml
-adapter: lora # for qlora, or leave blank for full finetune
+adapter: lora  # for qlora, or leave blank for full finetune (requires much more GPU memory!)
 lora_r: 16
-lora_alpha: 32 # alpha = 2 x rank is a good rule of thumb.
+lora_alpha: 32  # alpha = 2 x rank is a good rule of thumb.
 lora_dropout: 0.05
-lora_target_linear: true # target all linear layers
+lora_target_linear: true  # target all linear layers
 ```
 
 ### Custom Dataset
 
-Axolotl supports many dataset formats ([see more](https://github.com/OpenAccess-AI-Collective/axolotl#dataset)). We recommend adding your custom dataset as a .jsonl file in the `src` folder and making the appropriate modifications to your config.
+Axolotl supports many dataset formats ([see more](https://github.com/OpenAccess-AI-Collective/axolotl#dataset)). We recommend adding your custom dataset as a .jsonl file in the `data` folder and making the appropriate modifications to your config.
 
 **Multi-GPU training**
 
@@ -121,14 +121,14 @@ We recommend [DeepSpeed](https://github.com/microsoft/DeepSpeed) for multi-GPU t
 
 In your `config.yml`:
 ```yaml
-deepspeed: /root/axolotl/deepspeed/zero3.json
+deepspeed: /root/axolotl/deepspeed_configs/zero3_bf16.json
 ```
 
 In `train.py`:
 ```python
 N_GPUS = 2
-GPU_MEM = 80
-GPU_CONFIG = modal.gpu.A100(count=N_GPUS, memory=GPU_MEM) # you can also change this to use A10Gs or T4s
+GPU_MEM = 40
+GPU_CONFIG = modal.gpu.A100(count=N_GPUS, memory=GPU_MEM)  # you can also change this to use A10Gs or T4s
 ```
 
 **Logging with Weights and Biases**
@@ -161,16 +161,15 @@ The script reads two local files containing the config information and the datas
 
 When you make local changes to either your config or data, they will be used for your next training run.
 
-The default configuration fine-tunes CodeLlama Instruct 7B to understand Modal documentation for five epochs as a proof of concept. It uses DeepSpeed ZeRO-3 to shard the model state across 2 A100s. To achieve better results, you would need to use more data and train for more epochs.
-
 **Inference**
 
 To try a model from a completed run, you can select a folder via `modal volume ls examples-runs-vol`, and then specify the training folder for inference:
 
 ```bash
-modal run -q src.inference::inference_main --run-folder /runs/axo-2023-11-24-17-26-66e8
+modal run -q src.inference::inference_main --run-folder=...
 ```
 
+The training script writes the most recent run name to a local file, `.last_run_name`, for easy access.
 
 ## Using the GUI
 
