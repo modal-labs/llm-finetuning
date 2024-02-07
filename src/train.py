@@ -110,7 +110,8 @@ def launch(config_raw: str, data_raw: str):
 
     # Write config and data into a training subfolder.
     time_string = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    run_folder = f"/runs/axo-{time_string}-{secrets.token_hex(2)}"
+    run_name = f"axo-{time_string}-{secrets.token_hex(2)}"
+    run_folder = f"/runs/{run_name}"
     os.makedirs(run_folder)
 
     print(f"Preparing training run in {run_folder}.")
@@ -129,7 +130,7 @@ def launch(config_raw: str, data_raw: str):
         f.write(f"train: https://modal.com/logs/call/{train_handle.object_id}")
     VOLUME_CONFIG["/runs"].commit()
 
-    return run_folder, train_handle
+    return run_name, train_handle
 
 
 @stub.local_entrypoint()
@@ -139,11 +140,11 @@ def main(
 ):
     # Read config.yml and my_data.jsonl and pass them to the new function.
     with open(config, "r") as cfg, open(data, "r") as dat:
-        run_folder, train_handle = launch.remote(cfg.read(), dat.read())
+        run_name, train_handle = launch.remote(cfg.read(), dat.read())
 
     # Write a local refernce to the location on the remote volume with the run
-    with open(".last_run_folder", "w") as f:
-        f.write(run_folder)
+    with open(".last_run_name", "w") as f:
+        f.write(run_name)
 
     # Wait for the training run to finish.
     merge_handle = train_handle.get()

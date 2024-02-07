@@ -9,12 +9,12 @@ from modal import Volume
 
 if __name__ == "__main__":
 
-    with open(".last_run_folder", "r") as f:
-        run_folder = f.read().strip()
+    with open(".last_run_name", "r") as f:
+        run_name = f.read().strip()
 
     vol = Volume.lookup("example-runs-vol")
     contents = b""
-    for chunk in vol.read_file(f"{run_folder}/lora-out/README.md"):
+    for chunk in vol.read_file(f"{run_name}/lora-out/README.md"):
         contents += chunk
 
     m = re.search(r"### Training results\n\n(.+?)#", contents.decode(), flags=re.DOTALL)

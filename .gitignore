@@ -161,4 +161,4 @@ cython_debug/
 
 
 # Local file written by the training script
-.last_run_folder
+.last_run_name
