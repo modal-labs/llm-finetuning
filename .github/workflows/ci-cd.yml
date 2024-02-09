@@ -4,7 +4,6 @@ on: pull_request
 
 jobs:
   test:
-    environment: CI
     name: Test
     runs-on: ubuntu-latest
     strategy:
@@ -28,7 +27,7 @@ jobs:
       - name: Install Modal
         run: |
           python -m pip install --upgrade pip
-          pip install modal pyyaml
+          pip install modal pyyaml pandas
 
       - name: Prep config and data for CI
         run: |
@@ -39,4 +38,8 @@ jobs:
 
       - name: Run training job on Modal
         run: |
-          GPU_MEM=40 modal run src.train --config=config/${{ matrix.config }}.yml --data=data/sqlqa.jsonl
+          modal run src.train --config=config/${{ matrix.config }}.yml --data=data/sqlqa.jsonl
+
+      - name: Check training results
+        run: |
+          python ci/check_loss.py

@@ -10,7 +10,7 @@ from .common import (
 )
 
 N_GPUS = int(os.environ.get("N_GPUS", 2))
-GPU_MEM = int(os.environ.get("GPU_MEM", 80))
+GPU_MEM = int(os.environ.get("GPU_MEM", 40))
 GPU_CONFIG = modal.gpu.A100(count=N_GPUS, memory=GPU_MEM)
 
 
@@ -79,16 +79,10 @@ def merge(run_folder: str):
     shutil.rmtree(f"{run_folder}/lora-out/merged", ignore_errors=True)
 
     with open(f"{run_folder}/config.yml") as config:
-        # Loading ./lora-out saved by deepspeed has issues, use latest checkpoint instead.
-        if yaml.safe_load(config).get("deepspeed", None):
-            checkpoints = glob.glob(f"./lora-out/checkpoint-*", root_dir=run_folder)
-            MERGE_SRC = max(checkpoints, key=lambda path: int(path.split("-")[-1]))
-        else:
-            MERGE_SRC = "./lora-out"
-
+        MERGE_SRC = "./lora-out"
         print(f"Merge from {MERGE_SRC} in {run_folder}")
 
-    MERGE_CMD = f"accelerate launch -m axolotl.cli.merge_lora ./config.yml --lora_model_dir='{MERGE_SRC}' --load_in_8bit=False --load_in_4bit=False --flash_attention=False"
+    MERGE_CMD = f"accelerate launch -m axolotl.cli.merge_lora ./config.yml --lora_model_dir='{MERGE_SRC}'"
     run_cmd(MERGE_CMD, run_folder)
 
     VOLUME_CONFIG["/runs"].commit()
@@ -116,7 +110,8 @@ def launch(config_raw: str, data_raw: str):
 
     # Write config and data into a training subfolder.
     time_string = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    run_folder = f"/runs/axo-{time_string}-{secrets.token_hex(2)}"
+    run_name = f"axo-{time_string}-{secrets.token_hex(2)}"
+    run_folder = f"/runs/{run_name}"
     os.makedirs(run_folder)
 
     print(f"Preparing training run in {run_folder}.")
@@ -135,7 +130,7 @@ def launch(config_raw: str, data_raw: str):
         f.write(f"train: https://modal.com/logs/call/{train_handle.object_id}")
     VOLUME_CONFIG["/runs"].commit()
 
-    return run_folder, train_handle
+    return run_name, train_handle
 
 
 @stub.local_entrypoint()
@@ -143,9 +138,13 @@ def main(
     config: str,
     data: str,
 ):
-    # Read config.yml and my_data.jsonl and pass them to the new function.
+    # Read config and data source files and pass their contents to the remote function.
     with open(config, "r") as cfg, open(data, "r") as dat:
-        _, train_handle = launch.remote(cfg.read(), dat.read())
+        run_name, train_handle = launch.remote(cfg.read(), dat.read())
+
+    # Write a local refernce to the location on the remote volume with the run
+    with open(".last_run_name", "w") as f:
+        f.write(run_name)
 
     # Wait for the training run to finish.
     merge_handle = train_handle.get()
