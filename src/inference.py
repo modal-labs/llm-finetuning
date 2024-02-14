@@ -58,10 +58,14 @@ class Inference:
 
 
 @stub.local_entrypoint()
-def inference_main(run_folder: str):
-    text = input(
-        "Enter a prompt (including the prompt template, e.g. [INST] ... [/INST]):\n"
-    )
-    print("Loading model ...")
-    for chunk in Inference(f"{run_folder}/lora-out/merged").completion.remote_gen(text):
-        print(chunk, end="")
+def inference_main(run_folder: str, prompt: str = ""):
+    if prompt:
+        for chunk in Inference(f"{run_folder}/lora-out/merged").completion.remote_gen(prompt):
+            print(chunk, end="")
+    else:
+        prompt = input(
+            "Enter a prompt (including the prompt template, e.g. [INST] ... [/INST]):\n"
+        )
+        print("Loading model ...")
+        for chunk in Inference(f"{run_folder}/lora-out/merged").completion.remote_gen(prompt):
+            print(chunk, end="")
