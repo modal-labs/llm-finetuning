@@ -1,4 +1,4 @@
-# Fine-tune any LLM in minutes (ft. LLaMA, CodeLlama, Mistral)
+# Fine-tune any LLM in minutes (ft. Mixtral, LLaMA, Mistral)
 
 ### Tired of prompt engineering? You've come to the right place.
 
