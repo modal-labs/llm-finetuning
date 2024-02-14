@@ -3,9 +3,10 @@ import time
 
 from .common import stub, vllm_image, VOLUME_CONFIG
 
+N_INFERENCE_GPU = 2
 
 @stub.cls(
-    gpu="A100",
+    gpu=modal.gpu.H100(count=N_INFERENCE_GPU),
     image=vllm_image,
     volumes=VOLUME_CONFIG,
     allow_concurrent_inputs=30,
@@ -18,7 +19,7 @@ class Inference:
         from vllm.engine.arg_utils import AsyncEngineArgs
         from vllm.engine.async_llm_engine import AsyncLLMEngine
 
-        engine_args = AsyncEngineArgs(model=model_path, gpu_memory_utilization=0.95)
+        engine_args = AsyncEngineArgs(model=model_path, gpu_memory_utilization=0.95, tensor_parallel_size=N_INFERENCE_GPU)
         self.engine = AsyncLLMEngine.from_engine_args(engine_args)
 
     @modal.method()

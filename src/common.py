@@ -22,7 +22,7 @@ axolotl_image = (
 vllm_image = Image.from_registry(
     "nvidia/cuda:12.1.0-base-ubuntu22.04", add_python="3.10"
 ).pip_install(
-    "vllm==0.2.5",
+    "vllm==0.2.6",
     "torch==2.1.2",
 )
 
