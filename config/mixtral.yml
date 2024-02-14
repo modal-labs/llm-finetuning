@@ -1,0 +1,105 @@
+base_model: mistralai/Mixtral-8x7B-v0.1
+model_type: AutoModelForCausalLM
+tokenizer_type: LlamaTokenizer
+trust_remote_code: true
+
+load_in_8bit: false
+load_in_4bit: true
+strict: false
+
+datasets:
+  # This will be the path used for the data when it is saved to the Volume in the cloud.
+  - path: data.jsonl
+    ds_type: json
+    type:
+      # JSONL file contains question, context, answer fields per line.
+      # This gets mapped to instruction, input, output axolotl tags.
+      field_instruction: question
+      field_input: context
+      field_output: answer
+      # Format is used by axolotl to generate the prompt.
+      format: |-
+        [INST] Using the schema context below, generate a SQL query that answers the question.
+        {input}
+        {instruction} [/INST] 
+
+dataset_prepared_path:
+val_set_size: 32
+output_dir: ./lora-out
+
+## You can optionally freeze the entire model and unfreeze a subset of parameters
+unfrozen_parameters:
+#  - lm_head.*
+#  - model.embed_tokens.*
+#  - model.layers.2[0-9]+.block_sparse_moe.gate.*
+#  - model.layers.2[0-9]+.block_sparse_moe.experts.*
+#  - model.layers.3[0-9]+.block_sparse_moe.gate.*
+#  - model.layers.3[0-9]+.block_sparse_moe.experts.*
+
+model_config:
+  output_router_logits: true
+
+adapter: qlora
+lora_model_dir:
+
+sequence_len: 4096
+sample_packing: true
+eval_sample_packing: false
+pad_to_sequence_len: true
+
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target_linear: true
+lora_fan_in_fan_out:
+#lora_target_modules:
+#  - gate
+#  - q_proj
+#  - k_proj
+#  - v_proj
+#  - o_proj
+#  - w1
+#  - w2
+#  - w3
+
+wandb_project:
+wandb_entity:
+wandb_watch:
+wandb_name:
+wandb_log_model:
+
+gradient_accumulation_steps: 1
+micro_batch_size: 8
+num_epochs: 1
+optimizer: adamw_bnb_8bit
+lr_scheduler: cosine
+learning_rate: 0.0002
+
+train_on_inputs: false
+group_by_length: false
+bf16: auto
+fp16: false
+tf32: false
+
+gradient_checkpointing: true
+early_stopping_patience:
+resume_from_checkpoint:
+local_rank:
+logging_steps: 1
+xformers_attention:
+flash_attention: true
+
+loss_watchdog_threshold: 5.0
+loss_watchdog_patience: 3
+
+warmup_steps: 10
+evals_per_epoch: 4
+eval_table_size:
+eval_max_new_tokens: 128
+saves_per_epoch: 1
+debug:
+deepspeed: /root/axolotl/deepspeed_configs/zero2.json
+weight_decay: 0.0
+fsdp:
+fsdp_config:
+special_tokens:
