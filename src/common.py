@@ -4,9 +4,9 @@ from modal import Stub, Image, Volume
 
 APP_NAME = "example-axolotl"
 
-# Axolotl image hash corresponding to 0.4.0 release
+# Axolotl image hash corresponding to 0.4.0 release (2024-02-14)
 AXOLOTL_REGISTRY_SHA = (
-    "af4d878e9fbc90c7ba30fa78ce4d6d95b1ccba398ab944efbd322d7c0d6313c8"
+    "d5b941ba2293534c01c23202c8fc459fd2a169871fa5e6c45cb00f363d474b6a"
 )
 
 axolotl_image = (

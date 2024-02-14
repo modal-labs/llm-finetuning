@@ -175,9 +175,9 @@ def gui(config_raw: str, data_raw: str):
 
 @stub.local_entrypoint()
 def main():
-    dir = os.path.dirname(__file__)
-    with open(f"{dir}/config.yml", "r") as cfg, open(
-        f"{dir}/my_data.jsonl", "r"
+    parent = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    with open(f"{parent}/config/mixtral.yml", "r") as cfg, open(
+        f"{parent}/data/sqlqa.jsonl", "r"
     ) as data:
         handle = gui.spawn(cfg.read(), data.read())
     url = stub.q.get()
