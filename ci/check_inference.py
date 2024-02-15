@@ -15,8 +15,7 @@ How many heads of the departments are older than 56 ? [/INST] """
 
     for line in iter(p.stdout.readline, b''):
         output += line.decode()
+        print(line.decode(), end="")
     
-    print(output)
     print("Asserting that the output contains the expected SQL query")
-
     assert b"[SQL] SELECT" in output and b"[/SQL]" in output
