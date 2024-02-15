@@ -43,7 +43,7 @@ class Inference:
         t0 = time.time()
         index, tokens = 0, 0
         async for request_output in results_generator:
-            if "\ufffd" == request_output.outputs[0].text[-1]:
+            if request_output.outputs[0].text and "\ufffd" == request_output.outputs[0].text[-1]:
                 continue
             yield request_output.outputs[0].text[index:]
             index = len(request_output.outputs[0].text)
