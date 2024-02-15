@@ -18,4 +18,4 @@ How many heads of the departments are older than 56 ? [/INST] """
         print(line.decode(), end="")
     
     print("Asserting that the output contains the expected SQL query")
-    assert b"[SQL] SELECT" in output and b"[/SQL]" in output
+    assert "[SQL] SELECT" in output and "[/SQL]" in output
