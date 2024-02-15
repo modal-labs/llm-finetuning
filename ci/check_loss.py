@@ -28,7 +28,7 @@ if __name__ == "__main__":
     val_loss = float(results["ValidationLoss"].iloc[-1])
 
     # Arbitrary threshold
-    max_loss = 0.8 if b"Mixtral" in contents else 0.25
+    max_loss = 0.25
 
     print(f"Loss: {train_loss:.2f} (training), {val_loss:.2f} (validation)")
     sys.exit(val_loss > max_loss)
