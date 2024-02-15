@@ -10,8 +10,6 @@ if __name__ == "__main__":
 CREATE TABLE head (age INTEGER)
 How many heads of the departments are older than 56 ? [/INST] """
 
-    output = subprocess.call(["modal", "run", "src.inference", "--run-folder", f"/runs/{run_name}", "--prompt", prompt])
+    output = subprocess.check_output(["modal", "run", "src.inference", "--run-folder", f"/runs/{run_name}", "--prompt", prompt])
 
-    print("got output", output)
-
-    # check that the output ends with '[/SQL]' 
+    assert b"[SQL] SELECT" in output and b"[/SQL]" in output
