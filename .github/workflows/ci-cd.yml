@@ -43,3 +43,7 @@ jobs:
       - name: Check training results
         run: |
           python ci/check_loss.py
+
+      - name: Check inference results
+        run: |
+          python ci/check_inference.py

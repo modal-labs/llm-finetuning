@@ -1,0 +1,276 @@
+
+Starting training run in /runs/axo-2024-02-14-16-25-53-8ebe.
+Using 2 NVIDIA H100 80GB HBM3 GPU(s).
+The following values were not passed to `accelerate launch` and had defaults used instead:
+        `--num_processes` was set to a value of `2`
+                More than one GPU was found, enabling multi-GPU training.
+                If this was unintended please pass in `--num_processes=1`.
+        `--num_machines` was set to a value of `1`
+        `--mixed_precision` was set to a value of `'no'`
+        `--dynamo_backend` was set to a value of `'no'`
+To avoid this warning pass in values for each of the problematic parameters or run `accelerate config`.
+/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/bitsandbytes/cuda_setup/main.py:107: UserWarning: 
+
+================================================================================
+WARNING: Manual override via BNB_CUDA_VERSION env variable detected!
+BNB_CUDA_VERSION=XXX can be used to load a bitsandbytes version that is different from the PyTorch CUDA version.
+If this was unintended set the BNB_CUDA_VERSION variable to an empty string: export BNB_CUDA_VERSION=
+If you use the manual override make sure the right libcudart.so is in your LD_LIBRARY_PATH
+For example by adding the following to your .bashrc: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:<path_to_cuda_dir/lib64
+Loading CUDA version: BNB_CUDA_VERSION=121
+================================================================================
+
+
+  warn((f'\n\n{"="*80}\n'
+/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/bitsandbytes/cuda_setup/main.py:107: UserWarning: 
+
+================================================================================
+WARNING: Manual override via BNB_CUDA_VERSION env variable detected!
+BNB_CUDA_VERSION=XXX can be used to load a bitsandbytes version that is different from the PyTorch CUDA version.
+If this was unintended set the BNB_CUDA_VERSION variable to an empty string: export BNB_CUDA_VERSION=
+If you use the manual override make sure the right libcudart.so is in your LD_LIBRARY_PATH
+For example by adding the following to your .bashrc: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:<path_to_cuda_dir/lib64
+Loading CUDA version: BNB_CUDA_VERSION=121
+================================================================================
+
+
+  warn((f'\n\n{"="*80}\n'
+[2024-02-14 16:26:13,926] [INFO] [datasets.<module>:58] [PID:34] PyTorch version 2.1.2+cu121 available.
+[2024-02-14 16:26:13,926] [INFO] [datasets.<module>:58] [PID:33] PyTorch version 2.1.2+cu121 available.
+[2024-02-14 16:26:15,357] [INFO] [real_accelerator.py:191:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2024-02-14 16:26:15,357] [INFO] [real_accelerator.py:191:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2024-02-14 16:26:17,670] [WARNING] [axolotl.validate_config:309] [PID:34] [RANK:1] `trust_remote_code` is set to true. Please make sure that you reviewed the remote code/model.
+[2024-02-14 16:26:17,670] [WARNING] [axolotl.validate_config:309] [PID:33] [RANK:0] `trust_remote_code` is set to true. Please make sure that you reviewed the remote code/model.
+[2024-02-14 16:26:17,671] [WARNING] [axolotl.validate_config:547] [PID:33] [RANK:0] conflicting optimizer: adamw_bnb_8bit used alongside deepspeed optimizer.
+[2024-02-14 16:26:17,671] [WARNING] [axolotl.validate_config:547] [PID:34] [RANK:1] conflicting optimizer: adamw_bnb_8bit used alongside deepspeed optimizer.
+[2024-02-14 16:26:17,671] [DEBUG] [axolotl.normalize_config:74] [PID:33] [RANK:0] bf16 support detected, enabling for this configuration.
+[2024-02-14 16:26:17,671] [DEBUG] [axolotl.normalize_config:74] [PID:34] [RANK:1] bf16 support detected, enabling for this configuration.
+[2024-02-14 16:26:17,754] [INFO] [axolotl.normalize_config:176] [PID:34] [RANK:1] GPU memory usage baseline: 0.000GB (+0.546GB misc)
+[2024-02-14 16:26:17,965] [INFO] [axolotl.normalize_config:176] [PID:33] [RANK:0] GPU memory usage baseline: 0.000GB (+0.546GB misc)
+[2024-02-14 16:26:17,976] [WARNING] [axolotl.scripts.check_user_token:433] [PID:34] [RANK:1] Error verifying HuggingFace token. Remember to log in using `huggingface-cli login` and get your access token from https://huggingface.co/settings/tokens if you want to use gated models or datasets.
+                                 dP            dP   dP 
+                                 88            88   88 
+      .d8888b. dP.  .dP .d8888b. 88 .d8888b. d8888P 88 
+      88'  `88  `8bd8'  88'  `88 88 88'  `88   88   88 
+      88.  .88  .d88b.  88.  .88 88 88.  .88   88   88 
+      `88888P8 dP'  `dP `88888P' dP `88888P'   dP   dP 
+                                                       
+                                                       
+
+[2024-02-14 16:26:17,999] [WARNING] [axolotl.scripts.check_user_token:433] [PID:33] [RANK:0] Error verifying HuggingFace token. Remember to log in using `huggingface-cli login` and get your access token from https://huggingface.co/settings/tokens if you want to use gated models or datasets.
+[2024-02-14 16:26:18,271] [DEBUG] [axolotl.load_tokenizer:245] [PID:34] [RANK:1] EOS: 2 / </s>
+[2024-02-14 16:26:18,271] [DEBUG] [axolotl.load_tokenizer:246] [PID:34] [RANK:1] BOS: 1 / <s>
+[2024-02-14 16:26:18,271] [DEBUG] [axolotl.load_tokenizer:247] [PID:34] [RANK:1] PAD: 2 / </s>
+[2024-02-14 16:26:18,271] [DEBUG] [axolotl.load_tokenizer:248] [PID:34] [RANK:1] UNK: 0 / <unk>
+[2024-02-14 16:26:18,271] [INFO] [axolotl.load_tokenizer:259] [PID:34] [RANK:1] No Chat template selected. Consider adding a chat template for easier inference.
+[2024-02-14 16:26:18,297] [DEBUG] [axolotl.load_tokenizer:245] [PID:33] [RANK:0] EOS: 2 / </s>
+[2024-02-14 16:26:18,297] [DEBUG] [axolotl.load_tokenizer:246] [PID:33] [RANK:0] BOS: 1 / <s>
+[2024-02-14 16:26:18,297] [DEBUG] [axolotl.load_tokenizer:247] [PID:33] [RANK:0] PAD: 2 / </s>
+[2024-02-14 16:26:18,297] [DEBUG] [axolotl.load_tokenizer:248] [PID:33] [RANK:0] UNK: 0 / <unk>
+[2024-02-14 16:26:18,297] [INFO] [axolotl.load_tokenizer:259] [PID:33] [RANK:0] No Chat template selected. Consider adding a chat template for easier inference.
+[2024-02-14 16:26:18,297] [INFO] [axolotl.load_tokenized_prepared_datasets:191] [PID:33] [RANK:0] Unable to find prepared dataset in last_run_prepared/f296ca80661a80bf05a90dcbd89b0525
+[2024-02-14 16:26:18,297] [INFO] [axolotl.load_tokenized_prepared_datasets:192] [PID:33] [RANK:0] Loading raw datasets...
+[2024-02-14 16:26:18,297] [WARNING] [axolotl.load_tokenized_prepared_datasets:194] [PID:33] [RANK:0] Processing datasets during training can lead to VRAM instability. Please pre-process your dataset.
+[2024-02-14 16:26:18,297] [INFO] [axolotl.load_tokenized_prepared_datasets:201] [PID:33] [RANK:0] No seed provided, using default seed of 42
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 4000 examples [00:00, 177704.04 examples/s]
+Tokenizing Prompts (num_proc=64):  97%|█████████▋| 3899/4000 [00:01<00:00, 4913.35 examples/s]Tokenizing Prompts (num_proc=64): 100%|██████████| 4000/4000 [00:01<00:00, 2704.15 examples/s]
+[2024-02-14 16:26:20,939] [INFO] [axolotl.load_tokenized_prepared_datasets:414] [PID:33] [RANK:0] merging datasets
+Dropping Long Sequences (num_proc=208):  79%|███████▉  | 3164/4000 [00:02<00:00, 3194.24 examples/s]Dropping Long Sequences (num_proc=208): 100%|██████████| 4000/4000 [00:02<00:00, 1871.49 examples/s]
+[2024-02-14 16:26:28,469] [INFO] [axolotl.load_tokenized_prepared_datasets:424] [PID:33] [RANK:0] Saving merged prepared dataset to disk... last_run_prepared/f296ca80661a80bf05a90dcbd89b0525
+[2024-02-14 16:26:28,469] [INFO] [axolotl.load_tokenized_prepared_datasets:191] [PID:34] [RANK:1] Unable to find prepared dataset in last_run_prepared/f296ca80661a80bf05a90dcbd89b0525
+[2024-02-14 16:26:28,469] [INFO] [axolotl.load_tokenized_prepared_datasets:192] [PID:34] [RANK:1] Loading raw datasets...
+[2024-02-14 16:26:28,469] [WARNING] [axolotl.load_tokenized_prepared_datasets:194] [PID:34] [RANK:1] Processing datasets during training can lead to VRAM instability. Please pre-process your dataset.
+[2024-02-14 16:26:28,469] [INFO] [axolotl.load_tokenized_prepared_datasets:201] [PID:34] [RANK:1] No seed provided, using default seed of 42
+Saving the dataset (1/1 shards): 100%|██████████| 4000/4000 [00:00<00:00, 74271.95 examples/s]Saving the dataset (1/1 shards): 100%|██████████| 4000/4000 [00:00<00:00, 73209.56 examples/s]
+[2024-02-14 16:26:28,650] [INFO] [axolotl.load_tokenized_prepared_datasets:414] [PID:34] [RANK:1] merging datasets
+[2024-02-14 16:26:28,662] [DEBUG] [axolotl.log:61] [PID:33] [RANK:0] total_num_tokens: 456586
+[2024-02-14 16:26:28,679] [DEBUG] [axolotl.log:61] [PID:33] [RANK:0] `total_supervised_tokens: 184809`
+[2024-02-14 16:26:28,679] [DEBUG] [axolotl.log:61] [PID:33] [RANK:0] total_num_steps: 975
+[2024-02-14 16:26:28,686] [DEBUG] [axolotl.train.log:61] [PID:33] [RANK:0] loading tokenizer... mistralai/Mixtral-8x7B-v0.1
+[2024-02-14 16:26:28,755] [DEBUG] [axolotl.load_tokenizer:245] [PID:33] [RANK:0] EOS: 2 / </s>
+[2024-02-14 16:26:28,756] [DEBUG] [axolotl.load_tokenizer:246] [PID:33] [RANK:0] BOS: 1 / <s>
+[2024-02-14 16:26:28,756] [DEBUG] [axolotl.load_tokenizer:247] [PID:33] [RANK:0] PAD: 2 / </s>
+[2024-02-14 16:26:28,756] [DEBUG] [axolotl.load_tokenizer:248] [PID:33] [RANK:0] UNK: 0 / <unk>
+[2024-02-14 16:26:28,756] [INFO] [axolotl.load_tokenizer:259] [PID:33] [RANK:0] No Chat template selected. Consider adding a chat template for easier inference.
+[2024-02-14 16:26:28,756] [DEBUG] [axolotl.train.log:61] [PID:33] [RANK:0] loading model and peft_config...
+[2024-02-14 16:26:29,006] [DEBUG] [axolotl.load_tokenizer:245] [PID:34] [RANK:1] EOS: 2 / </s>
+[2024-02-14 16:26:29,006] [DEBUG] [axolotl.load_tokenizer:246] [PID:34] [RANK:1] BOS: 1 / <s>
+[2024-02-14 16:26:29,006] [DEBUG] [axolotl.load_tokenizer:247] [PID:34] [RANK:1] PAD: 2 / </s>
+[2024-02-14 16:26:29,006] [DEBUG] [axolotl.load_tokenizer:248] [PID:34] [RANK:1] UNK: 0 / <unk>
+[2024-02-14 16:26:29,006] [INFO] [axolotl.load_tokenizer:259] [PID:34] [RANK:1] No Chat template selected. Consider adding a chat template for easier inference.
+Loading checkpoint shards:   0%|          | 0/19 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/19 [00:00<?, ?it/s]
+Loading checkpoint shards:   0%|          | 0/19 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/axolotl/src/axolotl/cli/train.py", line 59, in <module>
+[2024-02-14 16:26:30,495] [ERROR] [axolotl.load_model:612] [PID:34] [RANK:1] Trying to set a tensor of shape torch.Size([32000, 4096]) in "weight" (which has shape torch.Size([0])), this look incorrect.
+Traceback (most recent call last):
+  File "/workspace/axolotl/src/axolotl/utils/models.py", line 605, in load_model
+    model = AutoModelForCausalLM.from_pretrained(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/models/auto/auto_factory.py", line 567, in from_pretrained
+    return model_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/modeling_utils.py", line 3504, in from_pretrained
+    ) = cls._load_pretrained_model(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/modeling_utils.py", line 3924, in _load_pretrained_model
+    new_error_msgs, offload_index, state_dict_index = _load_state_dict_into_meta_model(
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/modeling_utils.py", line 805, in _load_state_dict_into_meta_model
+    set_module_tensor_to_device(model, param_name, param_device, **set_module_kwargs)
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/accelerate/utils/modeling.py", line 310, in set_module_tensor_to_device
+    raise ValueError(
+ValueError: Trying to set a tensor of shape torch.Size([32000, 4096]) in "weight" (which has shape torch.Size([0])), this look incorrect.
+[2024-02-14 16:26:30,495] [ERROR] [axolotl.load_model:612] [PID:33] [RANK:0] Trying to set a tensor of shape torch.Size([32000, 4096]) in "weight" (which has shape torch.Size([0])), this look incorrect.
+Traceback (most recent call last):
+  File "/workspace/axolotl/src/axolotl/utils/models.py", line 605, in load_model
+    model = AutoModelForCausalLM.from_pretrained(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/models/auto/auto_factory.py", line 567, in from_pretrained
+    return model_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/modeling_utils.py", line 3504, in from_pretrained
+    ) = cls._load_pretrained_model(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/modeling_utils.py", line 3924, in _load_pretrained_model
+    new_error_msgs, offload_index, state_dict_index = _load_state_dict_into_meta_model(
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/modeling_utils.py", line 805, in _load_state_dict_into_meta_model
+    set_module_tensor_to_device(model, param_name, param_device, **set_module_kwargs)
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/accelerate/utils/modeling.py", line 310, in set_module_tensor_to_device
+    raise ValueError(
+ValueError: Trying to set a tensor of shape torch.Size([32000, 4096]) in "weight" (which has shape torch.Size([0])), this look incorrect.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/axolotl/src/axolotl/cli/train.py", line 59, in <module>
+        fire.Fire(do_cli)fire.Fire(do_cli)
+
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/fire/core.py", line 141, in Fire
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/fire/core.py", line 141, in Fire
+        component_trace = _Fire(component, args, parsed_flag_args, context, name)component_trace = _Fire(component, args, parsed_flag_args, context, name)
+
+                                         ^ ^ ^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/fire/core.py", line 475, in _Fire
+^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/fire/core.py", line 475, in _Fire
+    component, remaining_args = _CallAndUpdateTrace(
+     component, remaining_args = _CallAndUpdateTrace( 
+                                                          ^ ^ ^ ^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/fire/core.py", line 691, in _CallAndUpdateTrace
+^^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/fire/core.py", line 691, in _CallAndUpdateTrace
+    component = fn(*varargs, **kwargs)
+      component = fn(*varargs, **kwargs) 
+                        ^ ^ ^ ^ ^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^  File "/workspace/axolotl/src/axolotl/cli/train.py", line 35, in do_cli
+^^^
+  File "/workspace/axolotl/src/axolotl/cli/train.py", line 35, in do_cli
+    return do_train(parsed_cfg, parsed_cli_args)
+    return do_train(parsed_cfg, parsed_cli_args)  
+                 ^ ^^ ^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^  File "/workspace/axolotl/src/axolotl/cli/train.py", line 55, in do_train
+^
+  File "/workspace/axolotl/src/axolotl/cli/train.py", line 55, in do_train
+    return train(cfg=cfg, cli_args=cli_args, dataset_meta=dataset_meta)
+     return train(cfg=cfg, cli_args=cli_args, dataset_meta=dataset_meta)  
+                ^^  ^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^  File "/workspace/axolotl/src/axolotl/train.py", line 84, in train
+^^^
+  File "/workspace/axolotl/src/axolotl/train.py", line 84, in train
+        model, peft_config = load_model(cfg, tokenizer, inference=cli_args.inference)model, peft_config = load_model(cfg, tokenizer, inference=cli_args.inference)
+
+                                                 ^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^
+  File "/workspace/axolotl/src/axolotl/utils/models.py", line 613, in load_model
+  File "/workspace/axolotl/src/axolotl/utils/models.py", line 613, in load_model
+    raise err    
+raise err
+  File "/workspace/axolotl/src/axolotl/utils/models.py", line 605, in load_model
+  File "/workspace/axolotl/src/axolotl/utils/models.py", line 605, in load_model
+        model = AutoModelForCausalLM.from_pretrained(
+model = AutoModelForCausalLM.from_pretrained(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/models/auto/auto_factory.py", line 567, in from_pretrained
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/models/auto/auto_factory.py", line 567, in from_pretrained
+        return model_class.from_pretrained(return model_class.from_pretrained(
+
+                     ^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/modeling_utils.py", line 3504, in from_pretrained
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/modeling_utils.py", line 3504, in from_pretrained
+        ) = cls._load_pretrained_model() = cls._load_pretrained_model(
+
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/modeling_utils.py", line 3924, in _load_pretrained_model
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/modeling_utils.py", line 3924, in _load_pretrained_model
+    new_error_msgs, offload_index, state_dict_index = _load_state_dict_into_meta_model(
+    new_error_msgs, offload_index, state_dict_index = _load_state_dict_into_meta_model(  
+                                                                                                       ^ ^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/modeling_utils.py", line 805, in _load_state_dict_into_meta_model
+
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/transformers/modeling_utils.py", line 805, in _load_state_dict_into_meta_model
+    set_module_tensor_to_device(model, param_name, param_device, **set_module_kwargs)    
+set_module_tensor_to_device(model, param_name, param_device, **set_module_kwargs)
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/accelerate/utils/modeling.py", line 310, in set_module_tensor_to_device
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/accelerate/utils/modeling.py", line 310, in set_module_tensor_to_device
+    raise ValueError(
+    ValueErrorraise ValueError(
+: ValueErrorTrying to set a tensor of shape torch.Size([32000, 4096]) in "weight" (which has shape torch.Size([0])), this look incorrect.
+: Trying to set a tensor of shape torch.Size([32000, 4096]) in "weight" (which has shape torch.Size([0])), this look incorrect.
+[2024-02-14 16:26:33,404] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 33) of binary: /root/miniconda3/envs/py3.11/bin/python3
+Traceback (most recent call last):
+  File "/root/miniconda3/envs/py3.11/bin/accelerate", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/accelerate/commands/accelerate_cli.py", line 47, in main
+    args.func(args)
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/accelerate/commands/launch.py", line 1014, in launch_command
+    multi_gpu_launcher(args)
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/accelerate/commands/launch.py", line 672, in multi_gpu_launcher
+    distrib_run.run(args)
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/torch/distributed/run.py", line 797, in run
+    elastic_launch(
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 134, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/envs/py3.11/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 264, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+axolotl.cli.train FAILED
+------------------------------------------------------------
+Failures:
+[1]:
+  time      : 2024-02-14_16:26:33
+  host      : localhost
+  rank      : 1 (local_rank: 1)
+  exitcode  : 1 (pid: 34)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2024-02-14_16:26:33
+  host      : localhost
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 33)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+Traceback (most recent call last):
+  File "/pkg/modal/_container_entrypoint.py", line 397, in handle_input_exception
+    yield
+  File "/pkg/modal/_container_entrypoint.py", line 535, in run_inputs
+    res = imp_fun.fun(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/src/train.py", line 62, in train
+    run_cmd(TRAIN_CMD, run_folder)
+  File "/root/src/train.py", line 42, in run_cmd
+    exit(exit_code)
+  File "<frozen _sitebuiltins>", line 26, in __call__
+SystemExit: 1

@@ -1,4 +1,4 @@
-base_model: mistralai/Mixtral-8x7B-Instruct-v0.1
+base_model: mistralai/Mixtral-8x7B-v0.1
 model_type: AutoModelForCausalLM
 tokenizer_type: LlamaTokenizer
 trust_remote_code: true
@@ -23,9 +23,9 @@ datasets:
         {input}
         {instruction} [/INST] 
 
-dataset_prepared_path:
-val_set_size: 32
-output_dir: ./lora-out
+dataset_prepared_path: last_run_prepared
+val_set_size: 0.0
+output_dir: ./qlora-out
 
 ## You can optionally freeze the entire model and unfreeze a subset of parameters
 unfrozen_parameters:
@@ -44,11 +44,10 @@ lora_model_dir:
 
 sequence_len: 4096
 sample_packing: true
-eval_sample_packing: false
 pad_to_sequence_len: true
 
-lora_r: 16
-lora_alpha: 32
+lora_r: 32
+lora_alpha: 16
 lora_dropout: 0.05
 lora_target_linear: true
 lora_fan_in_fan_out:
@@ -68,8 +67,8 @@ wandb_watch:
 wandb_name:
 wandb_log_model:
 
-gradient_accumulation_steps: 1
-micro_batch_size: 8
+gradient_accumulation_steps: 2
+micro_batch_size: 1
 num_epochs: 1
 optimizer: adamw_bnb_8bit
 lr_scheduler: cosine
@@ -78,7 +77,7 @@ learning_rate: 0.0002
 train_on_inputs: false
 group_by_length: false
 bf16: auto
-fp16: false
+fp16:
 tf32: false
 
 gradient_checkpointing: true
