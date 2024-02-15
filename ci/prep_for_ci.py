@@ -11,9 +11,9 @@ def main(config: str, data: str):
         cfg = yaml.safe_load(f.read())
 
     if cfg["sample_packing"]:
-        train_set_size = 4000
+        train_set_size = 2048
     else:
-        train_set_size = 1000
+        train_set_size = 1024
     val_set_size = 64
 
     cfg["val_set_size"] = val_set_size
