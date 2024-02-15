@@ -28,4 +28,4 @@ if __name__ == "__main__":
     val_loss = float(results["ValidationLoss"].iloc[-1])
 
     print(f"Loss: {train_loss:.2f} (training), {val_loss:.2f} (validation)")
-    sys.exit(val_loss < 0.5)  # Arbitrary threshold
+    sys.exit(val_loss > 0.4)  # Arbitrary threshold
