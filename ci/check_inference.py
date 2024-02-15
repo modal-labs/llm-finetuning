@@ -12,4 +12,6 @@ How many heads of the departments are older than 56 ? [/INST] """
 
     output = subprocess.check_output(["modal", "run", "src.inference", "--run-folder", f"/runs/{run_name}", "--prompt", prompt])
 
+    print("Asserting that output contains [SQ] SELECT ... [/SQL]")
+
     assert b"[SQL] SELECT" in output and b"[/SQL]" in output
