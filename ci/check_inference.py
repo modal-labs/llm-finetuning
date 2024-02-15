@@ -10,8 +10,13 @@ if __name__ == "__main__":
 CREATE TABLE head (age INTEGER)
 How many heads of the departments are older than 56 ? [/INST] """
 
-    output = subprocess.check_output(["modal", "run", "src.inference", "--run-folder", f"/runs/{run_name}", "--prompt", prompt])
+    p = subprocess.Popen(["modal", "run", "src.inference", "--run-folder", f"/runs/{run_name}", "--prompt", prompt], stdout=subprocess.PIPE)
+    output = ""
 
-    print("Asserting that output contains [SQ] SELECT ... [/SQL]")
+    for line in iter(p.stdout.readline, b''):
+        output += line.decode()
+    
+    print(output)
+    print("Asserting that the output contains the expected SQL query")
 
     assert b"[SQL] SELECT" in output and b"[/SQL]" in output
