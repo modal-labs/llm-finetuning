@@ -12,7 +12,7 @@ def main(config: str, data: str):
 
     if cfg["sample_packing"]:
         train_set_size = 2048
-        num_epochs = 4
+        num_epochs = 10
     else:
         train_set_size = 1024
         num_epochs = 1
