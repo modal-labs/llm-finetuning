@@ -177,7 +177,7 @@ Deploy the training backend with three business functions (`launch`, `train`, `c
 
 ```bash
 modal deploy src
-modal run src.gui
+modal run src.gui --config=... --data=...
 ```
 
 The `*.modal.host` link from the latter will take you to the Gradio GUI. There will be three tabs: launch training runs, test out trained models and explore the files on the volume.
