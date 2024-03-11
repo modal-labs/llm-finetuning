@@ -29,8 +29,8 @@ vllm_image = Image.from_registry(
 stub = Stub(APP_NAME)
 
 # Volumes for pre-trained models and training runs.
-pretrained_volume = Volume.persisted("example-pretrained-vol")
-runs_volume = Volume.persisted("example-runs-vol")
+pretrained_volume = Volume.from_name("example-pretrained-vol", create_if_missing=True)
+runs_volume = Volume.from_name("example-runs-vol", create_if_missing=True)
 VOLUME_CONFIG: dict[str | PurePosixPath, Volume] = {
     "/pretrained": pretrained_volume,
     "/runs": runs_volume,
