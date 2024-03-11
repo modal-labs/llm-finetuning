@@ -1,5 +1,4 @@
 # Optional stand-alone helper GUI to call the backend training functions.
-from pathlib import Path
 
 import modal
 
@@ -35,7 +34,7 @@ def gui(config_raw: str, data_raw: str):
         VOLUME_CONFIG["/runs"].reload()
 
         md = "|Run|Checkpoint (steps)|Merged|Logs|\n|-|-|-|-|\n"
-        for run in reversed(sorted(Path("/runs").glob("*"))):
+        for run in reversed(sorted(glob.glob("/runs/*"))):
             checkpoints = [
                 int(path.split("-")[-1])
                 for path in glob.glob(f"{run}/{output_dir}/checkpoint-*")
