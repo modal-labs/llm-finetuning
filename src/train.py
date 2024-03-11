@@ -141,10 +141,14 @@ def main(
     with open(config, "r") as cfg, open(data, "r") as dat:
         run_name, train_handle = launch.remote(cfg.read(), dat.read())
 
-    # Write a local refernce to the location on the remote volume with the run
+    # Write a local reference to the location on the remote volume with the run
     with open(".last_run_name", "w") as f:
         f.write(run_name)
 
     # Wait for the training run to finish.
     merge_handle = train_handle.get()
     merge_handle.get()
+
+    print(f"Training complete. Run tag: {run_name}")
+    print(f"To inspect weights, run `modal volume ls example-runs-vol {run_name}`")
+    print(f"To run sample inference, run `modal run -q src.inference --run-folder /runs/{run_name}`")
