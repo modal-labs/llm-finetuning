@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 import secrets
 import modal
 import os
@@ -52,7 +53,7 @@ def run_cmd(cmd: str, run_folder: str):
     timeout=3600 * 24,
     _allow_background_volume_commits=True,
 )
-def train(run_folder: str):
+def train(run_folder: str, output_dir: str):
     import torch
 
     print(f"Starting training run in {run_folder}.")
@@ -62,7 +63,7 @@ def train(run_folder: str):
     run_cmd(TRAIN_CMD, run_folder)
 
     # Kick off CPU job to merge the LoRA weights into base model.
-    merge_handle = merge.spawn(run_folder)
+    merge_handle = merge.spawn(run_folder, output_dir)
     with open(f"{run_folder}/logs.txt", "a") as f:
         f.write(f"<br>merge: https://modal.com/logs/call/{merge_handle.object_id}\n")
         print(f"Beginning merge {merge_handle.object_id}.")
@@ -70,18 +71,16 @@ def train(run_folder: str):
 
 
 @stub.function(image=axolotl_image, volumes=VOLUME_CONFIG, timeout=3600 * 24)
-def merge(run_folder: str):
-    import glob
-    import yaml
+def merge(run_folder: str, output_dir: str):
     import shutil
 
-    shutil.rmtree(f"{run_folder}/lora-out/merged", ignore_errors=True)
+    output_path = Path(run_folder) / output_dir
+    shutil.rmtree(output_path / "merged", ignore_errors=True)
 
     with open(f"{run_folder}/config.yml") as config:
-        MERGE_SRC = "./lora-out"
-        print(f"Merge from {MERGE_SRC} in {run_folder}")
+        print(f"Merge from {output_path}")
 
-    MERGE_CMD = f"accelerate launch -m axolotl.cli.merge_lora ./config.yml --lora_model_dir='{MERGE_SRC}'"
+    MERGE_CMD = f"accelerate launch -m axolotl.cli.merge_lora ./config.yml --lora_model_dir='{output_dir}'"
     run_cmd(MERGE_CMD, run_folder)
 
     VOLUME_CONFIG["/runs"].commit()
@@ -124,7 +123,7 @@ def launch(config_raw: str, data_raw: str):
 
     # Start training run.
     print("Spawning container for training.")
-    train_handle = train.spawn(run_folder)
+    train_handle = train.spawn(run_folder, config["output_dir"])
     with open(f"{run_folder}/logs.txt", "w") as f:
         f.write(f"train: https://modal.com/logs/call/{train_handle.object_id}")
     VOLUME_CONFIG["/runs"].commit()

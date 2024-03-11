@@ -1,9 +1,12 @@
-import modal
 import time
+from pathlib import Path
+
+import modal
 
 from .common import stub, vllm_image, VOLUME_CONFIG
 
 N_INFERENCE_GPU = 2
+
 
 @stub.cls(
     gpu=modal.gpu.H100(count=N_INFERENCE_GPU),
@@ -13,13 +16,22 @@ N_INFERENCE_GPU = 2
     container_idle_timeout=120,
 )
 class Inference:
-    def __init__(self, model_path: str) -> None:
-        print("Initializing vLLM engine on:", model_path)
+    def __init__(self, run_folder: str) -> None:
+        import yaml
 
+        with open(f"{run_folder}/config.yml") as f:
+            config = yaml.safe_load(f.read())
+        model_path = (Path(run_folder) / config["output_dir"] / "merged").resolve()
+
+        print("Initializing vLLM engine on:", model_path)
         from vllm.engine.arg_utils import AsyncEngineArgs
         from vllm.engine.async_llm_engine import AsyncLLMEngine
 
-        engine_args = AsyncEngineArgs(model=model_path, gpu_memory_utilization=0.95, tensor_parallel_size=N_INFERENCE_GPU)
+        engine_args = AsyncEngineArgs(
+            model=model_path,
+            gpu_memory_utilization=0.95,
+            tensor_parallel_size=N_INFERENCE_GPU,
+        )
         self.engine = AsyncLLMEngine.from_engine_args(engine_args)
 
     @modal.method()
@@ -43,7 +55,10 @@ class Inference:
         t0 = time.time()
         index, tokens = 0, 0
         async for request_output in results_generator:
-            if request_output.outputs[0].text and "\ufffd" == request_output.outputs[0].text[-1]:
+            if (
+                request_output.outputs[0].text
+                and "\ufffd" == request_output.outputs[0].text[-1]
+            ):
                 continue
             yield request_output.outputs[0].text[index:]
             index = len(request_output.outputs[0].text)
@@ -60,12 +75,12 @@ class Inference:
 @stub.local_entrypoint()
 def inference_main(run_folder: str, prompt: str = ""):
     if prompt:
-        for chunk in Inference(f"{run_folder}/lora-out/merged").completion.remote_gen(prompt):
+        for chunk in Inference(run_folder).completion.remote_gen(prompt):
             print(chunk, end="")
     else:
         prompt = input(
             "Enter a prompt (including the prompt template, e.g. [INST] ... [/INST]):\n"
         )
         print("Loading model ...")
-        for chunk in Inference(f"{run_folder}/lora-out/merged").completion.remote_gen(prompt):
+        for chunk in Inference(run_folder).completion.remote_gen(prompt):
             print(chunk, end="")
