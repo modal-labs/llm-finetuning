@@ -17,6 +17,7 @@ gradio_image = modal.Image.debian_slim().pip_install("gradio==4.5.0")
 def gui(config_raw: str, data_raw: str):
     import gradio as gr
     import glob
+    import yaml
 
     # Find the deployed business functions to call
     try:
@@ -27,6 +28,8 @@ def gui(config_raw: str, data_raw: str):
             "Must first deploy training backend with `modal deploy train.py`."
         )
 
+    output_dir = yaml.safe_load(config_raw)["output_dir"]
+
     def jobs_table():
         VOLUME_CONFIG["/runs"].reload()
 
@@ -34,10 +37,10 @@ def gui(config_raw: str, data_raw: str):
         for run in reversed(sorted(glob.glob("/runs/*"))):
             checkpoints = [
                 int(path.split("-")[-1])
-                for path in glob.glob(f"{run}/lora-out/checkpoint-*")
+                for path in glob.glob(f"{run}/{output_dir}/checkpoint-*")
             ]
             last_checkpoint = max(checkpoints, default=0)
-            merged = "✅" if glob.glob(f"{run}/lora-out/merged/*") else "..."
+            merged = "✅" if glob.glob(f"{run}/{output_dir}/merged/*") else "..."
             try:
                 with open(f"{run}/logs.txt") as f:
                     logs = f.read().strip()
@@ -89,7 +92,7 @@ def gui(config_raw: str, data_raw: str):
         VOLUME_CONFIG["/runs"].reload()
         VOLUME_CONFIG["/pretrained"].reload()
         choices = [
-            *glob.glob("/runs/*/lora-out/merged", recursive=True),
+            *glob.glob("/runs/*/{output_dir}/merged", recursive=True),
             *glob.glob("/pretrained/models--*/snapshots/*", recursive=True),
         ]
         choices = [f"{choice.split('/')[2]}@{choice}" for choice in choices]
