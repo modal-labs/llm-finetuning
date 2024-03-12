@@ -12,7 +12,10 @@ def main(config: str, data: str):
 
     if cfg["sample_packing"]:
         train_set_size = 2048
-        num_epochs = 10
+        num_epochs = 4
+    elif "pythia" in cfg["base_model"]:
+        train_set_size = 3200
+        num_epochs = 1
     else:
         train_set_size = 1024
         num_epochs = 1
