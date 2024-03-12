@@ -16,6 +16,11 @@ with vllm_image.imports():
     from vllm.utils import random_uuid
 
 
+def get_model_path_from_run(path: Path) -> Path:
+    with (path / "config.yml").open() as f:
+        return path / yaml.safe_load(f.read())["output_dir"] / "merged"
+
+
 @stub.cls(
     gpu=modal.gpu.H100(count=N_INFERENCE_GPU),
     image=vllm_image,
@@ -32,18 +37,15 @@ class Inference:
     def init(self):
         if self.run_name:
             path = Path(self.run_dir) / self.run_name
-            with (path / "config.yml").open() as f:
-                output_dir = path / yaml.safe_load(f.read())["output_dir"]
+            model_path = get_model_path_from_run(path)
         else:
             # Pick the last run automatically
             run_paths = list(Path(self.run_dir).iterdir())
             for path in sorted(run_paths, reverse=True):
-                with (path / "config.yml").open() as f:
-                    output_dir = path / yaml.safe_load(f.read())["output_dir"]
-                if output_dir.exists():
+                model_path = get_model_path_from_run(path)
+                if model_path.exists():
                     break
 
-        model_path = output_dir / "merged"
         print("Initializing vLLM engine on:", model_path)
 
         engine_args = AsyncEngineArgs(
