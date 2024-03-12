@@ -10,7 +10,7 @@ if __name__ == "__main__":
 CREATE TABLE head (age INTEGER)
 How many heads of the departments are older than 56 ? [/INST] """
 
-    p = subprocess.Popen(["modal", "run", "src.inference", "--run-folder", f"/runs/{run_name}", "--prompt", prompt], stdout=subprocess.PIPE)
+    p = subprocess.Popen(["modal", "run", "src.inference", "--run-name", run_name, "--prompt", prompt], stdout=subprocess.PIPE)
     output = ""
 
     for line in iter(p.stdout.readline, b''):
