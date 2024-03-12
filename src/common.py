@@ -16,7 +16,13 @@ axolotl_image = (
         "cd /root/axolotl && git checkout v0.4.0",
     )
     .pip_install("huggingface_hub==0.20.3", "hf-transfer==0.1.5")
-    .env(dict(HUGGINGFACE_HUB_CACHE="/pretrained", HF_HUB_ENABLE_HF_TRANSFER="1"))
+    .env(
+        dict(
+            HUGGINGFACE_HUB_CACHE="/pretrained",
+            HF_HUB_ENABLE_HF_TRANSFER="1",
+            TQDM_DISABLE="true",
+        )
+    )
 )
 
 vllm_image = Image.from_registry(

@@ -1,0 +1,81 @@
+# Lightweight example of training a small Pythia model for simple demonstrations
+base_model: EleutherAI/pythia-1.4b-deduped
+model_type: AutoModelForCausalLM
+tokenizer_type: AutoTokenizer
+
+load_in_8bit: false
+load_in_4bit: false
+strict: false
+
+datasets:
+  # This will be the path used for the data when it is saved to the Volume in the cloud.
+  - path: data.jsonl
+    ds_type: json
+    type:
+      # JSONL file contains question, context, answer fields per line.
+      # This gets mapped to instruction, input, output axolotl tags.
+      field_instruction: question
+      field_input: context
+      field_output: answer
+      # Format is used by axolotl to generate the prompt.
+      format: |-
+        [INST] Using the schema context below, generate a SQL query that answers the question.
+        {input}
+        {instruction} [/INST] 
+
+dataset_prepared_path:
+val_set_size: 0.05
+output_dir: ./lora-out
+
+sequence_len: 4096
+sample_packing: false
+eval_sample_packing: false
+pad_to_sequence_len: false
+
+adapter: lora
+lora_model_dir:
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target_linear: true
+lora_fan_in_fan_out:
+lora_target_modules:
+  - query_key_value
+
+wandb_project:
+wandb_entity:
+wandb_watch:
+wandb_run_id:
+
+gradient_accumulation_steps: 1
+micro_batch_size: 32
+num_epochs: 1
+optimizer: adamw_torch
+lr_scheduler: cosine
+learning_rate: 0.0001
+
+bf16: auto
+fp16: false
+tf32: false
+train_on_inputs: false
+group_by_length: false
+
+gradient_checkpointing: true
+early_stopping_patience:
+resume_from_checkpoint:
+local_rank:
+logging_steps: 1
+xformers_attention:
+flash_attention: 
+
+warmup_steps: 10
+save_steps:
+debug:
+deepspeed: 
+weight_decay: 0.0
+fsdp:
+fsdp_config:
+special_tokens:
+  bos_token: "<|endoftext|>"
+  eos_token: "<|endoftext|>"
+  unk_token: "<|endoftext|>"
