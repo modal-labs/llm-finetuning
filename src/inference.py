@@ -31,16 +31,19 @@ class Inference:
     @modal.enter()
     def init(self):
         if self.run_name:
-            run_name = self.run_name
+            path = Path(self.run_dir) / self.run_name
+            with (path / "config.yml").open() as f:
+                output_dir = path / yaml.safe_load(f.read())["output_dir"]
         else:
             # Pick the last run automatically
-            run_name = VOLUME_CONFIG[self.run_dir].listdir("/")[-1].path
+            run_paths = list(Path(self.run_dir).iterdir())
+            for path in sorted(run_paths, reverse=True):
+                with (path / "config.yml").open() as f:
+                    output_dir = path / yaml.safe_load(f.read())["output_dir"]
+                if output_dir.exists():
+                    break
 
-        # Grab the output dir (usually "lora-out")
-        with open(f"{self.run_dir}/{run_name}/config.yml") as f:
-            output_dir = yaml.safe_load(f.read())["output_dir"]
-
-        model_path = f"{self.run_dir}/{run_name}/{output_dir}/merged"
+        model_path = output_dir / "merged"
         print("Initializing vLLM engine on:", model_path)
 
         engine_args = AsyncEngineArgs(
@@ -87,6 +90,11 @@ class Inference:
     async def completion(self, input: str):
         async for text in self._stream(input):
             yield text
+
+    @modal.method()
+    async def non_streaming(self, input: str):
+        output = [text async for text in self._stream(input)]
+        return "".join(output)
 
     @modal.web_endpoint()
     async def web(self, input: str):
