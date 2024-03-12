@@ -45,7 +45,7 @@ modal run --detach src.train --config=config/mistral.yml --data=data/sqlqa.jsonl
 4. Try the model from a completed training run. You can select a folder via `modal volume ls example-runs-vol`, and then specify the training folder with the `--run-folder` flag (something like `/runs/axo-2023-11-24-17-26-66e8`) for inference:
 
 ```bash
-modal run -q src.inference --run-folder /runs/<run_tag>
+modal run -q src.inference --run-name <run_tag>
 ```
 
 Our quickstart example trains a 7B model on a text-to-SQL dataset as a proof of concept (it takes just a few minutes). It uses DeepSpeed ZeRO-3 to shard the model state across 2 A100s. Inference on the fine-tuned model displays conformity to the output structure (`[SQL] ... [/SQL]`). To achieve better results, you would need to use more data! Refer to the full development section below.

@@ -150,4 +150,4 @@ def main(
 
     print(f"Training complete. Run tag: {run_name}")
     print(f"To inspect weights, run `modal volume ls example-runs-vol {run_name}`")
-    print(f"To run sample inference, run `modal run -q src.inference --run-folder /runs/{run_name}`")
+    print(f"To run sample inference, run `modal run -q src.inference --run-name {run_name}`")

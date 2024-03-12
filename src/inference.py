@@ -1,11 +1,19 @@
 import time
 from pathlib import Path
+import yaml
 
 import modal
+from fastapi.responses import StreamingResponse
 
 from .common import stub, vllm_image, VOLUME_CONFIG
 
 N_INFERENCE_GPU = 2
+
+with vllm_image.imports():
+    from vllm.engine.arg_utils import AsyncEngineArgs
+    from vllm.engine.async_llm_engine import AsyncLLMEngine
+    from vllm.sampling_params import SamplingParams
+    from vllm.utils import random_uuid
 
 
 @stub.cls(
@@ -16,16 +24,24 @@ N_INFERENCE_GPU = 2
     container_idle_timeout=120,
 )
 class Inference:
-    def __init__(self, run_folder: str) -> None:
-        import yaml
+    def __init__(self, run_name: str = "", run_dir: str = "/runs") -> None:
+        self.run_name = run_name
+        self.run_dir = run_dir
 
-        with open(f"{run_folder}/config.yml") as f:
-            config = yaml.safe_load(f.read())
-        model_path = (Path(run_folder) / config["output_dir"] / "merged").resolve()
+    @modal.enter()
+    def init(self):
+        if self.run_name:
+            run_name = self.run_name
+        else:
+            # Pick the last run automatically
+            run_name = VOLUME_CONFIG[self.run_dir].listdir("/")[-1].path
 
+        # Grab the output dir (usually "lora-out")
+        with open(f"{self.run_dir}/{run_name}/config.yml") as f:
+            output_dir = yaml.safe_load(f.read())["output_dir"]
+
+        model_path = f"{self.run_dir}/{run_name}/{output_dir}/merged"
         print("Initializing vLLM engine on:", model_path)
-        from vllm.engine.arg_utils import AsyncEngineArgs
-        from vllm.engine.async_llm_engine import AsyncLLMEngine
 
         engine_args = AsyncEngineArgs(
             model=model_path,
@@ -34,13 +50,9 @@ class Inference:
         )
         self.engine = AsyncLLMEngine.from_engine_args(engine_args)
 
-    @modal.method()
-    async def completion(self, input: str):
+    async def _stream(self, input: str):
         if not input:
             return
-
-        from vllm.sampling_params import SamplingParams
-        from vllm.utils import random_uuid
 
         sampling_params = SamplingParams(
             repetition_penalty=1.1,
@@ -71,16 +83,25 @@ class Inference:
         print(f"Request completed: {throughput:.4f} tokens/s")
         print(request_output.outputs[0].text)
 
+    @modal.method()
+    async def completion(self, input: str):
+        async for text in self._stream(input):
+            yield text
+
+    @modal.web_endpoint()
+    async def web(self, input: str):
+        return StreamingResponse(self._stream(input), media_type="text/event-stream")
+
 
 @stub.local_entrypoint()
-def inference_main(run_folder: str, prompt: str = ""):
+def inference_main(run_name: str = "", prompt: str = ""):
     if prompt:
-        for chunk in Inference(run_folder).completion.remote_gen(prompt):
+        for chunk in Inference(run_name).completion.remote_gen(prompt):
             print(chunk, end="")
     else:
         prompt = input(
             "Enter a prompt (including the prompt template, e.g. [INST] ... [/INST]):\n"
         )
         print("Loading model ...")
-        for chunk in Inference(run_folder).completion.remote_gen(prompt):
+        for chunk in Inference(run_name).completion.remote_gen(prompt):
             print(chunk, end="")
