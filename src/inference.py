@@ -9,6 +9,12 @@ from .common import stub, vllm_image, VOLUME_CONFIG
 
 N_INFERENCE_GPU = 2
 
+with vllm_image.imports():
+    from vllm.engine.arg_utils import AsyncEngineArgs
+    from vllm.engine.async_llm_engine import AsyncLLMEngine
+    from vllm.sampling_params import SamplingParams
+    from vllm.utils import random_uuid
+
 
 @stub.cls(
     gpu=modal.gpu.H100(count=N_INFERENCE_GPU),
@@ -37,9 +43,6 @@ class Inference:
         model_path = f"{self.run_dir}/{run_name}/{output_dir}/merged"
         print("Initializing vLLM engine on:", model_path)
 
-        from vllm.engine.arg_utils import AsyncEngineArgs
-        from vllm.engine.async_llm_engine import AsyncLLMEngine
-
         engine_args = AsyncEngineArgs(
             model=model_path,
             gpu_memory_utilization=0.95,
@@ -50,9 +53,6 @@ class Inference:
     async def _stream(self, input: str):
         if not input:
             return
-
-        from vllm.sampling_params import SamplingParams
-        from vllm.utils import random_uuid
 
         sampling_params = SamplingParams(
             repetition_penalty=1.1,
