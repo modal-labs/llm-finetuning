@@ -16,6 +16,11 @@ with vllm_image.imports():
     from vllm.utils import random_uuid
 
 
+def get_model_path_from_run(path: Path) -> Path:
+    with (path / "config.yml").open() as f:
+        return path / yaml.safe_load(f.read())["output_dir"] / "merged"
+
+
 @stub.cls(
     gpu=modal.gpu.H100(count=N_INFERENCE_GPU),
     image=vllm_image,
@@ -31,16 +36,16 @@ class Inference:
     @modal.enter()
     def init(self):
         if self.run_name:
-            run_name = self.run_name
+            path = Path(self.run_dir) / self.run_name
+            model_path = get_model_path_from_run(path)
         else:
             # Pick the last run automatically
-            run_name = VOLUME_CONFIG[self.run_dir].listdir("/")[-1].path
+            run_paths = list(Path(self.run_dir).iterdir())
+            for path in sorted(run_paths, reverse=True):
+                model_path = get_model_path_from_run(path)
+                if model_path.exists():
+                    break
 
-        # Grab the output dir (usually "lora-out")
-        with open(f"{self.run_dir}/{run_name}/config.yml") as f:
-            output_dir = yaml.safe_load(f.read())["output_dir"]
-
-        model_path = f"{self.run_dir}/{run_name}/{output_dir}/merged"
         print("Initializing vLLM engine on:", model_path)
 
         engine_args = AsyncEngineArgs(
@@ -87,6 +92,11 @@ class Inference:
     async def completion(self, input: str):
         async for text in self._stream(input):
             yield text
+
+    @modal.method()
+    async def non_streaming(self, input: str):
+        output = [text async for text in self._stream(input)]
+        return "".join(output)
 
     @modal.web_endpoint()
     async def web(self, input: str):
