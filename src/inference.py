@@ -18,9 +18,9 @@ N_INFERENCE_GPU = 2
     container_idle_timeout=120,
 )
 class Inference:
-    def __init__(self, run_name: str = "", model_dir: str = "/runs") -> None:
+    def __init__(self, run_name: str = "", run_dir: str = "/runs") -> None:
         self.run_name = run_name
-        self.model_dir = model_dir
+        self.run_dir = run_dir
 
     @modal.enter()
     def init(self):
@@ -28,13 +28,13 @@ class Inference:
             run_name = self.run_name
         else:
             # Pick the last run automatically
-            run_name = VOLUME_CONFIG[self.model_dir].listdir("/")[-1].path
+            run_name = VOLUME_CONFIG[self.run_dir].listdir("/")[-1].path
 
         # Grab the output dir (usually "lora-out")
-        with open(f"{self.model_dir}/{run_name}/config.yml") as f:
+        with open(f"{self.run_dir}/{run_name}/config.yml") as f:
             output_dir = yaml.safe_load(f.read())["output_dir"]
 
-        model_path = f"{self.model_dir}/{run_name}/{output_dir}/merged"
+        model_path = f"{self.run_dir}/{run_name}/{output_dir}/merged"
         print("Initializing vLLM engine on:", model_path)
 
         from vllm.engine.arg_utils import AsyncEngineArgs
