@@ -26,7 +26,7 @@ def get_model_path_from_run(path: Path) -> Path:
     image=vllm_image,
     volumes=VOLUME_CONFIG,
     allow_concurrent_inputs=30,
-    container_idle_timeout=120,
+    container_idle_timeout=900,
 )
 class Inference:
     def __init__(self, run_name: str = "", run_dir: str = "/runs") -> None:
