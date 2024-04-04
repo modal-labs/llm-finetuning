@@ -3,14 +3,15 @@
 import modal
 
 import webbrowser
-import os
 
 from .common import APP_NAME, VOLUME_CONFIG
 
 stub = modal.Stub("example-axolotl-gui")
-stub.q = modal.Queue.new()  # Pass back the URL to auto-launch
+q = modal.Queue.from_name(
+    "gui-queue", create_if_missing=True
+)  # Pass back the URL to auto-launch
 
-gradio_image = modal.Image.debian_slim().pip_install("gradio==4.5.0")
+gradio_image = modal.Image.debian_slim().pip_install("gradio==4.25.0", "typer==0.11.1")
 
 
 @stub.function(image=gradio_image, volumes=VOLUME_CONFIG, timeout=3600)
@@ -170,7 +171,7 @@ def gui(config_raw: str, data_raw: str):
             )
 
     with modal.forward(8000) as tunnel:
-        stub.q.put(tunnel.url)
+        q.put(tunnel.url)
         interface.launch(quiet=True, server_name="0.0.0.0", server_port=8000)
 
 
@@ -181,7 +182,7 @@ def main(
 ):
     with open(config, "r") as cfg, open(data, "r") as dat:
         handle = gui.spawn(cfg.read(), dat.read())
-    url = stub.q.get()
+    url = q.get()
     print(f"GUI available at -> {url}\n")
     webbrowser.open(url)
     handle.get()
