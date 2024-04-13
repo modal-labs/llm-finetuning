@@ -46,7 +46,7 @@ wandb_watch:
 wandb_run_id:
 
 gradient_accumulation_steps: 1
-micro_batch_size: 32
+micro_batch_size: 64
 num_epochs: 4
 optimizer: adamw_torch
 lr_scheduler: cosine
@@ -69,7 +69,7 @@ flash_attention: true
 warmup_steps: 10
 save_steps:
 debug:
-deepspeed: /root/axolotl/deepspeed_configs/zero3_bf16.json
+deepspeed: /root/axolotl/deepspeed_configs/zero1.json
 weight_decay: 0.0
 fsdp:
 fsdp_config:

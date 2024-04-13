@@ -1,22 +1,25 @@
 # Fine-tune any LLM in minutes (ft. Mixtral, LLaMA, Mistral)
 
-### Tired of prompt engineering? You've come to the right place.
+This guide will take you from a dataset to using a fine-tuned LLM for inference in a matter of minutes.
 
-This no-frills guide will take you from a dataset to using a fine-tuned LLM for inference in the matter of minutes. The heavy lifting is done by the [`axolotl` framework](https://github.com/OpenAccess-AI-Collective/axolotl).
+## Serverless Axolotl
 
-<details>
-  <summary>We use all the recommended, state-of-the-art optimizations for fast results.</summary>
-  
-<br>
-  
-- *Deepspeed ZeRO-3* to efficiently shard the base model and training state across multiple GPUs ([more info](https://www.deepspeed.ai/2021/03/07/zero3-offload.html))
-- *Parameter-efficient fine-tuning* via LoRA adapters for faster convergence
-- *Flash attention* for fast and memory-efficient attention during training (note: only works with certain hardware, like A100s)
-- *Gradient checkpointing* to reduce VRAM footprint, fit larger batches and get higher training throughput
-</details>
+ This repository gives the popular [`axolotl`](https://github.com/OpenAccess-AI-Collective/axolotl) fine-tuning library a serverless twist. It uses Modal's serverless infrastructure to run your fine-tuning jobs in the cloud, so you can train your models without worrying about building images or idling expensive GPU VMs. 
 
+ Any application written with Modal, including this one, can be trivially scaled across many GPUs in a reproducible and efficient manner.  This makes any fine-tuning job you prototype with this repository production-ready.
 
-Using Modal for fine-tuning means you never have to worry about infrastructure headaches like building images and provisioning GPUs. If a training script runs on Modal, it's reproducible and scalable enough to ship to production right away.
+### Designed For Efficiency
+
+This tutorial uses many of the recommended, state-of-the-art optimizations for efficient training that axolotl supports, including:
+    
+- **Deepspeed ZeRO** to utilize multiple GPUs [more info](https://www.deepspeed.ai) during training, according to a strategy you configure.
+- **Parameter-efficient fine-tuning** via LoRA adapters for faster convergence
+- **Flash attention** for fast and memory-efficient attention during training (note: only works with certain hardware, like A100s)
+- **Gradient checkpointing** to reduce VRAM footprint, fit larger batches and get higher training throughput.
+
+### Differences From Axolotl
+
+This modal app does not expose all CLI arguments that axolotl does.  You can specify all your desired options in the config file instead.  However, we find that the interface we provide is sufficient for most users.  Any important differences are noted in the documentation below.
 
 ## Quickstart
 
@@ -33,14 +36,22 @@ Follow the steps to quickly train and test your fine-tuned model:
     </details>
 
 2. Clone this repository and navigate to the finetuning directory:
-```bash
-git clone https://github.com/modal-labs/llm-finetuning.git
-cd llm-finetuning
-```
+    ```bash
+    git clone https://github.com/modal-labs/llm-finetuning.git
+    cd llm-finetuning
+    ```
+
 3. Launch a training job:
-```bash
-modal run --detach src.train --config=config/mistral.yml --data=data/sqlqa.jsonl
-```
+    ```bash
+    modal run --detach src.train --config=config/mistral.yml --data=data/sqlqa.jsonl
+    ```
+
+Some important caveats about the `train` command:
+
+- The `--data` flag is used to pass your dataset to axolotl. This dataset is then written to the `datasets.path` as specified in your config file. If you alraedy have a dataset at `datasets.path`, you must be careful to also pass the same path to `--data` to ensure the dataset is correctly loaded.
+- Unlike axolotl, you cannot pass additional flags to the `train` command. However, you can specify all your desired options in the config file instead.
+- This example training script is opinionated in order to make it easy to get started.  For example, a LoRA adapter is used and merged into the base model after training. This merging is currently hardcoded into the `train.py` script.  You will need to modify this script if you do not wish to fine-tune using a LoRA adapter.
+
 
 4. Try the model from a completed training run. You can select a folder via `modal volume ls example-runs-vol`, and then specify the training folder with the `--run-folder` flag (something like `/runs/axo-2023-11-24-17-26-66e8`) for inference:
 
@@ -48,7 +59,11 @@ modal run --detach src.train --config=config/mistral.yml --data=data/sqlqa.jsonl
 modal run -q src.inference --run-name <run_tag>
 ```
 
-Our quickstart example trains a 7B model on a text-to-SQL dataset as a proof of concept (it takes just a few minutes). It uses DeepSpeed ZeRO-3 to shard the model state across 2 A100s. Inference on the fine-tuned model displays conformity to the output structure (`[SQL] ... [/SQL]`). To achieve better results, you would need to use more data! Refer to the full development section below.
+Our quickstart example trains a 7B model on a text-to-SQL dataset as a proof of concept (it takes just a few minutes). It uses DeepSpeed ZeRO stage 1 to use data parallelism across 2 H100s. Inference on the fine-tuned model displays conformity to the output structure (`[SQL] ... [/SQL]`). To achieve better results, you would need to use more data! Refer to the full development section below.
+
+> [!TIP]
+> DeepSpeed ZeRO-1 is not the best choice if your model doesn't comfortably fit on a single GPU. For larger models, we recommend DeepSpeed Zero stage 3 instead by changing the `deepspeed` configuration path.  Modal mounts the [`deepspeed_configs` folder](https://github.com/OpenAccess-AI-Collective/axolotl/tree/main/deepspeed_configs) from the `axolotl` repository.  You reference these configurations in your `config.yml` like so: `deepspeed: /root/axolotl/deepspeed_configs/zero3_bf16.json`.  If you need to change these standard configurations, you will need to modify the `train.py` script to load your own custom deepspeed configuration.
+
 
 5. (Optional) Launch the GUI for easy observability of training status.
 
@@ -58,6 +73,35 @@ modal run src.gui
 ```
 
 The `*.modal.host` link from the latter will take you to the Gradio GUI. There will be two tabs: (1) launch new training runs, (2) test out trained models.
+
+6. Finding your weights
+
+As mentioned earlier, our Modal axolotl trainer automatically merges your LorA adapter weights into the base model weights.  You can browse the artifacts created by your training run with the following command, which is also printed out at the end of your training run in the logs.
+
+```bash
+modal volume ls example-runs-vol <run id>
+# example: modal volume ls example-runs-vol axo-2024-04-13-19-13-05-0fb0
+```
+
+By default, the directory structure will look like this:
+
+```
+$ modal volume ls example-runs-vol axo-2024-04-13-19-13-05-0fb0/  
+
+Directory listing of 'axo-2024-04-13-19-13-05-0fb0/' in 'example-runs-vol'
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ filename                                       ┃ type ┃ created/modified          ┃ size    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ axo-2024-04-13-19-13-05-0fb0/last_run_prepared │ dir  │ 2024-04-13 12:13:39-07:00 │ 32 B    │
+│ axo-2024-04-13-19-13-05-0fb0/mlruns            │ dir  │ 2024-04-13 12:14:19-07:00 │ 7 B     │
+│ axo-2024-04-13-19-13-05-0fb0/lora-out          │ dir  │ 2024-04-13 12:20:55-07:00 │ 178 B   │
+│ axo-2024-04-13-19-13-05-0fb0/logs.txt          │ file │ 2024-04-13 12:19:52-07:00 │ 133 B   │
+│ axo-2024-04-13-19-13-05-0fb0/data.jsonl        │ file │ 2024-04-13 12:13:05-07:00 │ 1.3 MiB │
+│ axo-2024-04-13-19-13-05-0fb0/config.yml        │ file │ 2024-04-13 12:13:05-07:00 │ 1.7 KiB │
+└────────────────────────────────────────────────┴──────┴───────────────────────────┴─────────┘
+```
+
+The LorA adapters are stored in `lora-out`. The merged weights are stored in `lora-out/merged `.   Many inference frameworks can only load the merged weights, so it is handy to know where they are stored.
 
 ## Development
 
