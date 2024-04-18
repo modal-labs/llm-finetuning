@@ -21,7 +21,7 @@ datasets:
       format: |-
         [INST] Using the schema context below, generate a SQL query that answers the question.
         {input}
-        {instruction} [/INST] 
+        {instruction} [/INST]
 
 dataset_prepared_path:
 val_set_size: 0.05
