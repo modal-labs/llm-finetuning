@@ -64,7 +64,7 @@ class Inference:
             temperature=0.2,
             top_p=0.95,
             top_k=50,
-            max_tokens=4096,
+            max_tokens=1024,
         )
         request_id = random_uuid()
         results_generator = self.engine.generate(input, sampling_params, request_id)
@@ -105,15 +105,9 @@ class Inference:
 
 @stub.local_entrypoint()
 def inference_main(run_name: str = "", prompt: str = ""):
-    prompt = """[INST]
-    That's right. And that's the big challenge that grid planners have today, is what loads do you say yes to, and what are the long term implications of that? This, and we've seen this play out over the rest of the globe where you've had these concentrations of data centers. This is a story that we saw in Dublin. We've seen it in Singapore, we've seen it in Amsterdam. And these governments start to get really worried of, wait a minute, we have too many data centers as a percentage of overall energy consumption. And what inevitably happens is a move towards putting either moratoriums on data center build out or putting very tight restrictions on what they can do and the scale at which they can do it. And so we haven't yet seen that to any material degree in the United States. But I do think that's a real risk, and it's a risk that the data center industry faces, I think somewhat uniquely in that if you're the governor of a state and you have a choice to give power to a, say, new EV car factory, that's going to produce 1502 thousand jobs versus a data center that's going to produce significantly less than that. You're going to give it to the factory. The data centers are actually the ones that are going to face likely the most constraints as governments, utilities, regulators start wrestling with this trade off of, oh, we're going to have to say no to somebody. The real risk that I think the AI and data center industry faces today is that they are the easiest target, because everyone loves what data centers do, but no one particularly loves just having a data center next door to their house. And so that's a real challenge for the industry, is that they will start to get in the crosshairs of these regulators, leaders, whomever, who's pulling the strings. As these decisions start to get made.
-    [/INST]"""
-
     if prompt:
-        # for chunk in Inference(run_name).completion.remote_gen(prompt):
-        #     print(chunk, end="")
-        # use the non_streaming method
-        print(Inference(run_name).non_streaming.remote(prompt))
+        for chunk in Inference(run_name).completion.remote_gen(prompt):
+            print(chunk, end="")
     else:
         prompt = input(
             "Enter a prompt (including the prompt template, e.g. [INST] ... [/INST]):\n"
