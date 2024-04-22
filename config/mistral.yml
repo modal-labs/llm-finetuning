@@ -69,7 +69,7 @@ flash_attention: true
 warmup_steps: 10
 save_steps:
 debug:
-deepspeed: /root/axolotl/deepspeed_configs/zero1.json
+deepspeed: /root/axolotl/deepspeed_configs/zero3_bf16.json
 weight_decay: 0.0
 fsdp:
 fsdp_config:
