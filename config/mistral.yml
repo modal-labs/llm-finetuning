@@ -46,7 +46,7 @@ wandb_watch:
 wandb_run_id:
 
 gradient_accumulation_steps: 1
-micro_batch_size: 64
+micro_batch_size: 32
 num_epochs: 4
 optimizer: adamw_torch
 lr_scheduler: cosine
