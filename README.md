@@ -65,15 +65,6 @@ Our quickstart example trains a 7B model on a text-to-SQL dataset as a proof of 
 > DeepSpeed ZeRO-1 is not the best choice if your model doesn't comfortably fit on a single GPU. For larger models, we recommend DeepSpeed Zero stage 3 instead by changing the `deepspeed` configuration path.  Modal mounts the [`deepspeed_configs` folder](https://github.com/OpenAccess-AI-Collective/axolotl/tree/main/deepspeed_configs) from the `axolotl` repository.  You reference these configurations in your `config.yml` like so: `deepspeed: /root/axolotl/deepspeed_configs/zero3_bf16.json`.  If you need to change these standard configurations, you will need to modify the `train.py` script to load your own custom deepspeed configuration.
 
 
-5. (Optional) Launch the GUI for easy observability of training status.
-
-```bash
-modal deploy src
-modal run src.gui
-```
-
-The `*.modal.host` link from the latter will take you to the Gradio GUI. There will be two tabs: (1) launch new training runs, (2) test out trained models.
-
 6. Finding your weights
 
 As mentioned earlier, our Modal axolotl trainer automatically merges your LorA adapter weights into the base model weights.  You can browse the artifacts created by your training run with the following command, which is also printed out at the end of your training run in the logs.
@@ -107,16 +98,11 @@ The LorA adapters are stored in `lora-out`. The merged weights are stored in `lo
 
 ### Code overview
 
-All the logic lies in `train.py`. Three business Modal functions run in the cloud:
+All the logic lies in `train.py`. These are the important functions:
 
 * `launch` prepares a new folder in the `/runs` volume with the training config and data for a new training job. It also ensures the base model is downloaded from HuggingFace.
 * `train` takes a prepared folder and performs the training job using the config and data.
 * `Inference.completion` can spawn a [vLLM](https://modal.com/docs/examples/vllm_inference#fast-inference-with-vllm-mistral-7b) inference container for any pre-trained or fine-tuned model from a previous training job.
-
-The rest of the code are helpers for _calling_ these three functions. There are two main ways to train:
-
-* [Use the GUI](#using-the-gui) to familiarize with the system (recommended for new fine-tuners!)
-* [Use CLI commands](#using-the-cli) (recommended for power users)
 
 ### Config
 
@@ -214,24 +200,6 @@ modal run -q src.inference::inference_main --run-folder=...
 ```
 
 The training script writes the most recent run name to a local file, `.last_run_name`, for easy access.
-
-## Using the GUI
-
-Deploy the training backend with three business functions (`launch`, `train`, `completion` in `__init__.py`). Then run the Gradio GUI.
-
-```bash
-modal deploy src
-modal run src.gui --config=... --data=...
-```
-
-The `*.modal.host` link from the latter will take you to the Gradio GUI. There will be three tabs: launch training runs, test out trained models and explore the files on the volume.
-
-
-**What is the difference between `deploy` and `run`?**
-
-- `modal deploy`: a deployed app remains ready on the cloud for invocations anywhere, anytime. This means your training jobs continue without your laptop being connected.
-- `modal run`: am ephemeral app shuts down once your local command exits. Your GUI (ephemeral app) does not waste resources when your terminal disconnects.
-
 
 ## Common Errors
 
