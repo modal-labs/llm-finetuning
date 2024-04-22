@@ -15,7 +15,7 @@ axolotl_image = (
         "git clone https://github.com/OpenAccess-AI-Collective/axolotl /root/axolotl",
         "cd /root/axolotl && git checkout v0.4.0",
     )
-    .pip_install("huggingface_hub==0.20.3", "hf-transfer==0.1.5")
+    .pip_install("huggingface_hub==0.20.3", "hf-transfer==0.1.5", "wandb==0.16.3")
     .env(
         dict(
             HUGGINGFACE_HUB_CACHE="/pretrained",
