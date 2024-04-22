@@ -62,7 +62,7 @@ modal run -q src.inference --run-name <run_tag>
 Our quickstart example trains a 7B model on a text-to-SQL dataset as a proof of concept (it takes just a few minutes). It uses DeepSpeed ZeRO stage 1 to use data parallelism across 2 H100s. Inference on the fine-tuned model displays conformity to the output structure (`[SQL] ... [/SQL]`). To achieve better results, you would need to use more data! Refer to the full development section below.
 
 > [!TIP]
-> DeepSpeed ZeRO-1 is not the best choice if your model doesn't comfortably fit on a single GPU. For larger models, we recommend DeepSpeed Zero stage 3 instead by changing the `deepspeed` configuration path.  Modal mounts the [`deepspeed_configs` folder](https://github.com/OpenAccess-AI-Collective/axolotl/tree/main/deepspeed_configs) from the `axolotl` repository.  You reference these configurations in your `config.yml` like so: `deepspeed: /root/axolotl/deepspeed_configs/zero3_bf16.json`.
+> You modify the `deepspeed` stage by changing the configuration path.  Modal mounts the [`deepspeed_configs` folder](https://github.com/OpenAccess-AI-Collective/axolotl/tree/main/deepspeed_configs) from the `axolotl` repository.  You reference these configurations in your `config.yml` like so: `deepspeed: /root/axolotl/deepspeed_configs/zero3_bf16.json`.
 
 
 6. Finding your weights
