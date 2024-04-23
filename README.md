@@ -1,12 +1,12 @@
 # Fine-tune any LLM in minutes (ft. Mixtral, LLaMA, Mistral)
 
-This guide will take you from a dataset to using a fine-tuned LLM for inference in a matter of minutes.
+This guide will show you how to fine-tune any LLM quickly using Modal and [`axolotl`](https://github.com/OpenAccess-AI-Collective/axolotl).
 
 ## Serverless Axolotl
 
- This repository gives the popular [`axolotl`](https://github.com/OpenAccess-AI-Collective/axolotl) fine-tuning library a serverless twist. It uses Modal's serverless infrastructure to run your fine-tuning jobs in the cloud, so you can train your models without worrying about building images or idling expensive GPU VMs. 
+ This repository gives the popular `axolotl` fine-tuning library a serverless twist. It uses Modal's serverless infrastructure to run your fine-tuning jobs in the cloud, so you can train your models without worrying about building images or idling expensive GPU VMs. 
 
- Any application written with Modal, including this one, can be trivially scaled across many GPUs in a reproducible and efficient manner.  This makes any fine-tuning job you prototype with this repository production-ready.
+ Any application written with Modal can be trivially scaled across many GPUs.  This ensures that any fine-tuning job prototyped with this repository is ready for production.
 
 ### Designed For Efficiency
 
@@ -48,7 +48,7 @@ Follow the steps to quickly train and test your fine-tuned model:
 
 Some important caveats about the `train` command:
 
-- The `--data` flag is used to pass your dataset to axolotl. This dataset is then written to the `datasets.path` as specified in your config file. If you alraedy have a dataset at `datasets.path`, you must be careful to also pass the same path to `--data` to ensure the dataset is correctly loaded.
+- The `--data` flag is used to pass your dataset to axolotl. This dataset is then written to the `datasets.path` as specified in your config file. If you already have a dataset at `datasets.path`, you must be careful to also pass the same path to `--data` to ensure the dataset is correctly loaded.
 - Unlike axolotl, you cannot pass additional flags to the `train` command. However, you can specify all your desired options in the config file instead.
 - This example training script is opinionated in order to make it easy to get started.  For example, a LoRA adapter is used and merged into the base model after training. This merging is currently hardcoded into the `train.py` script.  You will need to modify this script if you do not wish to fine-tune using a LoRA adapter.
 
@@ -62,7 +62,7 @@ modal run -q src.inference --run-name <run_tag>
 Our quickstart example trains a 7B model on a text-to-SQL dataset as a proof of concept (it takes just a few minutes). It uses DeepSpeed ZeRO stage 1 to use data parallelism across 2 H100s. Inference on the fine-tuned model displays conformity to the output structure (`[SQL] ... [/SQL]`). To achieve better results, you would need to use more data! Refer to the full development section below.
 
 > [!TIP]
-> DeepSpeed ZeRO-1 is not the best choice if your model doesn't comfortably fit on a single GPU. For larger models, we recommend DeepSpeed Zero stage 3 instead by changing the `deepspeed` configuration path.  Modal mounts the [`deepspeed_configs` folder](https://github.com/OpenAccess-AI-Collective/axolotl/tree/main/deepspeed_configs) from the `axolotl` repository.  You reference these configurations in your `config.yml` like so: `deepspeed: /root/axolotl/deepspeed_configs/zero3_bf16.json`.  If you need to change these standard configurations, you will need to modify the `train.py` script to load your own custom deepspeed configuration.
+> You modify the `deepspeed` stage by changing the configuration path.  Modal mounts the [`deepspeed_configs` folder](https://github.com/OpenAccess-AI-Collective/axolotl/tree/main/deepspeed_configs) from the `axolotl` repository.  You reference these configurations in your `config.yml` like so: `deepspeed: /root/axolotl/deepspeed_configs/zero3_bf16.json`.
 
 
 6. Finding your weights
