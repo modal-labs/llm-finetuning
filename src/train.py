@@ -5,7 +5,7 @@ import modal
 import os
 
 from .common import (
-    stub,
+    app,
     axolotl_image,
     VOLUME_CONFIG,
 )
@@ -46,7 +46,7 @@ def run_cmd(cmd: str, run_folder: str):
     VOLUME_CONFIG["/runs"].commit()
 
 
-@stub.function(
+@app.function(
     image=axolotl_image,
     gpu=GPU_CONFIG,
     volumes=VOLUME_CONFIG,
@@ -70,7 +70,7 @@ def train(run_folder: str, output_dir: str):
     return merge_handle
 
 
-@stub.function(image=axolotl_image, volumes=VOLUME_CONFIG, timeout=3600 * 24)
+@app.function(image=axolotl_image, volumes=VOLUME_CONFIG, timeout=3600 * 24)
 def merge(run_folder: str, output_dir: str):
     import shutil
 
@@ -86,7 +86,7 @@ def merge(run_folder: str, output_dir: str):
     VOLUME_CONFIG["/runs"].commit()
 
 
-@stub.function(image=axolotl_image, timeout=60 * 30, volumes=VOLUME_CONFIG)
+@app.function(image=axolotl_image, timeout=60 * 30, volumes=VOLUME_CONFIG)
 def launch(config_raw: str, data_raw: str):
     from huggingface_hub import snapshot_download
     import yaml
@@ -131,7 +131,7 @@ def launch(config_raw: str, data_raw: str):
     return run_name, train_handle
 
 
-@stub.local_entrypoint()
+@app.local_entrypoint()
 def main(
     config: str,
     data: str,

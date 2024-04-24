@@ -5,7 +5,7 @@ from pathlib import Path
 import modal
 from fastapi.responses import StreamingResponse
 
-from .common import stub, vllm_image, VOLUME_CONFIG
+from .common import app, vllm_image, VOLUME_CONFIG
 
 N_INFERENCE_GPU = 2
 
@@ -21,7 +21,7 @@ def get_model_path_from_run(path: Path) -> Path:
         return path / yaml.safe_load(f.read())["output_dir"] / "merged"
 
 
-@stub.cls(
+@app.cls(
     gpu=modal.gpu.H100(count=N_INFERENCE_GPU),
     image=vllm_image,
     volumes=VOLUME_CONFIG,
@@ -103,7 +103,7 @@ class Inference:
         return StreamingResponse(self._stream(input), media_type="text/event-stream")
 
 
-@stub.local_entrypoint()
+@app.local_entrypoint()
 def inference_main(run_name: str = "", prompt: str = ""):
     if prompt:
         for chunk in Inference(run_name).completion.remote_gen(prompt):
