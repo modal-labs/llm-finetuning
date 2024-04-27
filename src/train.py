@@ -135,6 +135,7 @@ def launch(config_raw: str, data_raw: str):
 def main(
     config: str,
     data: str,
+    merge_lora: bool = True,
 ):
     # Read config and data source files and pass their contents to the remote function.
     with open(config, "r") as cfg, open(data, "r") as dat:
@@ -146,7 +147,8 @@ def main(
 
     # Wait for the training run to finish.
     merge_handle = train_handle.get()
-    merge_handle.get()
+    if merge_lora:
+        merge_handle.get()
 
     print(f"Training complete. Run tag: {run_name}")
     print(f"To inspect weights, run `modal volume ls example-runs-vol {run_name}`")
