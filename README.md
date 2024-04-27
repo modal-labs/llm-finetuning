@@ -46,11 +46,12 @@ Follow the steps to quickly train and test your fine-tuned model:
     modal run --detach src.train --config=config/mistral.yml --data=data/sqlqa.jsonl
     ```
 
-Some important caveats about the `train` command:
+Some notes about the `train` command:
 
 - The `--data` flag is used to pass your dataset to axolotl. This dataset is then written to the `datasets.path` as specified in your config file. If you already have a dataset at `datasets.path`, you must be careful to also pass the same path to `--data` to ensure the dataset is correctly loaded.
 - Unlike axolotl, you cannot pass additional flags to the `train` command. However, you can specify all your desired options in the config file instead.
-- This example training script is opinionated in order to make it easy to get started.  For example, a LoRA adapter is used and merged into the base model after training. This merging is currently hardcoded into the `train.py` script.  You will need to modify this script if you do not wish to fine-tune using a LoRA adapter.
+- `--no-mergre-lora` will prevent the LoRA adapter weights from being merged into the base model weights.
+- This example training script is opinionated in order to make it easy to get started.  For example, a LoRA adapter is used and merged into the base model after training. 
 
 
 4. Try the model from a completed training run. You can select a folder via `modal volume ls example-runs-vol`, and then specify the training folder with the `--run-folder` flag (something like `/runs/axo-2023-11-24-17-26-66e8`) for inference:
