@@ -13,7 +13,6 @@ from .common import (
 N_GPUS = int(os.environ.get("N_GPUS", 2))
 GPU_CONFIG = os.environ.get("GPU_CONFIG", modal.gpu.H100(count=N_GPUS))
 
-
 def print_common_training_issues(config):
     min_train_tokens = (
         config["sequence_len"]
@@ -59,8 +58,7 @@ def train(run_folder: str, output_dir: str):
     print(f"Starting training run in {run_folder}.")
     print(f"Using {torch.cuda.device_count()} {torch.cuda.get_device_name()} GPU(s).")
 
-    TRAIN_CMD = "accelerate launch -m axolotl.cli.train ./config.yml"
-    run_cmd(TRAIN_CMD, run_folder)
+    run_cmd("accelerate launch -m axolotl.cli.train ./config.yml", run_folder)
 
     # Kick off CPU job to merge the LoRA weights into base model.
     merge_handle = merge.spawn(run_folder, output_dir)
@@ -68,6 +66,14 @@ def train(run_folder: str, output_dir: str):
         f.write(f"<br>merge: https://modal.com/logs/call/{merge_handle.object_id}\n")
         print(f"Beginning merge {merge_handle.object_id}.")
     return merge_handle
+
+@app.function(image=axolotl_image, 
+              volumes=VOLUME_CONFIG, 
+              timeout=3600 * 24,
+              _allow_background_volume_commits=True)
+def preproc_data(run_folder: str):
+    print(f"Preprocessing data.")
+    run_cmd("python -m axolotl.cli.preprocess ./config.yml", run_folder)
 
 
 @app.function(image=axolotl_image, volumes=VOLUME_CONFIG, timeout=3600 * 24)
@@ -87,9 +93,9 @@ def merge(run_folder: str, output_dir: str):
 
 
 @app.function(image=axolotl_image, timeout=60 * 30, volumes=VOLUME_CONFIG)
-def launch(config_raw: str, data_raw: str):
-    from huggingface_hub import snapshot_download
+def launch(config_raw: dict, data_raw: str, run_to_resume: str, preproc_only: bool):
     import yaml
+    from huggingface_hub import snapshot_download
 
     # Ensure the base model is downloaded
     # TODO(gongy): test if this works with a path to previous fine-tune
@@ -108,9 +114,9 @@ def launch(config_raw: str, data_raw: str):
 
     # Write config and data into a training subfolder.
     time_string = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-    run_name = f"axo-{time_string}-{secrets.token_hex(2)}"
+    run_name = f"axo-{time_string}-{secrets.token_hex(2)}" if not run_to_resume else run_to_resume
     run_folder = f"/runs/{run_name}"
-    os.makedirs(run_folder)
+    os.makedirs(run_folder, exist_ok=True)
 
     print(f"Preparing training run in {run_folder}.")
     with (
@@ -121,14 +127,20 @@ def launch(config_raw: str, data_raw: str):
         data_file.write(data_raw)
     VOLUME_CONFIG["/runs"].commit()
 
-    # Start training run.
-    print("Spawning container for training.")
-    train_handle = train.spawn(run_folder, config["output_dir"])
+    if preproc_only:
+        print("Spawning container for data preprocessing.")
+        launch_handle = preproc_data.spawn(run_folder)
+    else:
+        # Start training run. 
+        print("Spawning container for training.")
+        launch_handle = train.spawn(run_folder, config["output_dir"])
+
     with open(f"{run_folder}/logs.txt", "w") as f:
-        f.write(f"train: https://modal.com/logs/call/{train_handle.object_id}")
+        lbl = 'train' if not preproc_only else 'preproc'
+        f.write(f"{lbl}: https://modal.com/logs/call/{launch_handle.object_id}")
     VOLUME_CONFIG["/runs"].commit()
 
-    return run_name, train_handle
+    return run_name, launch_handle
 
 
 @app.local_entrypoint()
@@ -136,18 +148,20 @@ def main(
     config: str,
     data: str,
     merge_lora: bool = True,
+    preproc_only: bool = False,
+    run_to_resume: str = None,
 ):
     # Read config and data source files and pass their contents to the remote function.
     with open(config, "r") as cfg, open(data, "r") as dat:
-        run_name, train_handle = launch.remote(cfg.read(), dat.read())
+        run_name, launch_handle = launch.remote(cfg.read(), dat.read(), run_to_resume, preproc_only)
 
     # Write a local reference to the location on the remote volume with the run
     with open(".last_run_name", "w") as f:
         f.write(run_name)
 
     # Wait for the training run to finish.
-    merge_handle = train_handle.get()
-    if merge_lora:
+    merge_handle = launch_handle.get()
+    if merge_lora and not preproc_only:
         merge_handle.get()
 
     print(f"Training complete. Run tag: {run_name}")
