@@ -1,17 +1,17 @@
-# Fine-tune any LLM in minutes (ft. Mixtral, LLaMA, Mistral)
+# Fine-tune any LLM in minutes (featuring Mixtral, LLaMA, Mistral)
 
 This guide will show you how to fine-tune any LLM quickly using Modal and [`axolotl`](https://github.com/OpenAccess-AI-Collective/axolotl).
 
 ## Serverless Axolotl
 
- This repository gives the popular `axolotl` fine-tuning library a serverless twist. It uses Modal's serverless infrastructure to run your fine-tuning jobs in the cloud, so you can train your models without worrying about building images or idling expensive GPU VMs. 
+ This repository gives the popular `axolotl` fine-tuning library a serverless twist. It uses Modal's serverless infrastructure to run your fine-tuning jobs in the cloud, so you can train your models without worrying about building images or idling expensive GPU VMs.
 
  Any application written with Modal can be trivially scaled across many GPUs.  This ensures that any fine-tuning job prototyped with this repository is ready for production.
 
 ### Designed For Efficiency
 
 This tutorial uses many of the recommended, state-of-the-art optimizations for efficient training that axolotl supports, including:
-    
+
 - **Deepspeed ZeRO** to utilize multiple GPUs [more info](https://www.deepspeed.ai) during training, according to a strategy you configure.
 - **Parameter-efficient fine-tuning** via LoRA adapters for faster convergence
 - **Flash attention** for fast and memory-efficient attention during training (note: only works with certain hardware, like A100s)
@@ -25,7 +25,7 @@ This modal app does not expose all CLI arguments that axolotl does.  You can spe
 
 Follow the steps to quickly train and test your fine-tuned model:
 1. Create a Modal account and create a Modal token and HuggingFace secret for your workspace, if not already set up.
-    <details> 
+    <details>
     <summary>Setting up Modal</summary>
 
     1. Create a [Modal](https://modal.com/) account.
@@ -50,8 +50,8 @@ Some notes about the `train` command:
 
 - The `--data` flag is used to pass your dataset to axolotl. This dataset is then written to the `datasets.path` as specified in your config file. If you already have a dataset at `datasets.path`, you must be careful to also pass the same path to `--data` to ensure the dataset is correctly loaded.
 - Unlike axolotl, you cannot pass additional flags to the `train` command. However, you can specify all your desired options in the config file instead.
-- `--no-mergre-lora` will prevent the LoRA adapter weights from being merged into the base model weights.
-- This example training script is opinionated in order to make it easy to get started.  For example, a LoRA adapter is used and merged into the base model after training. 
+- `--no-merge-lora` will prevent the LoRA adapter weights from being merged into the base model weights.
+- This example training script is opinionated in order to make it easy to get started.  For example, a LoRA adapter is used and merged into the base model after training.
 
 
 4. Try the model from a completed training run. You can select a folder via `modal volume ls example-runs-vol`, and then specify the training folder with the `--run-folder` flag (something like `/runs/axo-2023-11-24-17-26-66e8`) for inference:
@@ -68,7 +68,7 @@ Our quickstart example trains a 7B model on a text-to-SQL dataset as a proof of 
 
 6. Finding your weights
 
-As mentioned earlier, our Modal axolotl trainer automatically merges your LorA adapter weights into the base model weights.  You can browse the artifacts created by your training run with the following command, which is also printed out at the end of your training run in the logs.
+As mentioned earlier, our Modal axolotl trainer automatically merges your LoRA adapter weights into the base model weights.  You can browse the artifacts created by your training run with the following command, which is also printed out at the end of your training run in the logs.
 
 ```bash
 modal volume ls example-runs-vol <run id>
@@ -78,7 +78,7 @@ modal volume ls example-runs-vol <run id>
 By default, the directory structure will look like this:
 
 ```
-$ modal volume ls example-runs-vol axo-2024-04-13-19-13-05-0fb0/  
+$ modal volume ls example-runs-vol axo-2024-04-13-19-13-05-0fb0/
 
 Directory listing of 'axo-2024-04-13-19-13-05-0fb0/' in 'example-runs-vol'
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
@@ -93,7 +93,7 @@ Directory listing of 'axo-2024-04-13-19-13-05-0fb0/' in 'example-runs-vol'
 └────────────────────────────────────────────────┴──────┴───────────────────────────┴─────────┘
 ```
 
-The LorA adapters are stored in `lora-out`. The merged weights are stored in `lora-out/merged `.   Many inference frameworks can only load the merged weights, so it is handy to know where they are stored.
+The LoRA adapters are stored in `lora-out`. The merged weights are stored in `lora-out/merged `.   Many inference frameworks can only load the merged weights, so it is handy to know where they are stored.
 
 ## Development
 
@@ -130,7 +130,7 @@ datasets:
       format: |-
         [INST] Using the schema context below, generate a SQL query that answers the question.
         {input}
-        {instruction} [/INST] 
+        {instruction} [/INST]
 ```
 
 **LoRA**
@@ -166,7 +166,7 @@ GPU_CONFIG = modal.gpu.A100(count=N_GPUS, memory=GPU_MEM)  # you can also change
 
 To track your training runs with Weights and Biases:
 1. [Create](https://modal.com/secrets/create) a Weights and Biases secret in your Modal dashboard, if not set up already (only the `WANDB_API_KEY` is needed, which you can get if you log into your Weights and Biases account and go to the [Authorize page](https://wandb.ai/authorize))
-2. Add the Weights and Biases secret to your app, so initializing your stub in `common.py` should look like: 
+2. Add the Weights and Biases secret to your app, so initializing your stub in `common.py` should look like:
 ```python
 stub = Stub(APP_NAME, secrets=[Secret.from_name("huggingface"), Secret.from_name("my-wandb-secret")])
 ```
