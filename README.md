@@ -95,6 +95,12 @@ Directory listing of 'axo-2024-04-13-19-13-05-0fb0/' in 'example-runs-vol'
 
 The LorA adapters are stored in `lora-out`. The merged weights are stored in `lora-out/merged `.   Many inference frameworks can only load the merged weights, so it is handy to know where they are stored.
 
+## Inspecting Flattened Data
+
+One of the key features of axolotl is that it flattens your data from a JSONL file into a prompt template format you specify in the config.  These are where most mistakes are made when fine-tuning.  
+
+See the [nbs/inspect_data.ipynb](nbs/inspect_data.ipynb) notebook for guide on how to inspect your data and ensure it is being flattened correctly.  We recommend that you always inspect your data the first time you fine-tune a model on a new dataset.
+
 ## Development
 
 ### Code overview
