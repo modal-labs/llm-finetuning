@@ -1,6 +1,6 @@
 from pathlib import PurePosixPath
 from typing import Union
-from modal import App, Image, Volume
+from modal import App, Image, Secret, Volume
 
 APP_NAME = "example-axolotl"
 
@@ -32,12 +32,12 @@ vllm_image = Image.from_registry(
     "torch==2.1.2",
 )
 
-app = App(APP_NAME)
+app = App(APP_NAME, secrets=[Secret.from_name("huggingface")])
 
 # Volumes for pre-trained models and training runs.
 pretrained_volume = Volume.from_name("example-pretrained-vol", create_if_missing=True)
 runs_volume = Volume.from_name("example-runs-vol", create_if_missing=True)
-VOLUME_CONFIG: dict[Union[str,PurePosixPath], Volume] = {
+VOLUME_CONFIG: dict[Union[str, PurePosixPath], Volume] = {
     "/pretrained": pretrained_volume,
     "/runs": runs_volume,
 }
