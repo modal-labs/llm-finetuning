@@ -10,27 +10,20 @@ def main(config: str, data: str):
     with open(config) as f:
         cfg = yaml.safe_load(f.read())
 
-    if cfg["sample_packing"]:
-        train_set_size = 2048
-        num_epochs = 4
-    elif "pythia" in cfg["base_model"]:
-        train_set_size = 3200
-        num_epochs = 1
-    else:
-        train_set_size = 1024
-        num_epochs = 1
-    val_set_size = 64
+    num_epochs = 50
+    val_set_size = 0.5
+
+    if cfg["base_model"] == "mistralai/Mixtral-8x7B-Instruct-v0.1":
+        num_epochs = 25  # mixtral training is slower and not well-tuned, cut early
 
     cfg["val_set_size"] = val_set_size
     cfg["num_epochs"] = num_epochs
-    cfg.pop("eval_steps", None)  # Evaluate once at the end of the epoch
+    cfg["eval_steps"] = num_epochs
+    cfg.pop("evals_per_epoch", None)  # incompatible with eval_steps
+    cfg.pop("sample_packing", False)  # requires larger dataset
+
     with open(config, "w") as f:
         yaml.dump(cfg, f)
-
-    with open(data) as f:
-        data_truncated = f.readlines()[: train_set_size + val_set_size]
-    with open(data, "w") as f:
-        f.writelines(data_truncated)
 
 
 if __name__ == "__main__":

@@ -8,7 +8,6 @@ from modal import Volume
 
 
 if __name__ == "__main__":
-
     with open(".last_run_name", "r") as f:
         run_name = f.read().strip()
 
@@ -27,8 +26,12 @@ if __name__ == "__main__":
     train_loss = float(results["TrainingLoss"].iloc[-1])
     val_loss = float(results["ValidationLoss"].iloc[-1])
 
-    # Arbitrary threshold
-    max_loss = 10 if b"Mixtral" in contents else 0.25
+    # maximum loss for training, minimum loss for validation
+    max_loss = 3e-2 if b"pythia" in contents else 2e-3  # pythia starts at higher loss
+    min_loss = 0.2
+
+    # mixtral training is not well-tuned, loosen learning requirement
+    max_loss = max_loss * 10 if b"mixtral" in contents else max_loss
 
     print(f"Loss: {train_loss:.2f} (training), {val_loss:.2f} (validation)")
-    sys.exit(val_loss > max_loss)
+    sys.exit(train_loss > max_loss or val_loss < min_loss)

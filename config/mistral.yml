@@ -23,7 +23,7 @@ datasets:
         {input}
         {instruction} [/INST] 
 
-dataset_prepared_path:
+dataset_prepared_path: last_run_prepared
 val_set_size: 0.05
 output_dir: ./lora-out
 
@@ -47,7 +47,7 @@ wandb_run_id:
 
 gradient_accumulation_steps: 1
 micro_batch_size: 32
-num_epochs: 4
+num_epochs: 2
 optimizer: adamw_torch
 lr_scheduler: cosine
 learning_rate: 0.0001
