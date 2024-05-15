@@ -31,4 +31,4 @@ if __name__ == "__main__":
     min_loss = 0.2
 
     print(f"Loss: {train_loss:.2f} (training), {val_loss:.2f} (validation)")
-    sys.exit(train_loss > max_loss or val_loss > max_loss)
+    sys.exit(train_loss < max_loss or val_loss > min_loss)
