@@ -32,7 +32,7 @@ jobs:
       - name: Prep config and data for CI
         run: |
           python ci/prep_for_ci.py --config=config/${{ matrix.config }}.yml --data=data/sqlqa.subsample.jsonl
-          echo `wc -l data/sqlqa.jsonl | awk '{print $1}'` lines in test data
+          echo `wc -l data/sqlqa.subsample.jsonl | awk '{print $1}'` lines in test data
           echo Config:
           cat config/${{ matrix.config }}.yml
 
