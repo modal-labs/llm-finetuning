@@ -27,8 +27,8 @@ if __name__ == "__main__":
     val_loss = float(results["ValidationLoss"].iloc[-1])
 
     # maximum loss for training, minimum loss for validation
-    max_loss = 2e-1 if b"Mixtral" in contents else 5e-2
-    min_loss = 2 if b"Mixtral" in contents else 0.1
+    max_loss = 3e-2 if b"pythia" in contents else 2e-3  # pythia starts at higher loss
+    min_loss = 0.2
 
     print(f"Loss: {train_loss:.2f} (training), {val_loss:.2f} (validation)")
     sys.exit(train_loss > max_loss or val_loss > max_loss)
