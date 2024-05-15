@@ -8,7 +8,7 @@ from fastapi.responses import StreamingResponse
 
 from .common import app, vllm_image, Colors, MINUTES, VOLUME_CONFIG
 
-N_INFERENCE_GPUS = int(os.environ.get("N_INFERENCE_GPUS", 2))
+N_INFERENCE_GPUS = int(os.environ.get("N_INFERENCE_GPUS", 4))
 
 inference_gpu_config = modal.gpu.A10G(count=N_INFERENCE_GPUS)
 
