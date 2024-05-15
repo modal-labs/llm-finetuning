@@ -16,7 +16,8 @@ def main(config: str, data: str):
     cfg["val_set_size"] = val_set_size
     cfg["num_epochs"] = num_epochs
     cfg["eval_steps"] = num_epochs
-    cfg.pop("evals_per_epoch", None)  #  incompatible with eval_steps
+    cfg.pop("evals_per_epoch", None)  # incompatible with eval_steps
+    cfg.pop("sample_packing", False)  # requires larger dataset
 
     with open(config, "w") as f:
         yaml.dump(cfg, f)
