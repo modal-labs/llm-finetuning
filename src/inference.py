@@ -97,7 +97,7 @@ class Inference:
         print(
             Colors.GREEN,
             Colors.BOLD,
-            f"🧠: Effective throughput of {throughput:2f} tok/s",
+            f"🧠: Effective throughput of {throughput:.2f} tok/s",
             Colors.END,
             sep="",
         )
@@ -115,6 +115,13 @@ class Inference:
     @modal.web_endpoint()
     async def web(self, input: str):
         return StreamingResponse(self._stream(input), media_type="text/event-stream")
+
+    @modal.exit()
+    def stop_engine(self):
+        if N_INFERENCE_GPUS > 1:
+            import ray
+
+            ray.shutdown()
 
 
 @app.local_entrypoint()
