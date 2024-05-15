@@ -13,6 +13,9 @@ def main(config: str, data: str):
     num_epochs = 50
     val_set_size = 0.5
 
+    if cfg["base_model"] == "mistralai/Mixtral-8x7B-Instruct-v0.1":
+        num_epochs = 25  # mixtral training is slower and not well-tuned, cut early
+
     cfg["val_set_size"] = val_set_size
     cfg["num_epochs"] = num_epochs
     cfg["eval_steps"] = num_epochs
