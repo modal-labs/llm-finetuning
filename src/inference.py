@@ -1,3 +1,4 @@
+import os
 import time
 import yaml
 from pathlib import Path
@@ -5,9 +6,11 @@ from pathlib import Path
 import modal
 from fastapi.responses import StreamingResponse
 
-from .common import app, vllm_image, VOLUME_CONFIG
+from .common import app, vllm_image, Colors, MINUTES, VOLUME_CONFIG
 
-N_INFERENCE_GPU = 2
+N_INFERENCE_GPUS = int(os.environ.get("N_INFERENCE_GPUS", 2))
+
+inference_gpu_config = modal.gpu.A10G(count=N_INFERENCE_GPUS)
 
 with vllm_image.imports():
     from vllm.engine.arg_utils import AsyncEngineArgs
@@ -22,11 +25,11 @@ def get_model_path_from_run(path: Path) -> Path:
 
 
 @app.cls(
-    gpu=modal.gpu.H100(count=N_INFERENCE_GPU),
+    gpu=inference_gpu_config,
     image=vllm_image,
     volumes=VOLUME_CONFIG,
     allow_concurrent_inputs=30,
-    container_idle_timeout=900,
+    container_idle_timeout=15 * MINUTES,
 )
 class Inference:
     def __init__(self, run_name: str = "", run_dir: str = "/runs") -> None:
@@ -46,12 +49,18 @@ class Inference:
                 if model_path.exists():
                     break
 
-        print("Initializing vLLM engine on:", model_path)
+        print(
+            Colors.GREEN,
+            Colors.BOLD,
+            f"🧠: Initializing vLLM engine for model at {model_path}",
+            Colors.END,
+            sep="",
+        )
 
         engine_args = AsyncEngineArgs(
             model=model_path,
             gpu_memory_utilization=0.95,
-            tensor_parallel_size=N_INFERENCE_GPU,
+            tensor_parallel_size=N_INFERENCE_GPUS,
         )
         self.engine = AsyncLLMEngine.from_engine_args(engine_args)
 
@@ -85,8 +94,13 @@ class Inference:
             tokens = new_tokens
 
         throughput = tokens / (time.time() - t0)
-        print(f"Request completed: {throughput:.4f} tokens/s")
-        print(request_output.outputs[0].text)
+        print(
+            Colors.GREEN,
+            Colors.BOLD,
+            f"🧠: Effective throughput of {throughput:2f} tok/s",
+            Colors.END,
+            sep="",
+        )
 
     @modal.method()
     async def completion(self, input: str):
@@ -105,13 +119,15 @@ class Inference:
 
 @app.local_entrypoint()
 def inference_main(run_name: str = "", prompt: str = ""):
-    if prompt:
-        for chunk in Inference(run_name).completion.remote_gen(prompt):
-            print(chunk, end="")
-    else:
+    if not prompt:
         prompt = input(
             "Enter a prompt (including the prompt template, e.g. [INST] ... [/INST]):\n"
         )
-        print("Loading model ...")
-        for chunk in Inference(run_name).completion.remote_gen(prompt):
-            print(chunk, end="")
+    print(
+        Colors.GREEN, Colors.BOLD, f"🧠: Querying model {run_name}", Colors.END, sep=""
+    )
+    response = ""
+    for chunk in Inference(run_name).completion.remote_gen(prompt):
+        response += chunk  # not streaming to avoid mixing with server logs
+    print(Colors.BLUE, f"👤: {prompt}", Colors.END, sep="")
+    print(Colors.GRAY, f"🤖: {response}", Colors.END, sep="")
