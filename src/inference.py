@@ -8,9 +8,13 @@ from fastapi.responses import StreamingResponse
 
 from .common import app, vllm_image, Colors, MINUTES, VOLUME_CONFIG
 
-N_INFERENCE_GPUS = int(os.environ.get("N_INFERENCE_GPUS", 4))
+INFERENCE_GPU_CONFIG = os.environ.get("INFERENCE_GPU_CONFIG", "a10g:2")
+if len(INFERENCE_GPU_CONFIG.split(":")) <= 1:
+    N_INFERENCE_GPUS = int(os.environ.get("N_INFERENCE_GPUS", 2))
+    INFERENCE_GPU_CONFIG = f"{INFERENCE_GPU_CONFIG}:{N_INFERENCE_GPUS}"
+else:
+    N_INFERENCE_GPUS = int(INFERENCE_GPU_CONFIG.split(":")[-1])
 
-inference_gpu_config = modal.gpu.A10G(count=N_INFERENCE_GPUS)
 
 with vllm_image.imports():
     from vllm.engine.arg_utils import AsyncEngineArgs
@@ -25,7 +29,7 @@ def get_model_path_from_run(path: Path) -> Path:
 
 
 @app.cls(
-    gpu=inference_gpu_config,
+    gpu=INFERENCE_GPU_CONFIG,
     image=vllm_image,
     volumes=VOLUME_CONFIG,
     allow_concurrent_inputs=30,
