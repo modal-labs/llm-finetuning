@@ -30,7 +30,9 @@ def train(run_folder: str, output_dir: str):
     print(f"Starting training run in {run_folder}.")
     print(f"Using {torch.cuda.device_count()} {torch.cuda.get_device_name()} GPU(s).")
 
-    run_cmd("accelerate launch -m axolotl.cli.train ./config.yml", run_folder)
+    ALLOW_WANDB = os.environ.get("ALLOW_WANDB", "false").lower() == "true"
+    cmd = f"accelerate launch -m axolotl.cli.train ./config.yml {'--wandb_mode disabled' if not ALLOW_WANDB else ''}"
+    run_cmd(cmd, run_folder)
 
     # Kick off CPU job to merge the LoRA weights into base model.
     merge_handle = merge.spawn(run_folder, output_dir)
