@@ -69,10 +69,28 @@ def merge(run_folder: str, output_dir: str):
     VOLUME_CONFIG["/runs"].commit()
 
 
+<<<<<<< Updated upstream
 @app.function(image=axolotl_image, timeout=30 * MINUTES, volumes=VOLUME_CONFIG)
 def launch(config_raw: dict, data_raw: str, run_to_resume: str, preproc_only: bool):
     import yaml
     from huggingface_hub import snapshot_download
+=======
+@app.function(
+    image=axolotl_image,
+    timeout=60 * 30,
+    volumes=VOLUME_CONFIG,
+    secrets=[modal.Secret.from_name("huggingface-secret-ren")],
+)
+def launch(config_raw: str, data_raw: str):
+    from huggingface_hub import snapshot_download
+    import yaml
+    import huggingface_hub
+
+    # authenticate to hugging face so we can download the model weights
+
+    hf_key = os.environ["HF_TOKEN"]
+    huggingface_hub.login(hf_key)
+>>>>>>> Stashed changes
 
     # Ensure the base model is downloaded
     # TODO(gongy): test if this works with a path to previous fine-tune

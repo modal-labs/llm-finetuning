@@ -2,6 +2,8 @@ import os
 import time
 import yaml
 from pathlib import Path
+from fastapi import FastAPI
+
 
 import modal
 from fastapi.responses import StreamingResponse
@@ -77,7 +79,7 @@ class Inference:
             temperature=0.2,
             top_p=0.95,
             top_k=50,
-            max_tokens=1024,
+            max_tokens=2048,
         )
         request_id = random_uuid()
         results_generator = self.engine.generate(input, sampling_params, request_id)
@@ -134,6 +136,7 @@ def inference_main(run_name: str = "", prompt: str = ""):
         prompt = input(
             "Enter a prompt (including the prompt template, e.g. [INST] ... [/INST]):\n"
         )
+<<<<<<< Updated upstream
     print(
         Colors.GREEN, Colors.BOLD, f"🧠: Querying model {run_name}", Colors.END, sep=""
     )
@@ -142,3 +145,40 @@ def inference_main(run_name: str = "", prompt: str = ""):
         response += chunk  # not streaming to avoid mixing with server logs
     print(Colors.BLUE, f"👤: {prompt}", Colors.END, sep="")
     print(Colors.GRAY, f"🤖: {response}", Colors.END, sep="")
+=======
+        print("Loading model ...")
+        for chunk in Inference(run_name).completion.remote_gen(prompt):
+            print(chunk, end="")
+
+
+web_app = FastAPI()
+
+
+@app.function(
+    image=vllm_image,
+    concurrency_limit=3,
+)
+@modal.asgi_app()
+def fastapi_app():
+    import gradio as gr
+    from gradio.routes import mount_gradio_app
+
+    # Call to the GPU inference function on Modal.
+    def go(message, history):
+        # mistral-7b-v1: axo-2024-05-13-21-28-15-bc32
+        # mistral-7b-v2-instruct: axo-2024-05-14-02-47-01-a355
+
+        return Inference("/runs/axo-2024-05-14-02-47-01-a355").non_streaming.remote(
+            message
+        )
+
+    # add a gradio UI around inference
+    interface = gr.ChatInterface(go)
+
+    # mount for execution on Modal
+    return mount_gradio_app(
+        app=web_app,
+        blocks=interface,
+        path="/",
+    )
+>>>>>>> Stashed changes
