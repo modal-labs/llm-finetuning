@@ -36,7 +36,7 @@ Inference on the fine-tuned model displays conformity to the output structure (`
    1. Create a [Modal](https://modal.com/) account.
    2. Install `modal` in your current Python virtual environment (`pip install modal`)
    3. Set up a Modal token in your environment (`python3 -m modal setup`)
-   4. You need to have a [secret](https://modal.com/docs/guide/secrets#secrets) named `huggingface` in your workspace. You can [create a new secret](https://modal.com/secrets) with the HuggingFace template in your Modal dashboard, using the same key from HuggingFace (in settings under API tokens) to populate both `HUGGING_FACE_HUB_TOKEN` and `HUGGINGFACE_TOKEN`.
+   4. You need to have a [secret](https://modal.com/docs/guide/secrets#secrets) named `huggingface` in your workspace. You can [create a new secret](https://modal.com/secrets) with the HuggingFace template in your Modal dashboard, using the key from HuggingFace (in settings under API tokens) to populate `HF_TOKEN`.
    5. For some LLaMA models, you need to go to the [Hugging Face page](https://huggingface.co/meta-llama/Llama-2-7b-chat-hf) and agree to their Terms and Conditions for access (granted instantly).
    6. If you want to use [Weights & Biases](https://wandb.ai) for logging, you need to have a secret named `wandb` in your workspace as well. You can also create it [from a template](https://modal.com/secrets). Training is hard enough without good logs, so we recommend you try it or look into `axolotl`'s integration with [MLFlow](https://mlflow.org/)!
    </details>
