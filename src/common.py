@@ -9,26 +9,27 @@ APP_NAME = "example-axolotl"
 MINUTES = 60  # seconds
 HOURS = 60 * MINUTES
 
-# Axolotl image hash corresponding to 0.4.0 release (2024-02-14)
+# Axolotl image hash corresponding to main-20240522-py3.11-cu121-2.2.2
 AXOLOTL_REGISTRY_SHA = (
-    "d5b941ba2293534c01c23202c8fc459fd2a169871fa5e6c45cb00f363d474b6a"
+    "8ec2116dd36ecb9fb23702278ac612f27c1d4309eca86ad0afd3a3fe4a80ad5b"
 )
 
 ALLOW_WANDB = os.environ.get("ALLOW_WANDB", "false").lower() == "true"
 
 axolotl_image = (
     modal.Image.from_registry(f"winglian/axolotl@sha256:{AXOLOTL_REGISTRY_SHA}")
-    .run_commands(
-        "git clone https://github.com/OpenAccess-AI-Collective/axolotl /root/axolotl",
-        "cd /root/axolotl && git checkout v0.4.0",
-    )
-    .pip_install("huggingface_hub==0.20.3", "hf-transfer==0.1.5", "wandb==0.16.3")
+    # .run_commands(
+    #     "git clone https://github.com/OpenAccess-AI-Collective/axolotl /root/axolotl",
+    #     "cd /root/axolotl && git checkout main",
+    # )
+    .pip_install("huggingface_hub==0.20.3", "hf-transfer==0.1.5", "wandb==0.16.3", "fastapi==0.110.0", "pydantic==2.6.3")
     .env(
         dict(
             HUGGINGFACE_HUB_CACHE="/pretrained",
             HF_HUB_ENABLE_HF_TRANSFER="1",
             TQDM_DISABLE="true",
             ALLOW_WANDB=str(ALLOW_WANDB),
+            AXOLOTL_NCCL_TIMEOUT="60",
         )
     )
 )

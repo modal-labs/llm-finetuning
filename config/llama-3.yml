@@ -1,7 +1,4 @@
-# Lightweight example of training a small Pythia model for simple demonstrations
-base_model: EleutherAI/pythia-1.4b-deduped
-model_type: AutoModelForCausalLM
-tokenizer_type: AutoTokenizer
+base_model: NousResearch/Meta-Llama-3-8B
 
 load_in_8bit: false
 load_in_4bit: false
@@ -21,9 +18,9 @@ datasets:
       format: |-
         [INST] Using the schema context below, generate a SQL query that answers the question.
         {input}
-        {instruction} [/INST] 
+        {instruction} [/INST]
 
-dataset_prepared_path: preprocessed
+dataset_prepared_path:
 val_set_size: 0.05
 output_dir: ./lora-out
 
@@ -39,8 +36,6 @@ lora_alpha: 32
 lora_dropout: 0.05
 lora_target_linear: true
 lora_fan_in_fan_out:
-lora_target_modules:
-  - query_key_value
 
 wandb_project:
 wandb_entity:
@@ -49,16 +44,16 @@ wandb_run_id:
 
 gradient_accumulation_steps: 1
 micro_batch_size: 32
-num_epochs: 1
+num_epochs: 4
 optimizer: adamw_torch
 lr_scheduler: cosine
 learning_rate: 0.0001
 
-bf16: auto
-fp16: false
-tf32: false
 train_on_inputs: false
 group_by_length: false
+bf16: true
+fp16: false
+tf32: false
 
 gradient_checkpointing: true
 early_stopping_patience:
@@ -66,16 +61,17 @@ resume_from_checkpoint:
 local_rank:
 logging_steps: 1
 xformers_attention:
-flash_attention: 
+flash_attention: true
 
 warmup_steps: 10
+eval_steps: 0.05
+eval_table_size:
+eval_table_max_new_tokens: 128
 save_steps:
 debug:
-deepspeed: 
+deepspeed:
 weight_decay: 0.0
 fsdp:
 fsdp_config:
 special_tokens:
-  bos_token: "<|endoftext|>"
-  eos_token: "<|endoftext|>"
-  unk_token: "<|endoftext|>"
+  pad_token: <|end_of_text|>
