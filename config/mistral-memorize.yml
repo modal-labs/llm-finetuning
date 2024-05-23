@@ -85,7 +85,7 @@ output_dir: ./lora-out
 # logging and eval config
 logging_steps: 10
 eval_steps: 10
-save_strategy: no
+save_strategy: "no"
 num_epochs: 50
 
 # wandb logging config
@@ -95,8 +95,8 @@ wandb_project: memorize-sqlqa
 bf16: auto
 fp16: false
 tf32: false
-deepspeed: /root/axolotl/deepspeed_configs/zero3_bf16.json
-gradient_checkpointing: false  # we're memory-bound, not compute-bound
+deepspeed: /workspace/axolotl/deepspeed_configs/zero3_bf16.json
+gradient_checkpointing: true
 
 ###
 # Miscellaneous Configuration

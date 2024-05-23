@@ -44,6 +44,7 @@ class Inference:
     def init(self):
         if self.run_name:
             path = Path(self.run_dir) / self.run_name
+            VOLUME_CONFIG[self.run_dir].reload()
             model_path = get_model_path_from_run(path)
         else:
             # Pick the last run automatically

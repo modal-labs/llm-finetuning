@@ -15,6 +15,7 @@ GPU_CONFIG = os.environ.get("GPU_CONFIG", "h100:2")
 if len(GPU_CONFIG.split(":")) <= 1:
     N_GPUS = int(os.environ.get("N_GPUS", 2))
     GPU_CONFIG = f"{GPU_CONFIG}:{N_GPUS}"
+SINGLE_GPU_CONFIG = os.environ.get("GPU_CONFIG", "a10g:1")
 
 
 @app.function(
@@ -44,6 +45,7 @@ def train(run_folder: str, output_dir: str):
 
 @app.function(
     image=axolotl_image,
+    gpu=SINGLE_GPU_CONFIG,
     volumes=VOLUME_CONFIG,
     timeout=24 * HOURS,
     _allow_background_volume_commits=True,
@@ -53,7 +55,12 @@ def preproc_data(run_folder: str):
     run_cmd("python -m axolotl.cli.preprocess ./config.yml", run_folder)
 
 
-@app.function(image=axolotl_image, volumes=VOLUME_CONFIG, timeout=24 * HOURS)
+@app.function(
+    image=axolotl_image,
+    gpu=SINGLE_GPU_CONFIG,
+    volumes=VOLUME_CONFIG,
+    timeout=24 * HOURS,
+)
 def merge(run_folder: str, output_dir: str):
     import shutil
 
@@ -112,6 +119,14 @@ def launch(config_raw: dict, data_raw: str, run_to_resume: str, preproc_only: bo
         print("Spawning container for data preprocessing.")
         launch_handle = preproc_data.spawn(run_folder)
     else:
+        print("Spawning container for data preprocessing.")
+        preproc_handle = preproc_data.spawn(run_folder)
+        with open(f"{run_folder}/logs.txt", "w") as f:
+            lbl = "preproc"
+            f.write(f"{lbl}: https://modal.com/logs/call/{preproc_handle.object_id}")
+        # wait for preprocessing to finish.
+        preproc_handle.get()
+
         # Start training run.
         print("Spawning container for training.")
         launch_handle = train.spawn(run_folder, config["output_dir"])
