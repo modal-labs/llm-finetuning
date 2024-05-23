@@ -28,7 +28,6 @@ axolotl_image = (
             HUGGINGFACE_HUB_CACHE="/pretrained",
             HF_HUB_ENABLE_HF_TRANSFER="1",
             TQDM_DISABLE="true",
-            ALLOW_WANDB=str(ALLOW_WANDB),
         )
     )
 )
@@ -42,8 +41,10 @@ vllm_image = modal.Image.from_registry(
 
 app = modal.App(
     APP_NAME,
-    secrets=[modal.Secret.from_name("huggingface")]
-    + ([modal.Secret.from_name("wandb")] if ALLOW_WANDB else []),
+    secrets=[
+        modal.Secret.from_name("huggingface"), 
+        (modal.Secret.from_name("wandb") if ALLOW_WANDB else modal.Secret.from_dict({})),
+    ],
 )
 
 # Volumes for pre-trained models and training runs.
