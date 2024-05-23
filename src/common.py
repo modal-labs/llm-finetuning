@@ -18,10 +18,6 @@ ALLOW_WANDB = os.environ.get("ALLOW_WANDB", "false").lower() == "true"
 
 axolotl_image = (
     modal.Image.from_registry(f"winglian/axolotl@sha256:{AXOLOTL_REGISTRY_SHA}")
-    # .run_commands(
-    #     "git clone https://github.com/OpenAccess-AI-Collective/axolotl /root/axolotl",
-    #     "cd /root/axolotl && git checkout main",
-    # )
     .pip_install(
         "huggingface_hub==0.20.3",
         "hf-transfer==0.1.5",
