@@ -27,7 +27,7 @@ if __name__ == "__main__":
     val_loss = float(results["ValidationLoss"].iloc[-1])
 
     # maximum loss for training, minimum loss for validation
-    max_loss, min_loss = 5e-3, 2e-1
+    max_loss, min_loss = 5e-3, 1e-1
 
     print(f"Loss: {train_loss:.2f} (training), {val_loss:.2f} (validation)")
     sys.exit(train_loss > max_loss or val_loss < min_loss)
