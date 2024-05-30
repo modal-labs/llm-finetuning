@@ -1,6 +1,6 @@
 base_model: codellama/CodeLlama-7b-Instruct-hf
 
-load_in_8bit: true # load the base model weights in 8 bit
+load_in_8bit: false
 strict: false
 
 datasets:
