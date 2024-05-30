@@ -25,7 +25,7 @@ Our quickstart example overfits a 7B model on a very small subsample of a text-t
 Overfitting is a [great way to test training setups](https://fullstackdeeplearning.com/course/2022/lecture-3-troubleshooting-and-testing/#23-use-memorization-testing-on-training)
 because it can be done quickly (under five minutes!) and with minimal data but closely resembles the actual training process.
 
-It uses [DeepSpeed ZeRO-3 Offload](https://www.deepspeed.ai/2021/03/07/zero3-offload.html) to shard model and optimizer state across 2 H100s.
+It uses [DeepSpeed ZeRO-3 Offload](https://www.deepspeed.ai/2021/03/07/zero3-offload.html) to shard model and optimizer state across 2 A100s.
 
 Inference on the fine-tuned model displays conformity to the output structure (`[SQL] ... [/SQL]`). To achieve better results, you'll need to use more data! Refer to the Development section below.
 
@@ -37,7 +37,7 @@ Inference on the fine-tuned model displays conformity to the output structure (`
    2. Install `modal` in your current Python virtual environment (`pip install modal`)
    3. Set up a Modal token in your environment (`python3 -m modal setup`)
    4. You need to have a [secret](https://modal.com/docs/guide/secrets#secrets) named `huggingface` in your workspace. You can [create a new secret](https://modal.com/secrets) with the HuggingFace template in your Modal dashboard, using the key from HuggingFace (in settings under API tokens) to populate `HF_TOKEN` and changing the name from `my-huggingface-secret` to `huggingface`.
-   5. For some LLaMA models, you need to go to the Hugging Face page (e.g. [this page for LLaMA 3 8B](https://huggingface.co/meta-llama/Meta-Llama-3-8B)_ and agree to their Terms and Conditions for access (granted instantly).
+   5. For some LLaMA models, you need to go to the Hugging Face page (e.g. [this page for LLaMA 3 8B](https://huggingface.co/meta-llama/Meta-Llama-3-8B)\_ and agree to their Terms and Conditions for access (granted instantly).
    6. If you want to use [Weights & Biases](https://wandb.ai) for logging, you need to have a secret named `wandb` in your workspace as well. You can also create it [from a template](https://modal.com/secrets). Training is hard enough without good logs, so we recommend you try it or look into `axolotl`'s integration with [MLFlow](https://mlflow.org/)!
    </details>
 
