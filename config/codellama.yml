@@ -1,10 +1,6 @@
 base_model: codellama/CodeLlama-7b-Instruct-hf
-model_type: LlamaForCausalLM
-tokenizer_type: CodeLlamaTokenizer
-is_llama_derived_model: true
 
-load_in_8bit: false
-load_in_4bit: false
+load_in_8bit: true # load the base model weights in 8 bit
 strict: false
 
 datasets:
@@ -23,7 +19,13 @@ datasets:
         {input}
         {instruction} [/INST]
 
-dataset_prepared_path:
+tokens:
+  - "[INST]"
+  - " [/INST]"
+  - "[SQL]"
+  - " [/SQL]"
+
+dataset_prepared_path: last_run_prepared
 val_set_size: 0.05
 output_dir: ./lora-out
 
@@ -33,17 +35,10 @@ eval_sample_packing: false
 pad_to_sequence_len: false
 
 adapter: lora
-lora_model_dir:
 lora_r: 16
 lora_alpha: 32 # alpha = 2 x rank is a good starting point.
 lora_dropout: 0.05
 lora_target_linear: true # target all linear layers
-lora_fan_in_fan_out:
-
-wandb_project:
-wandb_entity:
-wandb_watch:
-wandb_run_id:
 
 gradient_accumulation_steps: 1
 micro_batch_size: 32
@@ -59,8 +54,6 @@ fp16: false
 tf32: false
 
 gradient_checkpointing: true
-early_stopping_patience:
-resume_from_checkpoint:
 auto_resume_from_checkpoints: true
 local_rank:
 logging_steps: 1
@@ -69,13 +62,5 @@ flash_attention: true
 
 warmup_steps: 10
 eval_steps: 0.05
-save_steps:
-debug:
 deepspeed: /workspace/axolotl/deepspeed_configs/zero3_bf16.json
 weight_decay: 0.0
-fsdp:
-fsdp_config:
-special_tokens:
-  bos_token: "<s>"
-  eos_token: "</s>"
-  unk_token: "<unk>"

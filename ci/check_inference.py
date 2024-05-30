@@ -1,15 +1,21 @@
-import os
+import json
 import subprocess
+from pathlib import Path
 
 
 if __name__ == "__main__":
-    prompt = """[INST] Using the schema context below, generate a SQL query that answers the question.
-CREATE TABLE head (age INTEGER)
-How many heads of the departments are older than 56 ? [/INST] """
+    dataset = "sqlqa.subsample.jsonl"
+    dataset_path = Path(__file__).parent.parent / "data" / dataset
+    example = json.loads(dataset_path.read_text().strip().split("\n")[0])
 
-    os.environ["INFERENCE_GPU_CONFIG"] = "h100:2"
+    prompt = "[INST] Using the schema context below, generate a SQL query that answers the question."
+    prompt += f"\n{example['context']}"
+    prompt += f"\n{example['question']}"
+    prompt += " [/INST]"
+
     p = subprocess.Popen(
-        ["modal", "run", "src.inference", "--prompt", prompt], stdout=subprocess.PIPE
+        ["modal", "run", "src.inference", "--prompt", prompt],
+        stdout=subprocess.PIPE,
     )
     output = ""
 
@@ -17,5 +23,5 @@ How many heads of the departments are older than 56 ? [/INST] """
         output += line.decode()
         print(line.decode())
 
-    print("Asserting that the output contains the expected SQL query")
-    assert "[SQL] SELECT" in output and "[/SQL]" in output
+    print("Asserting that the output contains the expected format")
+    assert "[SQL]" in output and "SELECT" in output and " [/SQL]" in output

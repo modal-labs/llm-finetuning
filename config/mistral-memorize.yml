@@ -6,11 +6,8 @@
 # Model Configuration: Mistral 7B
 ###
 base_model: mistralai/Mistral-7B-v0.1
-model_type: MistralForCausalLM
-tokenizer_type: LlamaTokenizer
-is_mistral_derived_model: true
 
-# weight quantization
+# base model weight quantization
 load_in_8bit: false
 load_in_4bit: false
 
@@ -22,8 +19,12 @@ adapter: lora
 lora_model_dir:
 lora_r: 16
 lora_alpha: 32
-lora_dropout: 0.0  # off because this is a memorization test
+lora_dropout: 0.0 # off because this is a memorization test
 lora_target_linear: true
+lora_modules_to_save: # required when adding new tokens to LLaMA/Mistral
+  - embed_tokens
+  - lm_head
+# for details, see https://github.com/huggingface/peft/issues/334#issuecomment-1561727994
 
 ###
 # Dataset Configuration: sqlqa
@@ -46,6 +47,12 @@ datasets:
         {instruction} [/INST]
 
 # dataset formatting config
+tokens: # add new control tokens from the dataset to the model
+  - "[INST]"
+  - " [/INST]"
+  - "[SQL]"
+  - " [/SQL]"
+
 special_tokens:
   bos_token: "<s>"
   eos_token: "</s>"

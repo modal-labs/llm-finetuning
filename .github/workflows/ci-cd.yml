@@ -4,16 +4,22 @@ on: pull_request
 
 jobs:
   test:
-    name: Test
-    runs-on: ubuntu-latest
+    name: Memorization Test
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        config: ["codellama", "llama-3", "mistral-memorize", "pythia"]
+        config: [
+          "pythia",
+          "codellama",
+          "llama-3",
+          "mistral-memorize",
+          ]
     env:
       MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
       MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
       MODAL_ENVIRONMENT: ci-llm-finetuning
+      ALLOW_WANDB: "true"
 
     steps:
       - name: Checkout Repository

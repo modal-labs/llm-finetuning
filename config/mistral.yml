@@ -1,7 +1,4 @@
 base_model: mistralai/Mistral-7B-v0.1
-model_type: MistralForCausalLM
-tokenizer_type: LlamaTokenizer
-is_mistral_derived_model: true
 
 load_in_8bit: false
 load_in_4bit: false
@@ -23,6 +20,12 @@ datasets:
         {input}
         {instruction} [/INST]
 
+tokens: # add new control tokens from the dataset to the model
+  - "[INST]"
+  - " [/INST]"
+  - "[SQL]"
+  - " [/SQL]"
+
 dataset_prepared_path: last_run_prepared
 val_set_size: 0.05
 output_dir: ./lora-out
@@ -39,6 +42,9 @@ lora_alpha: 32
 lora_dropout: 0.05
 lora_target_linear: true
 lora_fan_in_fan_out:
+lora_modules_to_save: # required when adding new tokens to LLaMA/Mistral
+  - embed_tokens
+  - lm_head
 
 wandb_project:
 wandb_entity:
