@@ -39,6 +39,9 @@ lora_r: 16
 lora_alpha: 32 # alpha = 2 x rank is a good starting point.
 lora_dropout: 0.05
 lora_target_linear: true # target all linear layers
+lora_modules_to_save: # required when adding new tokens to LLaMA/Mistral
+  - embed_tokens
+  - lm_head
 
 gradient_accumulation_steps: 1
 micro_batch_size: 32
