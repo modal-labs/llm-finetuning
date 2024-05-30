@@ -11,7 +11,7 @@ from .common import (
     VOLUME_CONFIG,
 )
 
-GPU_CONFIG = os.environ.get("GPU_CONFIG", "h100:2")
+GPU_CONFIG = os.environ.get("GPU_CONFIG", "a100:2")
 if len(GPU_CONFIG.split(":")) <= 1:
     N_GPUS = int(os.environ.get("N_GPUS", 2))
     GPU_CONFIG = f"{GPU_CONFIG}:{N_GPUS}"
