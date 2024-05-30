@@ -12,6 +12,7 @@ def main(config: str, data: str):
 
     cfg["wandb_project"] = "ci-llm-finetuning-overfit-sqlqa"
     cfg["seed"] = 117  # always set a seed
+    cfg["save_strategy"] = "no"
     # turn off regularization
     cfg["lora_dropout"] = 0
     cfg["weight_decay"] = 0
