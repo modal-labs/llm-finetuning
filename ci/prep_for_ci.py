@@ -16,8 +16,15 @@ def main(config: str, data: str):
     cfg["lora_dropout"] = 0
     cfg["weight_decay"] = 0
 
-    num_epochs = 50
     val_set_size = 0.5
+    num_epochs = 50
+    if (
+        "Meta-Llama-3-8B" in cfg["base_model"]
+        or "codellama/CodeLlama-7b-Instruct-hf" in cfg["base_model"]
+    ):
+        num_epochs = num_epochs // 2
+    elif "pythia" in cfg["base_model"]:
+        num_epochs = num_epochs * 2
 
     cfg["val_set_size"] = val_set_size
     cfg["num_epochs"] = num_epochs
