@@ -18,18 +18,14 @@ def main(config: str, data: str):
     cfg["weight_decay"] = 0
 
     val_set_size = 0.5
-    num_epochs = 50
-    if (
-        "Meta-Llama-3-8B" in cfg["base_model"]
-        or "codellama/CodeLlama-7b-Instruct-hf" in cfg["base_model"]
-    ):
-        num_epochs = num_epochs // 2
-    elif "pythia" in cfg["base_model"]:
-        num_epochs = num_epochs * 2
+
+    num_epochs = 25
+    if "pythia" in cfg["base_model"]:
+        num_epochs = num_epochs * 4
 
     cfg["val_set_size"] = val_set_size
     cfg["num_epochs"] = num_epochs
-    cfg["eval_steps"] = num_epochs // 10
+    cfg["eval_steps"] = num_epochs // 5
     cfg.pop("evals_per_epoch", None)  # incompatible with eval_steps
     cfg.pop("sample_packing", False)  # requires larger dataset
 
