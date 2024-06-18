@@ -40,6 +40,7 @@ vllm_image = modal.Image.from_registry(
 ).pip_install(
     "vllm==0.2.6",
     "torch==2.1.2",
+    "numpy<2",  # To avoid vLLM ecosystem compatibility issues
 )
 
 app = modal.App(
