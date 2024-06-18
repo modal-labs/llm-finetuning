@@ -165,12 +165,12 @@ ALLOW_WANDB=true modal run --detach src.train --config=... --data=...
 
 ### Multi-GPU training
 
-We recommend [DeepSpeed](https://github.com/microsoft/DeepSpeed) for multi-GPU training, which is easy to set up. `axolotl` provides several default deepspeed JSON [configurations](https://github.com/OpenAccess-AI-Collective/axolotl/tree/main/deepspeed) and Modal makes it easy to [attach multiple GPUs](https://modal.com/docs/guide/gpu#gpu-acceleration) of any type in code, so all you need to do is specify which of these configs you'd like to use.
+We recommend [DeepSpeed](https://github.com/microsoft/DeepSpeed) for multi-GPU training, which is easy to set up. `axolotl` provides several default deepspeed JSON [configurations](https://github.com/OpenAccess-AI-Collective/axolotl/tree/main/deepspeed_configs) and Modal makes it easy to [attach multiple GPUs](https://modal.com/docs/guide/gpu#gpu-acceleration) of any type in code, so all you need to do is specify which of these configs you'd like to use.
 
 First edit the DeepSpeed config in your `.yml`:
 
 ```yaml
-deepspeed: /root/axolotl/deepspeed_configs/zero3_bf16.json
+deepspeed: /workspace/axolotl/deepspeed_configs/zero3_bf16.json
 ```
 
 and then when you launch your training job,
