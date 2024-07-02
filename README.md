@@ -62,8 +62,8 @@ This example training script is opinionated in order to make it easy to get star
 # run one test inference
 modal run -q src.inference --prompt "[INST] Using the schema context below, generate a SQL query that answers the question.
 CREATE TABLE head (name VARCHAR, born_state VARCHAR, age VARCHAR)
-List the name, born state and age of the heads of departments ordered by name.[/INST]"
-# 🤖:  [SQL] SELECT name, born_state, age FROM head ORDER BY name [/SQL]
+List the name, born state and age of the heads of departments ordered by name. [/INST]"
+# 🤖:  [SQL] SELECT name, born_state, age FROM head ORDER BY name [/SQL]  # or something like that!
 # 🧠: Effective throughput of 36.27 tok/s
 ```
 
