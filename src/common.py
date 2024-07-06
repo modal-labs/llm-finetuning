@@ -31,16 +31,20 @@ axolotl_image = (
             HF_HUB_ENABLE_HF_TRANSFER="1",
             TQDM_DISABLE="true",
             AXOLOTL_NCCL_TIMEOUT="60",
+            PYTHONWARNINGS="ignore",
         )
     )
+    .entrypoint([])
 )
 
-vllm_image = modal.Image.from_registry(
-    "nvidia/cuda:12.1.0-base-ubuntu22.04", add_python="3.10"
-).pip_install(
-    "vllm==0.5.0post1",
-    "torch==2.3.0",
-    "numpy<2",  # To avoid vLLM ecosystem compatibility issues
+vllm_image = (
+    modal.Image.from_registry("nvidia/cuda:12.1.0-base-ubuntu22.04", add_python="3.10")
+    .pip_install(
+        "vllm==0.5.0post1",
+        "torch==2.3.0",
+        "numpy<2",  # To avoid vLLM ecosystem compatibility issues
+    )
+    .entrypoint([])
 )
 
 app = modal.App(
