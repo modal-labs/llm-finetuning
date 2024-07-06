@@ -6,7 +6,7 @@ base_model: NousResearch/Meta-Llama-3-8B
 sequence_len: 4096
 
 # base model weight quantization
-load_in_8bit: false
+load_in_8bit: true
 
 # attention implementation
 flash_attention: true
@@ -64,7 +64,7 @@ val_set_size: 0.05
 seed: 117
 
 # optimizer config
-optimizer: adamw_torch
+optimizer: adamw_bnb_8bit
 learning_rate: 0.0001
 lr_scheduler: cosine
 num_epochs: 4
@@ -81,10 +81,8 @@ logging_steps: 1
 eval_steps: 0.05
 
 # training performance optimization config
-bf16: true
-fp16: false
+bf16: auto
 tf32: false
-deepspeed: /workspace/axolotl/deepspeed_configs/zero3_bf16.json
 gradient_checkpointing: true
 
 ###
