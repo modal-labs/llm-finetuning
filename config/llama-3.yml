@@ -6,7 +6,7 @@ base_model: NousResearch/Meta-Llama-3-8B
 sequence_len: 4096
 
 # base model weight quantization
-load_in_8bit: true
+load_in_8bit: false
 
 # attention implementation
 flash_attention: true
