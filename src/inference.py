@@ -124,7 +124,6 @@ class Inference:
 
     @modal.exit()
     def stop_engine(self):
-        print("stopping")
         if N_INFERENCE_GPUS > 1:
             import ray
 
