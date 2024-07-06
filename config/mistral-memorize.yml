@@ -5,18 +5,18 @@
 ###
 # Model Configuration: Mistral 7B
 ###
+
 base_model: mistralai/Mistral-7B-v0.1
+sequence_len: 4096
 
 # base model weight quantization
 load_in_8bit: false
-load_in_4bit: false
 
 # attention implementation
 flash_attention: true
 
 # finetuned adapter config
 adapter: lora
-lora_model_dir:
 lora_r: 16
 lora_alpha: 32
 lora_dropout: 0.0 # off because this is a memorization test
@@ -58,16 +58,8 @@ special_tokens:
   eos_token: "</s>"
   unk_token: "<unk>"
 
-train_on_inputs: false
-
 val_set_size: 0.5
 
-# dataset packing config
-sequence_len: 4096
-sample_packing: false
-eval_sample_packing: false
-pad_to_sequence_len: false
-group_by_length: false
 
 ###
 # Training Configuration: AdamW, CosineLR, deepspeed, many epochs
@@ -83,7 +75,6 @@ lr_scheduler: cosine
 warmup_steps: 10
 gradient_accumulation_steps: 1
 micro_batch_size: 16
-weight_decay: 0.0
 
 # axolotl saving config
 dataset_prepared_path: last_run_prepared
@@ -109,11 +100,8 @@ gradient_checkpointing: true
 # Miscellaneous Configuration
 ###
 
-# prevents over-writing the config from the CLI
+# when true, prevents over-writing the config from the CLI
 strict: false
-
-# run with debug-level logs
-debug:
 
 # "Don't mess with this, it's here for accelerate and torchrun" -- axolotl docs
 local_rank:
