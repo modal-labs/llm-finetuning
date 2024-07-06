@@ -31,7 +31,6 @@ axolotl_image = (
             HF_HUB_ENABLE_HF_TRANSFER="1",
             TQDM_DISABLE="true",
             AXOLOTL_NCCL_TIMEOUT="60",
-            PYTHONWARNINGS="ignore",
         )
     )
     .entrypoint([])
