@@ -79,7 +79,6 @@ curl https://YOUR_MODAL_USERNAME--example-axolotl-inference-web.modal.run?input=
 One of the key features of axolotl is that it flattens your data from a JSONL file into a prompt template format you specify in the config.
 Tokenization and prompt templating are [where most mistakes are made when fine-tuning](https://hamel.dev/notes/llm/05_tokenizer_gotchas.html).
 
-See the [nbs/inspect_data.ipynb](nbs/inspect_data.ipynb) notebook for guide on how to inspect your data and ensure it is being flattened correctly.
 We strongly recommend that you always inspect your data the first time you fine-tune a model on a new dataset.
 
 ## Development
