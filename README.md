@@ -62,8 +62,8 @@ This example training script is opinionated in order to make it easy to get star
 # run one test inference
 modal run -q src.inference --prompt "[INST] Using the schema context below, generate a SQL query that answers the question.
 CREATE TABLE head (name VARCHAR, born_state VARCHAR, age VARCHAR)
-List the name, born state and age of the heads of departments ordered by name.[/INST]"
-# 🤖:  [SQL] SELECT name, born_state, age FROM head ORDER BY name [/SQL]
+List the name, born state and age of the heads of departments ordered by name. [/INST]"
+# 🤖:  [SQL] SELECT name, born_state, age FROM head ORDER BY name [/SQL]  # or something like that!
 # 🧠: Effective throughput of 36.27 tok/s
 ```
 
@@ -79,7 +79,6 @@ curl https://YOUR_MODAL_USERNAME--example-axolotl-inference-web.modal.run?input=
 One of the key features of axolotl is that it flattens your data from a JSONL file into a prompt template format you specify in the config.
 Tokenization and prompt templating are [where most mistakes are made when fine-tuning](https://hamel.dev/notes/llm/05_tokenizer_gotchas.html).
 
-See the [nbs/inspect_data.ipynb](nbs/inspect_data.ipynb) notebook for guide on how to inspect your data and ensure it is being flattened correctly.
 We strongly recommend that you always inspect your data the first time you fine-tune a model on a new dataset.
 
 ## Development

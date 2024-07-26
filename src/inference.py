@@ -66,6 +66,7 @@ class Inference:
             model=model_path,
             gpu_memory_utilization=0.95,
             tensor_parallel_size=N_INFERENCE_GPUS,
+            disable_custom_all_reduce=True,  # brittle as of v0.5.0
         )
         self.engine = AsyncLLMEngine.from_engine_args(engine_args)
 
@@ -127,6 +128,9 @@ class Inference:
             import ray
 
             ray.shutdown()
+
+        # access private attribute to ensure graceful termination
+        self.engine._background_loop_unshielded.cancel()
 
 
 @app.local_entrypoint()

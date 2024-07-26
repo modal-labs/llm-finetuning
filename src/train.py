@@ -52,7 +52,10 @@ def train(run_folder: str, output_dir: str):
 )
 def preproc_data(run_folder: str):
     print("Preprocessing data.")
-    run_cmd("python -m axolotl.cli.preprocess ./config.yml", run_folder)
+    run_cmd(
+        "python -W ignore:::torch.nn.modules.module -m axolotl.cli.preprocess ./config.yml",
+        run_folder,
+    )
 
 
 @app.function(

@@ -21,9 +21,9 @@ def main(config: str, data: str):
 
     num_epochs = 25
     if "CodeLlama-7b" in cfg["base_model"]:
-        num_epochs = num_epochs * 2
+        num_epochs = num_epochs + 10
     elif "pythia-1.4b" in cfg["base_model"]:
-        num_epochs = num_epochs * 4
+        num_epochs = num_epochs * 3
 
     cfg["val_set_size"] = val_set_size
     cfg["num_epochs"] = num_epochs
