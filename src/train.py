@@ -1,15 +1,74 @@
 import os
 from datetime import datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import secrets
 
-from .common import (
-    app,
-    axolotl_image,
-    HOURS,
-    MINUTES,
-    VOLUME_CONFIG,
+# from .common import (
+#     app,
+#     axolotl_image,
+#     HOURS,
+#     MINUTES,
+#     VOLUME_CONFIG,
+# )
+
+from typing import Union
+
+import modal
+
+APP_NAME = "example-axolotl"
+
+MINUTES = 60  # seconds
+HOURS = 60 * MINUTES
+
+
+# Updated image main-20240805-py3.11-cu121-2.3.1 for Llama-3.1 compatibility
+AXOLOTL_REGISTRY_SHA = (
+    "30ecbf47963eb1a6b8f3808b2f11951d6aba61ea6d7065c009841e8d761775cf"
 )
+
+ALLOW_WANDB = os.environ.get("ALLOW_WANDB", "false").lower() == "true"
+
+axolotl_image = (
+    modal.Image.from_registry(f"winglian/axolotl@sha256:{AXOLOTL_REGISTRY_SHA}")
+    .pip_install(
+        "huggingface_hub==0.23.2",
+        "hf-transfer==0.1.5",
+        "wandb==0.16.3",
+        "fastapi==0.110.0",
+        "pydantic==2.6.3",
+    )
+    .env(
+        dict(
+            HUGGINGFACE_HUB_CACHE="/pretrained",
+            HF_HUB_ENABLE_HF_TRANSFER="1",
+            TQDM_DISABLE="true",
+            AXOLOTL_NCCL_TIMEOUT="60",
+        )
+    )
+    .entrypoint([])
+)
+
+
+app = modal.App(
+    APP_NAME,
+    secrets=[
+        modal.Secret.from_name("huggingface"),
+        modal.Secret.from_dict({"ALLOW_WANDB": os.environ.get("ALLOW_WANDB", "false")}),
+        *([modal.Secret.from_name("wandb")] if ALLOW_WANDB else []),
+    ],
+)
+
+# Volumes for pre-trained models and training runs.
+pretrained_volume = modal.Volume.from_name(
+    "example-pretrained-vol", create_if_missing=True
+)
+
+runs_volume = modal.Volume.from_name("example-runs-vol", create_if_missing=True)
+VOLUME_CONFIG: dict[Union[str, PurePosixPath], modal.Volume] = {
+    "/pretrained": pretrained_volume,
+    "/runs": runs_volume,
+}
+
 
 GPU_CONFIG = os.environ.get("GPU_CONFIG", "a100:2")
 if len(GPU_CONFIG.split(":")) <= 1:
@@ -23,7 +82,6 @@ SINGLE_GPU_CONFIG = os.environ.get("GPU_CONFIG", "a10g:1")
     gpu=GPU_CONFIG,
     volumes=VOLUME_CONFIG,
     timeout=24 * HOURS,
-    _allow_background_volume_commits=True,
 )
 def train(run_folder: str, output_dir: str):
     import torch
@@ -48,7 +106,6 @@ def train(run_folder: str, output_dir: str):
     gpu=SINGLE_GPU_CONFIG,
     volumes=VOLUME_CONFIG,
     timeout=24 * HOURS,
-    _allow_background_volume_commits=True,
 )
 def preproc_data(run_folder: str):
     print("Preprocessing data.")

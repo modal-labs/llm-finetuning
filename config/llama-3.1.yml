@@ -1,0 +1,101 @@
+###
+# Model Configuration: LLaMA-3.1 8B 
+###
+
+base_model: meta-llama/Meta-Llama-3.1-8B 
+sequence_len: 4096
+
+# base model weight quantization
+load_in_8bit: true
+
+# attention implementation
+flash_attention: true
+
+# finetuned adapter config
+adapter: lora
+lora_model_dir:
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target_linear: true
+lora_fan_in_fan_out:
+lora_modules_to_save: # required when adding new tokens to LLaMA/Mistral
+  - embed_tokens
+  - lm_head
+# for details, see https://github.com/huggingface/peft/issues/334#issuecomment-1561727994
+
+###
+# Dataset Configuration: sqlqa
+###
+
+datasets:
+  # This will be the path used for the data when it is saved to the Volume in the cloud.
+  - path: data.jsonl
+    ds_type: json
+    type:
+      # JSONL file contains question, context, answer fields per line.
+      # This gets mapped to instruction, input, output axolotl tags.
+      field_instruction: question
+      field_input: context
+      field_output: answer
+      # Format is used by axolotl to generate the prompt.
+      format: |-
+        [INST] Using the schema context below, generate a SQL query that answers the question.
+        {input}
+        {instruction} [/INST]
+
+# dataset formatting config
+tokens: # add new control tokens from the dataset to the model
+  - "[INST]"
+  - " [/INST]"
+  - "[SQL]"
+  - " [/SQL]"
+
+special_tokens:
+  pad_token: <|end_of_text|>
+
+val_set_size: 0.05
+
+###
+# Training Configuration
+###
+
+# random seed for better reproducibility
+seed: 117
+
+# optimizer config
+optimizer: adamw_bnb_8bit
+learning_rate: 0.0001
+lr_scheduler: cosine
+num_epochs: 4
+micro_batch_size: 32
+gradient_accumulation_steps: 1
+warmup_steps: 10
+
+# axolotl saving config
+dataset_prepared_path: last_run_prepared
+output_dir: ./lora-out
+
+# logging and eval config
+logging_steps: 1
+eval_steps: 0.05
+
+# training performance optimization config
+bf16: auto
+tf32: false
+gradient_checkpointing: true
+
+# Optional wandb logging (uncomment to use)
+# wandb_project: llama-3.1-fine-tuning 
+# wandb_watch: all 
+
+###
+# Miscellaneous Configuration
+###
+
+# when true, prevents over-writing the config from the CLI
+strict: false
+
+# "Don't mess with this, it's here for accelerate and torchrun" -- axolotl docs
+local_rank:
+
