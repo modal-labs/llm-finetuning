@@ -1,6 +1,5 @@
 import os
 import time
-import yaml
 from pathlib import Path
 
 import modal
@@ -21,6 +20,7 @@ with vllm_image.imports():
     from vllm.engine.async_llm_engine import AsyncLLMEngine
     from vllm.sampling_params import SamplingParams
     from vllm.utils import random_uuid
+    import yaml
 
 
 def get_model_path_from_run(path: Path) -> Path:
