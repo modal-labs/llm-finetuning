@@ -23,7 +23,6 @@ SINGLE_GPU_CONFIG = os.environ.get("GPU_CONFIG", "a10g:1")
     gpu=GPU_CONFIG,
     volumes=VOLUME_CONFIG,
     timeout=24 * HOURS,
-    _allow_background_volume_commits=True,
 )
 def train(run_folder: str, output_dir: str):
     import torch
@@ -48,7 +47,6 @@ def train(run_folder: str, output_dir: str):
     gpu=SINGLE_GPU_CONFIG,
     volumes=VOLUME_CONFIG,
     timeout=24 * HOURS,
-    _allow_background_volume_commits=True,
 )
 def preproc_data(run_folder: str):
     print("Preprocessing data.")
