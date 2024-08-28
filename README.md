@@ -1,6 +1,6 @@
 # Fine-tune any LLM in minutes (ft. Mixtral, LLaMA, Mistral)
 
-This guide will show you how to fine-tune any LLM quickly using [`modal`](https://github.com/modal-labs/modal-client) and [`axolotl`](https://github.com/OpenAccess-AI-Collective/axolotl).
+This guide will show you how to fine-tune any LLM quickly using [`modal`](https://github.com/modal-labs/modal-client) and [`axolotl`](https://github.com/axolotl-ai-cloud/axolotl).
 
 ## Serverless `axolotl`
 
@@ -15,7 +15,7 @@ or hundreds of A100 or A10G instances running production inference.
 
 Our sample configurations use many of the recommended, state-of-the-art optimizations for efficient, performant training that `axolotl` supports, including:
 
-- [**Deepspeed ZeRO**](https://deepspeed.ai) to utilize multiple GPUs during training, according to a strategy you configure.
+- [**Deepspeed ZeRO**](https://www.deepspeed.ai/) to utilize multiple GPUs during training, according to a strategy you configure.
 - [**LoRA Adapters**]() for fast, parameter-efficient fine-tuning.
 - [**Flash attention**](https://github.com/Dao-AILab/flash-attention) for fast and memory-efficient attention calculations during training.
 
@@ -77,7 +77,7 @@ curl https://YOUR_MODAL_USERNAME--example-axolotl-inference-web.modal.run?input=
 ## Inspecting Flattened Data
 
 One of the key features of axolotl is that it flattens your data from a JSONL file into a prompt template format you specify in the config.
-Tokenization and prompt templating are [where most mistakes are made when fine-tuning](https://hamel.dev/notes/llm/05_tokenizer_gotchas.html).
+Tokenization and prompt templating are [where most mistakes are made when fine-tuning](https://hamel.dev/notes/llm/finetuning/05_tokenizer_gotchas.html).
 
 We strongly recommend that you always inspect your data the first time you fine-tune a model on a new dataset.
 
@@ -103,7 +103,7 @@ The `inference.py` file includes a [vLLM](https://modal.com/docs/examples/vllm_i
 
 ### Configuration
 
-You can view some example configurations in `config` for a quick start with different models. See an overview of `axolotl`'s config options [here](https://github.com/OpenAccess-AI-Collective/axolotl#config).
+You can view some example configurations in `config` for a quick start with different models. See an overview of `axolotl`'s config options [here](https://github.com/axolotl-ai-cloud/axolotl#config).
 
 The most important options to consider are:
 
@@ -113,7 +113,7 @@ The most important options to consider are:
 base_model: mistralai/Mistral-7B-v0.1
 ```
 
-**Dataset** (You can see all dataset options [here](https://github.com/OpenAccess-AI-Collective/axolotl#dataset))
+**Dataset** (You can see all dataset options [here](https://github.com/axolotl-ai-cloud/axolotl#dataset))
 
 ```yaml
 datasets:
@@ -145,7 +145,7 @@ lora_target_linear: true # target all linear layers
 
 **Custom Datasets**
 
-`axolotl` supports [many dataset formats](https://github.com/OpenAccess-AI-Collective/axolotl#dataset). We recommend adding your custom dataset as a `.jsonl` file in the `data` folder and making the appropriate modifications to your config.
+`axolotl` supports [many dataset formats](https://github.com/axolotl-ai-cloud/axolotl#dataset). We recommend adding your custom dataset as a `.jsonl` file in the `data` folder and making the appropriate modifications to your config.
 
 **Logging with Weights and Biases**
 
@@ -164,7 +164,7 @@ ALLOW_WANDB=true modal run --detach src.train --config=... --data=...
 
 ### Multi-GPU training
 
-We recommend [DeepSpeed](https://github.com/microsoft/DeepSpeed) for multi-GPU training, which is easy to set up. `axolotl` provides several default deepspeed JSON [configurations](https://github.com/OpenAccess-AI-Collective/axolotl/tree/main/deepspeed) and Modal makes it easy to [attach multiple GPUs](https://modal.com/docs/guide/gpu#gpu-acceleration) of any type in code, so all you need to do is specify which of these configs you'd like to use.
+We recommend [DeepSpeed](https://github.com/microsoft/DeepSpeed) for multi-GPU training, which is easy to set up. `axolotl` provides several default deepspeed JSON [configurations](https://github.com/axolotl-ai-cloud/axolotl/tree/main/deepspeed_configs) and Modal makes it easy to [attach multiple GPUs](https://modal.com/docs/guide/gpu#gpu-acceleration) of any type in code, so all you need to do is specify which of these configs you'd like to use.
 
 First edit the DeepSpeed config in your `.yml`:
 
