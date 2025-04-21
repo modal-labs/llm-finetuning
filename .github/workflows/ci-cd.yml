@@ -17,11 +17,9 @@ jobs:
           "pythia",
           "codellama",
           "llama-3",
-          "mistral-memorize",
+          "mistral-memorize"
           ]
     env:
-      MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
-      MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
       MODAL_ENVIRONMENT: ci-llm-finetuning
       ALLOW_WANDB: "true"
 
@@ -47,6 +45,9 @@ jobs:
           cat config/${{ matrix.config }}.yml
 
       - name: Run training job on Modal
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
         run: |
           modal run src.train --config=config/${{ matrix.config }}.yml --data=data/sqlqa.subsample.jsonl
 
