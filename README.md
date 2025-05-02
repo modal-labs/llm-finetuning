@@ -16,7 +16,7 @@ or hundreds of A100 or A10G instances running production inference.
 Our sample configurations use many of the recommended, state-of-the-art optimizations for efficient, performant training that `axolotl` supports, including:
 
 - [**Deepspeed ZeRO**](https://www.deepspeed.ai/) to utilize multiple GPUs during training, according to a strategy you configure.
-- [**LoRA Adapters**]() for fast, parameter-efficient fine-tuning.
+- [**LoRA Adapters**](https://arxiv.org/abs/2106.09685) for fast, parameter-efficient fine-tuning.
 - [**Flash attention**](https://github.com/Dao-AILab/flash-attention) for fast and memory-efficient attention calculations during training.
 
 ## Quickstart
@@ -49,9 +49,10 @@ Inference on the fine-tuned model displays conformity to the output structure (`
    ```
 
 3. **Launch a finetuning job**:
+
    ```bash
    export ALLOW_WANDB=true  # if you're using Weights & Biases
-   modal run --detach src.train --config=config/mistral-memorize.yml --data=data/sqlqa.subsample.jsonl
+   modal run --detach -m src.train --config=config/mistral-memorize.yml --data=data/sqlqa.subsample.jsonl
    ```
 
 This example training script is opinionated in order to make it easy to get started. Feel free to adapt it to suit your needs.
@@ -60,7 +61,7 @@ This example training script is opinionated in order to make it easy to get star
 
 ```bash
 # run one test inference
-modal run -q src.inference --prompt "[INST] Using the schema context below, generate a SQL query that answers the question.
+modal run --quiet -m src.inference --prompt "[INST] Using the schema context below, generate a SQL query that answers the question.
 CREATE TABLE head (name VARCHAR, born_state VARCHAR, age VARCHAR)
 List the name, born state and age of the heads of departments ordered by name. [/INST]"
 # 🤖:  [SQL] SELECT name, born_state, age FROM head ORDER BY name [/SQL]  # or something like that!
@@ -107,13 +108,15 @@ You can view some example configurations in `config` for a quick start with diff
 
 The most important options to consider are:
 
-**Model**
+#### Model
 
 ```yaml
 base_model: mistralai/Mistral-7B-v0.1
 ```
 
-**Dataset** (You can see all dataset options [here](https://github.com/axolotl-ai-cloud/axolotl#dataset))
+#### Dataset
+
+You can see all dataset options [here](https://github.com/axolotl-ai-cloud/axolotl#dataset).
 
 ```yaml
 datasets:
@@ -133,7 +136,7 @@ datasets:
         {instruction} [/INST]
 ```
 
-**LoRA**
+#### LoRA
 
 ```yaml
 adapter: lora # for qlora, or leave blank for full finetune (requires much more GPU memory!)
@@ -143,11 +146,11 @@ lora_dropout: 0.05
 lora_target_linear: true # target all linear layers
 ```
 
-**Custom Datasets**
+#### Custom Datasets
 
 `axolotl` supports [many dataset formats](https://github.com/axolotl-ai-cloud/axolotl#dataset). We recommend adding your custom dataset as a `.jsonl` file in the `data` folder and making the appropriate modifications to your config.
 
-**Logging with Weights and Biases**
+#### Logging with Weights and Biases
 
 To track your training runs with Weights and Biases, add your `wandb` config information to your `config.yml`:
 
@@ -159,7 +162,7 @@ wandb_watch: gradients # track histograms of gradients
 and set the `ALLOW_WANDB` environment variable to `true` when launching your training job:
 
 ```bash
-ALLOW_WANDB=true modal run --detach src.train --config=... --data=...
+ALLOW_WANDB=true modal run --detach -m src.train --config=... --data=...
 ```
 
 ### Multi-GPU training
@@ -176,7 +179,7 @@ and then when you launch your training job,
 set the `GPU_CONFIG` environment variable to the GPU configuration you want to use:
 
 ```bash
-GPU_CONFIG=a100-80gb:4 modal run --detach src.train --config=... --data=...
+GPU_CONFIG=a100-80gb:4 modal run --detach -m src.train --config=... --data=...
 ```
 
 ### Finding and using your weights
@@ -200,7 +203,7 @@ By default, the Modal `axolotl` trainer automatically merges the LoRA adapter we
 
 The directory for a finished run will look like something this:
 
-```
+```bash
 $ modal volume ls example-runs-vol axo-2024-04-13-19-13-05-0fb0/
 
 Directory listing of 'axo-2024-04-13-19-13-05-0fb0/' in 'example-runs-vol'
@@ -216,12 +219,12 @@ Directory listing of 'axo-2024-04-13-19-13-05-0fb0/' in 'example-runs-vol'
 └────────────────────────────────────────────────┴──────┴───────────────────────────┴─────────┘
 ```
 
-The LoRA adapters are stored in `lora-out`. The merged weights are stored in `lora-out/merged `. Note that many inference frameworks can only load the merged weights!
+The LoRA adapters are stored in `lora-out`. The merged weights are stored in `lora-out/merged`. Note that many inference frameworks can only load the merged weights!
 
 To run inference with a model from a past training job, you can specify the run name via the command line:
 
 ```bash
-modal run -q src.inference --run-name=...
+modal run --quiet -m src.inference --run-name=...
 ```
 
 ## Common Errors

@@ -32,13 +32,12 @@ def get_model_path_from_run(path: Path) -> Path:
     gpu=INFERENCE_GPU_CONFIG,
     image=vllm_image,
     volumes=VOLUME_CONFIG,
-    allow_concurrent_inputs=30,
-    container_idle_timeout=15 * MINUTES,
+    scaledown_window=15 * MINUTES,
 )
+@modal.concurrent(max_inputs=30)
 class Inference:
-    def __init__(self, run_name: str = "", run_dir: str = "/runs") -> None:
-        self.run_name = run_name
-        self.run_dir = run_dir
+    run_name: str = modal.parameter()
+    run_dir: str = modal.parameter(default="/runs")
 
     @modal.enter()
     def init(self):
@@ -118,7 +117,7 @@ class Inference:
         output = [text async for text in self._stream(input)]
         return "".join(output)
 
-    @modal.web_endpoint()
+    @modal.fastapi_endpoint()
     async def web(self, input: str):
         return StreamingResponse(self._stream(input), media_type="text/event-stream")
 
@@ -143,7 +142,7 @@ def inference_main(run_name: str = "", prompt: str = ""):
         Colors.GREEN, Colors.BOLD, f"🧠: Querying model {run_name}", Colors.END, sep=""
     )
     response = ""
-    for chunk in Inference(run_name).completion.remote_gen(prompt):
+    for chunk in Inference(run_name=run_name).completion.remote_gen(prompt):
         response += chunk  # not streaming to avoid mixing with server logs
     print(Colors.BLUE, f"👤: {prompt}", Colors.END, sep="")
     print(Colors.GRAY, f"🤖: {response}", Colors.END, sep="")
