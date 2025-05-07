@@ -172,7 +172,7 @@ We recommend [DeepSpeed](https://github.com/microsoft/DeepSpeed) for multi-GPU t
 First edit the DeepSpeed config in your `.yml`:
 
 ```yaml
-deepspeed: /root/axolotl/deepspeed_configs/zero3_bf16.json
+deepspeed: /workspace/axolotl/deepspeed_configs/zero3_bf16.json
 ```
 
 and then when you launch your training job,
