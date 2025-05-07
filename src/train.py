@@ -23,7 +23,6 @@ SINGLE_GPU_CONFIG = os.environ.get("GPU_CONFIG", "a10g:1")
     gpu=GPU_CONFIG,
     volumes=VOLUME_CONFIG,
     timeout=24 * HOURS,
-    _allow_background_volume_commits=True,
 )
 def train(run_folder: str, output_dir: str):
     import torch
@@ -32,7 +31,7 @@ def train(run_folder: str, output_dir: str):
     print(f"Using {torch.cuda.device_count()} {torch.cuda.get_device_name()} GPU(s).")
 
     ALLOW_WANDB = os.environ.get("ALLOW_WANDB", "false").lower() == "true"
-    cmd = f"accelerate launch -m axolotl.cli.train ./config.yml {'--wandb_mode disabled' if not ALLOW_WANDB else ''}"
+    cmd = f"accelerate launch --num_processes {torch.cuda.device_count()} --num_machines 1 --mixed_precision no --dynamo_backend no -m axolotl.cli.train ./config.yml {'--wandb_mode disabled' if not ALLOW_WANDB else ''}"
     run_cmd(cmd, run_folder)
 
     # Kick off CPU job to merge the LoRA weights into base model.
@@ -48,7 +47,6 @@ def train(run_folder: str, output_dir: str):
     gpu=SINGLE_GPU_CONFIG,
     volumes=VOLUME_CONFIG,
     timeout=24 * HOURS,
-    _allow_background_volume_commits=True,
 )
 def preproc_data(run_folder: str):
     print("Preprocessing data.")
@@ -66,6 +64,7 @@ def preproc_data(run_folder: str):
 )
 def merge(run_folder: str, output_dir: str):
     import shutil
+    import torch
 
     output_path = Path(run_folder) / output_dir
     shutil.rmtree(output_path / "merged", ignore_errors=True)
@@ -73,7 +72,7 @@ def merge(run_folder: str, output_dir: str):
     with open(f"{run_folder}/config.yml"):
         print(f"Merge from {output_path}")
 
-    MERGE_CMD = f"accelerate launch -m axolotl.cli.merge_lora ./config.yml --lora_model_dir='{output_dir}'"
+    MERGE_CMD = f"accelerate launch --num_processes {torch.cuda.device_count()} --num_machines 1 --mixed_precision no --dynamo_backend no -m axolotl.cli.merge_lora ./config.yml --lora_model_dir='{output_dir}'"
     run_cmd(MERGE_CMD, run_folder)
 
     VOLUME_CONFIG["/runs"].commit()
@@ -148,7 +147,7 @@ def main(
     data: str,
     merge_lora: bool = True,
     preproc_only: bool = False,
-    run_to_resume: str = None,
+    run_to_resume: str = "",
 ):
     # Read config and data source files and pass their contents to the remote function.
     with open(config, "r") as cfg, open(data, "r") as dat:
@@ -169,7 +168,7 @@ def main(
     print(f"To inspect outputs, run `modal volume ls example-runs-vol {run_name}`")
     if not preproc_only:
         print(
-            f"To run sample inference, run `modal run -q src.inference --run-name {run_name}`"
+            f"To run sample inference, run `modal run --quiet -m src.inference --run-name {run_name}`"
         )
 
 

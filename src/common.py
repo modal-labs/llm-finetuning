@@ -45,7 +45,7 @@ vllm_image = (
 app = modal.App(
     APP_NAME,
     secrets=[
-        modal.Secret.from_name("huggingface"),
+        modal.Secret.from_name("my-huggingface-secret"),
         modal.Secret.from_dict({"ALLOW_WANDB": os.environ.get("ALLOW_WANDB", "false")}),
         *([modal.Secret.from_name("wandb")] if ALLOW_WANDB else []),
     ],
